@@ -235,8 +235,7 @@
             height: calc(100vh - 70px);
             display: flex;
             flex-direction: column;
-            padding: 40px 80px;
-            padding-bottom: 10px;
+            padding: 60px 80px 100px 80px;
             justify-content: space-between;
         }
 
@@ -343,8 +342,8 @@
 
         .weather-info-grid {
             display: flex;
-            gap: 20px;
-            align-items: center;
+            gap: 15px;
+            align-items: stretch;
             justify-content: flex-end;
             min-height: 48px;
         }
@@ -353,21 +352,27 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             justify-content: center;
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
         .weather-icon {
-            font-size: 32px;
-            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+            font-size: 20px;
+            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+            line-height: 1;
         }
 
         .weather-value {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 32px;
+            font-size: 18px;
             font-weight: 500;
             color: var(--text-primary);
             transition: color 1s ease;
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
         }
 
         /* Orta kısım - Ana içerik */
@@ -576,9 +581,9 @@
             .container { padding: 40px 50px; }
             .info-section { gap: 30px; }
             .info-value { font-size: 28px; min-height: 44px; }
-            .weather-info-grid { min-height: 44px; gap: 15px; }
-            .weather-icon { font-size: 28px; }
-            .weather-value { font-size: 28px; }
+            .weather-info-grid { min-height: 44px; gap: 12px; }
+            .weather-icon { font-size: 18px; }
+            .weather-value { font-size: 16px; }
         }
 
         @media (max-width: 768px) {
@@ -598,116 +603,49 @@
             }
             .info-value { font-size: 24px; min-height: 40px; }
             .weather-info-grid { 
-                gap: 10px; 
+                gap: 8px; 
                 min-height: 40px;
             }
-            .weather-icon { font-size: 24px; }
-            .weather-value { font-size: 24px; }
+            .weather-icon { font-size: 16px; }
+            .weather-value { font-size: 14px; }
         }
 
-        /* Bloomberg tarzı haber bandı */
-        .news-ticker {
+        /* Haber Bandı Stilleri */
+        .news-ticker-container {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 70px;
-            background: rgba(0, 0, 0, 0.75);
-            border-top: none;
+            background: linear-gradient(90deg, rgba(10, 22, 40, 0.95), rgba(26, 42, 66, 0.95));
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 15px 0;
+            overflow: hidden;
             z-index: 100;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
-        }
-
-        .news-ticker-label {
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-            color: var(--navy);
-            padding: 0 24px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-            font-weight: 600;
-            font-size: 13px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            flex-shrink: 0;
-            z-index: 2;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .news-ticker-content {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            height: 100%;
-        }
-
-        .news-ticker-scroll {
-            display: flex;
-            align-items: center;
-            height: 100%;
-            white-space: nowrap;
-            animation: scroll-news linear infinite;
         }
 
         .news-ticker {
-            height: 70px;
+            display: inline-block;
+            white-space: nowrap;
+            animation: scroll-left 75s linear infinite;
+            padding-left: 100%;
         }
 
-        .news-item {
-            height: 100%;
-            justify-content: center;
+        @keyframes scroll-left {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
         }
 
-        .news-item {
-            display: inline-flex;
-            flex-direction: column;
-            padding: 0 40px;
+        .news-ticker span {
             font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-            color: var(--cream);
-            border-right: 1px solid rgba(212, 175, 55, 0.3);
-            min-width: 300px;
-            max-width: 500px;
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--gold-light);
+            margin-right: 80px;
         }
 
-        .news-title {
-            font-size: 14px;
-            font-weight: 600;
+        .news-loading {
             color: var(--gold);
-            margin-bottom: 4px;
-            white-space: normal;
-        }
-
-        .news-description {
-            font-size: 12px;
-            font-weight: 300;
-            color: var(--cream);
-            opacity: 0.9;
-            white-space: normal;
-            line-height: 1.4;
-        }
-
-        .news-item:last-child {
-            border-right: none;
-        }
-
-        @keyframes scroll-news {
-            from {
-                transform: translateX(0);
-            }
-            to {
-                transform: translateX(-50%);
-            }
-        }
-
-        .news-ticker-scroll.paused {
-            animation-play-state: paused;
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -806,13 +744,10 @@
         </div>
     </div>
 
-    <!-- Bloomberg tarzı haber bandı -->
-    <div class="news-ticker">
-        <div class="news-ticker-label">News</div>
-        <div class="news-ticker-content">
-            <div class="news-ticker-scroll" id="news-ticker-scroll">
-                <div class="news-item">Loading news...</div>
-            </div>
+    <!-- Haber Bandı -->
+    <div class="news-ticker-container">
+        <div class="news-ticker" id="newsTicker">
+            <span class="news-loading">Loading breaking news...</span>
         </div>
     </div>
 
@@ -1224,148 +1159,55 @@
         // Her 10 dakikada bir hava durumu güncelle
         setInterval(updateWeather, 600000);
         
-        // Haber bandı yönetimi
-        let newsItems = [];
-        let newsScrollElement = null;
+        // NewsAPI Breaking News
+        const NEWS_API_KEY = 'ec32169c489e4e7e9a27d8a5941579a8';
+        const NEWS_UPDATE_INTERVAL = 960000; // 16 dakika (günde 90 istek)
 
-        // News API'den haberleri çek
-        async function fetchNews() {
+        async function fetchBreakingNews() {
             try {
-                // NewsAPI.org - Ücretsiz API key gerektirir
-                // API key'i localStorage'dan al veya varsayılan kullan
-                const apiKey = localStorage.getItem('news-api-key') || '';
+                const response = await fetch(
+                    `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&apiKey=${NEWS_API_KEY}`
+                );
                 
-                // Örnek haberler - Siyasi ve spor odaklı
-                const exampleNews = [
-                    {
-                        title: 'Global Summit: World leaders reach historic climate agreement',
-                        description: 'International delegates commit to carbon neutrality by 2050, marking a turning point in environmental policy'
-                    },
-                    {
-                        title: 'Championship Final: Record-breaking match draws millions',
-                        description: 'Historic sports event sets new viewership records as teams compete for world title'
-                    },
-                    {
-                        title: 'Diplomatic Breakthrough: Peace talks progress in conflict zones',
-                        description: 'International mediators report significant advances in ongoing peace negotiations'
-                    },
-                    {
-                        title: 'Olympic Games: Athletes break multiple world records',
-                        description: 'Historic performances mark one of the most successful games in recent history'
-                    },
-                    {
-                        title: 'Political Summit: Major powers discuss global security',
-                        description: 'World leaders convene to address pressing international security challenges'
-                    }
-                ];
-                
-                // Eğer API key varsa, gerçek haberleri çek
-                if (apiKey && apiKey.length > 0) {
-                    try {
-                        // Siyasi ve spor haberlerini ayrı ayrı çek
-                        const [politicsResponse, sportsResponse] = await Promise.all([
-                            fetch(`https://newsapi.org/v2/top-headlines?category=politics&pageSize=5&apiKey=${apiKey}`),
-                            fetch(`https://newsapi.org/v2/top-headlines?category=sports&pageSize=5&apiKey=${apiKey}`)
-                        ]);
-                        
-                        let allArticles = [];
-                        
-                        if (politicsResponse.ok) {
-                            const politicsData = await politicsResponse.json();
-                            if (politicsData.articles) {
-                                allArticles = [...allArticles, ...politicsData.articles];
-                            }
-                        }
-                        
-                        if (sportsResponse.ok) {
-                            const sportsData = await sportsResponse.json();
-                            if (sportsData.articles) {
-                                allArticles = [...allArticles, ...sportsData.articles];
-                            }
-                        }
-                        
-                        if (allArticles.length > 0) {
-                            newsItems = allArticles
-                                .filter(article => article.title && article.description)
-                                .map(article => ({
-                                    title: article.title.length > 80 ? article.title.substring(0, 80) + '...' : article.title,
-                                    description: article.description && article.description.length > 120 
-                                        ? article.description.substring(0, 120) + '...' 
-                                        : article.description || 'Read more about this developing story.'
-                                }))
-                                .slice(0, 10); // En fazla 10 haber
-                            
-                            // Eğer yeterli haber yoksa örnek haberleri ekle
-                            if (newsItems.length < 3) {
-                                newsItems = [...newsItems, ...exampleNews.slice(0, 5 - newsItems.length)];
-                            }
-                        } else {
-                            newsItems = exampleNews;
-                        }
-                    } catch (apiError) {
-                        console.log('News API fetch error, using example news');
-                        newsItems = exampleNews;
-                    }
+                if (response.ok) {
+                    const data = await response.json();
+                    const headlines = data.articles.map(article => 
+                        `🌍 Breaking: ${article.title} • 📰 ${article.source.name}`
+                    );
+                    updateNewsTicker(headlines);
+                    console.log('Breaking news updated successfully');
                 } else {
-                    // API key yoksa örnek haberleri kullan
-                    newsItems = exampleNews;
+                    console.error('News API error:', response.status);
+                    showDefaultNews();
                 }
-                
-                displayNews();
             } catch (error) {
-                console.log('News could not be loaded, using default news');
-                newsItems = [
-                    {
-                        title: 'Global News: Major developments in world affairs',
-                        description: 'Stay updated with the latest political and sports news from around the world'
-                    }
-                ];
-                displayNews();
+                console.error('Failed to fetch news:', error);
+                showDefaultNews();
             }
         }
 
-        // Haberleri göster
-        function displayNews() {
-            const scrollContainer = document.getElementById('news-ticker-scroll');
-            if (!scrollContainer || newsItems.length === 0) return;
-
-            // Mevcut içeriği temizle
-            scrollContainer.innerHTML = '';
-
-            // Haberleri iki kez ekle (sonsuz döngü için)
-            const allNews = [...newsItems, ...newsItems];
-            
-            allNews.forEach((news, index) => {
-                const newsItem = document.createElement('div');
-                newsItem.className = 'news-item';
-                
-                // Başlık
-                const title = document.createElement('div');
-                title.className = 'news-title';
-                title.textContent = news.title || news;
-                newsItem.appendChild(title);
-                
-                // Açıklama (eğer varsa)
-                if (news.description) {
-                    const description = document.createElement('div');
-                    description.className = 'news-description';
-                    description.textContent = news.description;
-                    newsItem.appendChild(description);
-                }
-                
-                scrollContainer.appendChild(newsItem);
-            });
-
-            // Animasyon süresini hesapla (içerik uzunluğuna göre)
-            const totalWidth = scrollContainer.scrollWidth;
-            const duration = totalWidth / 40; // 40px/saniye hız (daha yavaş, okunabilir)
-            scrollContainer.style.animationDuration = duration + 's';
+        function updateNewsTicker(headlines) {
+            const ticker = document.getElementById('newsTicker');
+            const newsHTML = headlines.map(headline => 
+                `<span>${headline}</span>`
+            ).join('');
+            ticker.innerHTML = newsHTML + newsHTML; // Çift ekle döngü için
         }
 
-        // Başlangıç
-        fetchNews();
-        // Her 10 dakikada bir haberleri güncelle
-        setInterval(fetchNews, 600000);
+        function showDefaultNews() {
+            const defaultNews = [
+                '🌍 Breaking: Global tech summit concludes with major announcements',
+                '📰 Sports: International championship draws record viewership',
+                '🌍 Breaking: Scientists announce breakthrough in renewable energy',
+                '📰 Business: Markets reach new heights amid positive forecasts',
+                '🌍 Breaking: Cultural festival attracts visitors from 50 countries'
+            ];
+            updateNewsTicker(defaultNews);
+        }
+
+        // Başlangıç ve güncelleme
+        fetchBreakingNews();
+        setInterval(fetchBreakingNews, NEWS_UPDATE_INTERVAL);
     </script>
 </body>
 </html>
