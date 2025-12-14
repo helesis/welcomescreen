@@ -4,7 +4,7 @@ A modern, elegant hotel TV welcome screen application with dynamic program sched
 
 ## Features
 
-### 🎨 Main Display (`voyage-sorgun-tv.html`)
+### 🎨 Main Display (`index.html`)
 - **Dynamic Greetings**: Time-based multilingual greetings (Turkish, German, Russian)
 - **Real-time Weather**: Weather conditions with marine data (wave height, wind speed, wind direction)
 - **Day/Night Theme**: Automatic theme switching based on time of day
@@ -44,7 +44,7 @@ git clone https://github.com/YOUR_USERNAME/voyage-homescreen.git
 cd voyage-homescreen
 ```
 
-2. Open `voyage-sorgun-tv.html` in a web browser or deploy to a web server.
+2. Open `index.html` in a web browser or deploy to a web server.
 
 3. (Optional) Configure News API:
    - Get a free API key from [NewsAPI.org](https://newsapi.org/)
@@ -54,7 +54,7 @@ cd voyage-homescreen
 
 ### Main Display
 
-Simply open `voyage-sorgun-tv.html` in a browser. The application will:
+Simply open `index.html` in a browser. The application will:
 - Automatically update date and time
 - Fetch weather data every 10 minutes
 - Update news ticker every 10 minutes
@@ -81,7 +81,7 @@ Simply open `voyage-sorgun-tv.html` in a browser. The application will:
 
 ```
 voyage-homescreen/
-├── voyage-sorgun-tv.html    # Main display application
+├── index.html                # Main display application
 ├── admin.html                # Admin panel for program management
 └── README.md                 # This file
 ```
