@@ -500,6 +500,12 @@
                         <button class="btn btn-small" onclick="addTimeSlot()">+ Saat Ekle</button>
                     </div>
                 </div>
+                <div class="control-group">
+                    <label class="control-label">&nbsp;</label>
+                    <button class="btn btn-small" onclick="generateAndLoadRandomPrograms()" style="background: var(--azure); color: var(--cream);">
+                        🎲 Generate Random Programs
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -589,20 +595,128 @@
             if (stored) {
                 timeSlots = JSON.parse(stored);
             } else {
-                // Varsayılan saatler
-                timeSlots = ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '20:00', '21:30', '23:00'];
+                // Varsayılan saatler - 10:00-17:00 arası her saat + akşam saatleri
+                timeSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '20:00', '21:30', '23:00'];
             }
+        }
+
+        // Random program isimleri
+        const dailyActivityNames = [
+            'Yoga Session', 'Beach Volleyball', 'Water Sports', 'Fitness Class', 'Tennis Tournament',
+            'Bocce Tournament', 'Table Tennis', 'Swimming Pool Games', 'Beach Football', 'Aqua Aerobics',
+            'Stretching Class', 'Beach Yoga', 'Volleyball Match', 'Fitness Training', 'Beach Games',
+            'Pool Activities', 'Morning Walk', 'Cycling Tour'
+        ];
+        
+        const kidsActivityNames = [
+            'Kids Games', 'Arts & Crafts', 'Painting Workshop', 'Treasure Hunt', 'Kids Disco',
+            'Story Time', 'Magic Show', 'Face Painting', 'Kids Yoga', 'Dance Class',
+            'Cooking Class', 'Science Experiments', 'Outdoor Games', 'Indoor Games', 'Music Time',
+            'Puppet Show', 'Balloon Art', 'Kids Theater'
+        ];
+        
+        const eveningKidsShowNames = [
+            'Kids Disco', 'Magic Show', 'Puppet Theater', 'Kids Talent Show', 'Storytelling Night',
+            'Kids Dance Party', 'Circus Show', 'Kids Karaoke'
+        ];
+        
+        const eveningShowNames = [
+            'Live Music', 'Dance Show', 'Cultural Performance', 'Jazz Night', 'Folk Dance',
+            'Singer Performance', 'Band Concert', 'Acoustic Night', 'Latin Dance', 'Turkish Night'
+        ];
+        
+        const afterShowNames = [
+            'DJ Performance', 'Karaoke Night', 'Dance Party', 'Night Club', 'Live DJ Set',
+            'Party Night', 'Disco Night', 'Music Night'
+        ];
+
+        // Random program oluştur
+        function generateRandomPrograms() {
+            const programs = {
+                'daily-activities': [],
+                'kids-activities': [],
+                'evening-kids-show': [],
+                'evening-show': [],
+                'after-show': []
+            };
+            
+            // Haftanın 7 günü için
+            for (let day = 1; day <= 7; day++) {
+                // Daily Activities: 10:00-17:00 arası her saat başı
+                for (let hour = 10; hour <= 17; hour++) {
+                    const randomActivity = dailyActivityNames[Math.floor(Math.random() * dailyActivityNames.length)];
+                    programs['daily-activities'].push({
+                        day: day,
+                        time: `${hour.toString().padStart(2, '0')}:00`,
+                        title: randomActivity
+                    });
+                }
+                
+                // Kids Activities: 10:00-17:00 arası her saat başı
+                for (let hour = 10; hour <= 17; hour++) {
+                    const randomActivity = kidsActivityNames[Math.floor(Math.random() * kidsActivityNames.length)];
+                    programs['kids-activities'].push({
+                        day: day,
+                        time: `${hour.toString().padStart(2, '0')}:00`,
+                        title: randomActivity
+                    });
+                }
+                
+                // Evening Kids Show: 20:00'de
+                const randomEveningKids = eveningKidsShowNames[Math.floor(Math.random() * eveningKidsShowNames.length)];
+                programs['evening-kids-show'].push({
+                    day: day,
+                    time: '20:00',
+                    title: randomEveningKids
+                });
+                
+                // Evening Show: 21:30'da
+                const randomEvening = eveningShowNames[Math.floor(Math.random() * eveningShowNames.length)];
+                programs['evening-show'].push({
+                    day: day,
+                    time: '21:30',
+                    title: randomEvening
+                });
+                
+                // After Show: 23:00'da
+                const randomAfter = afterShowNames[Math.floor(Math.random() * afterShowNames.length)];
+                programs['after-show'].push({
+                    day: day,
+                    time: '23:00',
+                    title: randomAfter
+                });
+            }
+            
+            return programs;
         }
 
         // Programları yükle
         function loadPrograms() {
             const stored = localStorage.getItem('voyage-programs');
-            if (stored) {
-                programsData = JSON.parse(stored);
+            if (stored && stored !== '{}' && stored.trim() !== '') {
+                try {
+                    const parsed = JSON.parse(stored);
+                    // Eğer programlar boşsa veya hiç program yoksa random programlar oluştur
+                    const hasPrograms = parsed && typeof parsed === 'object' && 
+                                      Object.values(parsed).some(arr => Array.isArray(arr) && arr.length > 0);
+                    if (hasPrograms) {
+                        programsData = parsed;
+                    } else {
+                        // Boş veya geçersiz data varsa random programlar oluştur
+                        programsData = generateRandomPrograms();
+                        localStorage.setItem('voyage-programs', JSON.stringify(programsData));
+                    }
+                } catch (e) {
+                    // Parse hatası varsa random programlar oluştur
+                    console.log('Error parsing programs, generating random:', e);
+                    programsData = generateRandomPrograms();
+                    localStorage.setItem('voyage-programs', JSON.stringify(programsData));
+                }
             } else {
-                Object.keys(CATEGORIES).forEach(category => {
-                    programsData[category] = [];
-                });
+                // Eğer program yoksa random programlar oluştur
+                programsData = generateRandomPrograms();
+                // Otomatik olarak kaydet
+                localStorage.setItem('voyage-programs', JSON.stringify(programsData));
             }
         }
 
@@ -767,6 +881,16 @@
                 addTimeSlot();
             }
         });
+
+        // Random programları oluştur ve yükle
+        function generateAndLoadRandomPrograms() {
+            if (confirm('This will replace all existing programs with random programs. Continue?')) {
+                programsData = generateRandomPrograms();
+                localStorage.setItem('voyage-programs', JSON.stringify(programsData));
+                renderTable();
+                showNotification('Random programs generated successfully!', 'success');
+            }
+        }
 
         // Başlangıç - Sadece login yapıldıysa çalışsın
         function initializeApp() {

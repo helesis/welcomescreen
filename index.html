@@ -284,7 +284,7 @@
             font-weight: 300;
             letter-spacing: 4px;
             color: var(--gold-light);
-            text-transform: uppercase;
+            text-transform: none;
             margin-left: 8px;
             opacity: 0.9;
         }
@@ -490,7 +490,7 @@
             font-size: 12px;
             font-weight: 300;
             letter-spacing: 2px;
-            text-transform: uppercase;
+            text-transform: none;
             color: var(--gold-light);
             opacity: 0.8;
             margin-bottom: 5px;
@@ -670,7 +670,7 @@
         <div class="top-bar">
             <div class="logo-section">
                 <div class="hotel-name">VOYAGE SORGUN</div>
-                <div class="hotel-tagline">Join the Happiness</div>
+                <div class="hotel-tagline">JOIN THE HAPPINESS</div>
             </div>
             
             <div class="info-section">
@@ -716,27 +716,27 @@
         <div class="bottom-bar">
             <div class="programs-section" id="programs-section">
                 <div class="program-card">
-                    <div class="program-category">Daily Activities</div>
+                    <div class="program-category">DAILY ACTIVITIES</div>
                     <div class="program-title" id="daily-activities">-</div>
                     <div class="program-time" id="daily-activities-time"></div>
             </div>
                 <div class="program-card">
-                    <div class="program-category">Kids Activities</div>
+                    <div class="program-category">KIDS ACTIVITIES</div>
                     <div class="program-title" id="kids-activities">-</div>
                     <div class="program-time" id="kids-activities-time"></div>
             </div>
                 <div class="program-card">
-                    <div class="program-category">Evening Kids Show</div>
+                    <div class="program-category">EVENING KIDS SHOW</div>
                     <div class="program-title" id="evening-kids-show">-</div>
                     <div class="program-time" id="evening-kids-show-time"></div>
             </div>
                 <div class="program-card">
-                    <div class="program-category">Evening Show</div>
+                    <div class="program-category">EVENING SHOW</div>
                     <div class="program-title" id="evening-show">-</div>
                     <div class="program-time" id="evening-show-time"></div>
             </div>
                 <div class="program-card">
-                    <div class="program-category">After Show</div>
+                    <div class="program-category">AFTER SHOW</div>
                     <div class="program-title" id="after-show">-</div>
                     <div class="program-time" id="after-show-time"></div>
             </div>
@@ -981,11 +981,11 @@
 
         // Program yönetimi
         const PROGRAM_CATEGORIES = {
-            'daily-activities': 'Daily Activities',
-            'kids-activities': 'Kids Activities',
-            'evening-kids-show': 'Evening Kids Show',
-            'evening-show': 'Evening Show',
-            'after-show': 'After Show'
+            'daily-activities': 'DAILY ACTIVITIES',
+            'kids-activities': 'KIDS ACTIVITIES',
+            'evening-kids-show': 'EVENING KIDS SHOW',
+            'evening-show': 'EVENING SHOW',
+            'after-show': 'AFTER SHOW'
         };
 
         const EVENING_CATEGORIES = ['evening-kids-show', 'evening-show', 'after-show'];
@@ -1001,42 +1001,61 @@
 
         // Varsayılan program verileri
         function getDefaultPrograms() {
-            const today = new Date();
-            const dayOfWeek = today.getDay(); // 0 = Pazar, 6 = Cumartesi
+            // Günlük aktiviteler - 10:00'dan 17:00'ye kadar her saat başı
+            const dailyActivities = [];
+            const kidsActivities = [];
+            const eveningKidsShow = [];
+            const eveningShow = [];
+            const afterShow = [];
             
-            // Örnek programlar - haftalık
+            // Haftanın 7 günü için programlar oluştur
+            for (let day = 1; day <= 7; day++) {
+                // Daily Activities: 10:00-17:00 arası her saat başı
+                for (let hour = 10; hour <= 17; hour++) {
+                    dailyActivities.push({
+                        day: day,
+                        time: `${hour.toString().padStart(2, '0')}:00`,
+                        title: 'Activity'
+                    });
+                }
+                
+                // Kids Activities: 10:00-17:00 arası her saat başı
+                for (let hour = 10; hour <= 17; hour++) {
+                    kidsActivities.push({
+                        day: day,
+                        time: `${hour.toString().padStart(2, '0')}:00`,
+                        title: 'Kids Activity'
+                    });
+                }
+                
+                // Evening Kids Show: Sadece 20:00'de günde bir defa
+                eveningKidsShow.push({
+                    day: day,
+                    time: '20:00',
+                    title: 'Evening Kids Show'
+                });
+                
+                // Evening Show: Günde bir defa (21:30)
+                eveningShow.push({
+                    day: day,
+                    time: '21:30',
+                    title: 'Evening Show'
+                });
+                
+                // After Show: Günde bir defa (23:00)
+                afterShow.push({
+                    day: day,
+                    time: '23:00',
+                    title: 'After Show'
+                });
+            }
+            
             return {
-                'daily-activities': [
-                    { day: 1, time: '10:00', title: 'Yoga Dersi' },
-                    { day: 1, time: '14:00', title: 'Su Sporları' },
-                    { day: 1, time: '16:00', title: 'Plaj Voleybolu' },
-                    { day: 2, time: '10:00', title: 'Fitness Dersi' },
-                    { day: 2, time: '14:00', title: 'Tenis Turnuvası' },
-                    { day: 3, time: '10:00', title: 'Yoga Dersi' },
-                    { day: 3, time: '15:00', title: 'Bocce Turnuvası' },
-                ],
-                'kids-activities': [
-                    { day: 1, time: '11:00', title: 'Çocuk Oyunları' },
-                    { day: 1, time: '15:00', title: 'El Sanatları' },
-                    { day: 2, time: '11:00', title: 'Çocuk Oyunları' },
-                    { day: 2, time: '15:00', title: 'Boyama Atölyesi' },
-                    { day: 3, time: '11:00', title: 'Çocuk Oyunları' },
-                ],
-                'evening-kids-show': [
-                    { day: 1, time: '20:00', title: 'Çocuk Disko' },
-                    { day: 2, time: '20:00', title: 'Sihirbaz Gösterisi' },
-                    { day: 3, time: '20:00', title: 'Çocuk Disko' },
-                ],
-                'evening-show': [
-                    { day: 1, time: '21:30', title: 'Canlı Müzik' },
-                    { day: 2, time: '21:30', title: 'Dans Gösterisi' },
-                    { day: 3, time: '21:30', title: 'Canlı Müzik' },
-                ],
-                'after-show': [
-                    { day: 1, time: '23:00', title: 'DJ Performansı' },
-                    { day: 2, time: '23:00', title: 'Karaoke Gecesi' },
-                    { day: 3, time: '23:00', title: 'DJ Performansı' },
-                ]
+                'daily-activities': dailyActivities,
+                'kids-activities': kidsActivities,
+                'evening-kids-show': eveningKidsShow,
+                'evening-show': eveningShow,
+                'after-show': afterShow
             };
         }
 
