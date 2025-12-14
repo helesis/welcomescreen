@@ -675,18 +675,41 @@
             padding: 15px 0;
             overflow: hidden;
             z-index: 100;
+            height: 70px;
+            display: flex;
+            align-items: center;
         }
 
         .news-ticker {
-            display: inline-block;
-            white-space: nowrap;
-            animation: scroll-left 75s linear infinite;
-            padding-left: 100%;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
         }
 
-        @keyframes scroll-left {
-            from { transform: translateX(0); }
-            to { transform: translateX(-100%); }
+        .news-item-container {
+            position: absolute;
+            width: calc(100% - 40px);
+            left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .news-item-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .news-item-container.slide-out {
+            opacity: 0;
+            transform: translateY(100%);
         }
 
         .news-ticker span {
@@ -694,7 +717,10 @@
             font-size: 16px;
             font-weight: 400;
             color: var(--gold-light);
-            margin-right: 80px;
+            text-align: center;
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 100%;
         }
 
         .news-loading {
@@ -1232,39 +1258,132 @@
         // Her 10 dakikada bir hava durumu güncelle
         setInterval(updateWeather, 600000);
         
-        // NewsAPI Breaking News
-        const NEWS_API_KEY = 'ec32169c489e4e7e9a27d8a5941579a8';
-        const NEWS_UPDATE_INTERVAL = 960000; // 16 dakika (günde 90 istek)
+        // Guardian API Breaking News
+        const GUARDIAN_API_KEY = '82e95f1d-52e8-41a8-8124-36e4dd61fa54';
+        const NEWS_UPDATE_INTERVAL = 600000; // 10 dakika (günde 144 istek)
 
+        // Zaman hesaplama fonksiyonu
+        function getTimeAgo(publishedAt) {
+            const now = new Date();
+            const published = new Date(publishedAt);
+            const diffMinutes = Math.floor((now - published) / 60000);
+            
+            if (diffMinutes < 60) return `${diffMinutes}m ago`;
+            if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
+            return `${Math.floor(diffMinutes / 1440)}d ago`;
+        }
+
+        // Guardian API'den breaking news
         async function fetchBreakingNews() {
             try {
                 const response = await fetch(
-                    `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&apiKey=${NEWS_API_KEY}`
+                    `https://content.guardianapis.com/search?` +
+                    `order-by=newest&` +
+                    `page-size=15&` +
+                    `api-key=${GUARDIAN_API_KEY}`
                 );
                 
                 if (response.ok) {
                     const data = await response.json();
-                    const headlines = data.articles.map(article => 
-                        `🌍 Breaking: ${article.title} • 📰 ${article.source.name}`
-                    );
-                    updateNewsTicker(headlines);
-                    console.log('Breaking news updated successfully');
+                    
+                    if (data.response.status === 'ok') {
+                        const headlines = data.response.results.map(article => {
+                            // Live blog ise özel işaretle
+                            const isLive = article.type === 'liveblog';
+                            const icon = isLive ? '🔴 LIVE' : '📰';
+                            
+                            const section = article.sectionName;
+                            const title = article.webTitle;
+                            const time = getTimeAgo(article.webPublicationDate);
+                            
+                            return `${icon} ${section}: ${title} • ${time}`;
+                        });
+                        
+                        updateNewsTicker(headlines);
+                        console.log('Guardian News loaded:', headlines.length);
+                    } else {
+                        console.error('Guardian API error:', data.response.status);
+                        showDefaultNews();
+                    }
                 } else {
-                    console.error('News API error:', response.status);
+                    console.error('Guardian API HTTP error:', response.status);
                     showDefaultNews();
                 }
             } catch (error) {
-                console.error('Failed to fetch news:', error);
+                console.error('Failed to fetch Guardian news:', error);
                 showDefaultNews();
             }
         }
 
+        let currentNewsIndex = 0;
+        let newsHeadlines = [];
+        let newsInterval = null;
+
         function updateNewsTicker(headlines) {
+            if (!headlines || headlines.length === 0) {
+                console.error('No headlines to display');
+                return;
+            }
+            
+            newsHeadlines = headlines;
+            currentNewsIndex = 0;
+            
+            // Mevcut interval'i temizle
+            if (newsInterval) {
+                clearInterval(newsInterval);
+            }
+            
+            // İlk haberi göster
+            displayCurrentNews();
+            
+            // Her 15 saniyede bir haber değiştir
+            newsInterval = setInterval(() => {
+                currentNewsIndex = (currentNewsIndex + 1) % newsHeadlines.length;
+                displayCurrentNews();
+            }, 15000);
+        }
+
+        function displayCurrentNews() {
             const ticker = document.getElementById('newsTicker');
-            const newsHTML = headlines.map(headline => 
-                `<span>${headline}</span>`
-            ).join('');
-            ticker.innerHTML = newsHTML + newsHTML; // Çift ekle döngü için
+            if (!ticker || newsHeadlines.length === 0) return;
+            
+            const currentNews = newsHeadlines[currentNewsIndex];
+            
+            // Eski container'ı bul
+            const oldContainer = ticker.querySelector('.news-item-container');
+            
+            if (oldContainer) {
+                // Eski haber aşağı kayarak çıksın
+                oldContainer.classList.remove('active');
+                oldContainer.classList.add('slide-out');
+                
+                // Eski container kaldırıldıktan sonra yeni haber gelsin
+                setTimeout(() => {
+                    oldContainer.remove();
+                    createAndShowNews(ticker, currentNews);
+                }, 500);
+            } else {
+                // İlk yükleme veya loading mesajı varsa direkt göster
+                ticker.innerHTML = '';
+                createAndShowNews(ticker, currentNews);
+            }
+        }
+
+        function createAndShowNews(ticker, newsText) {
+            // Yeni container oluştur
+            const newContainer = document.createElement('div');
+            newContainer.className = 'news-item-container';
+            
+            const newsSpan = document.createElement('span');
+            newsSpan.textContent = newsText;
+            newContainer.appendChild(newsSpan);
+            
+            ticker.appendChild(newContainer);
+            
+            // Yukarıdan aşağıya animasyonu başlat
+            setTimeout(() => {
+                newContainer.classList.add('active');
+            }, 50);
         }
 
         function showDefaultNews() {
@@ -1279,6 +1398,11 @@
         }
 
         // Başlangıç ve güncelleme
+        console.log('News API initialized:');
+        console.log('- Guardian API (5000 req/day limit)');
+        console.log('- Update interval: 10 minutes (144 req/day)');
+        console.log('- API Key: 82e95f1d-52e8-41a8-8124-36e4dd61fa54');
+        
         fetchBreakingNews();
         setInterval(fetchBreakingNews, NEWS_UPDATE_INTERVAL);
     </script>
