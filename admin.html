@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyage Sorgun - Program Yönetimi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #d4af37;
+            --gold-light: #e8d4a0;
+            --gold-dark: #b8962b;
+            --navy: #0a1628;
+            --navy-light: #1a2a42;
+            --cream: #faf8f5;
+            --azure: #4a90e2;
+            --azure-light: #7db3f5;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-weight: 300;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a42 50%, #0d1f3a 100%);
+            color: var(--cream);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: var(--gold-light);
+            letter-spacing: 2px;
+        }
+
+        .controls-section {
+            background: rgba(26, 42, 66, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: var(--gold-light);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .category-select {
+            background: rgba(10, 22, 40, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            padding: 10px 15px;
+            color: var(--cream);
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-size: 14px;
+            min-width: 200px;
+            cursor: pointer;
+        }
+
+        .category-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .time-manager {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .time-input-custom {
+            background: rgba(10, 22, 40, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            padding: 10px 15px;
+            color: var(--cream);
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-size: 14px;
+            width: 120px;
+        }
+
+        .time-input-custom:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn {
+            background: var(--gold);
+            color: var(--navy);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: var(--cream);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--cream);
+            padding: 15px 40px;
+            font-size: 16px;
+        }
+
+        .btn-success:hover {
+            background: #388e3c;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .excel-table-container {
+            background: rgba(26, 42, 66, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .excel-table th {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold);
+            font-weight: 500;
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 13px;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .excel-table th.day-header {
+            background: rgba(212, 175, 55, 0.2);
+            min-width: 120px;
+            font-weight: 600;
+        }
+
+        .excel-table th.time-header {
+            background: rgba(212, 175, 55, 0.15);
+            min-width: 100px;
+            position: relative;
+        }
+
+        .excel-table td.time-cell {
+            background: rgba(212, 175, 55, 0.1);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .excel-table td {
+            padding: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: rgba(10, 22, 40, 0.4);
+            transition: background 0.2s ease;
+        }
+
+        .excel-table td:hover {
+            background: rgba(10, 22, 40, 0.6);
+        }
+
+        .excel-table tr:hover td {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .cell-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--cream);
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-size: 13px;
+            padding: 6px 8px;
+            outline: none;
+            text-align: center;
+        }
+
+        .cell-input:focus {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: 4px;
+        }
+
+        .time-header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .time-remove-btn {
+            background: rgba(244, 67, 54, 0.3);
+            border: none;
+            color: var(--cream);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .time-header:hover .time-remove-btn {
+            opacity: 1;
+        }
+
+        .time-remove-btn:hover {
+            background: rgba(244, 67, 54, 0.6);
+        }
+
+        .save-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: var(--success);
+            color: var(--cream);
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-cell {
+            color: rgba(250, 248, 245, 0.3);
+            font-style: italic;
+        }
+
+        /* Login ekranı */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a42 50%, #0d1f3a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-box {
+            background: rgba(26, 42, 66, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 300;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .login-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .login-label {
+            font-size: 12px;
+            color: var(--gold-light);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .login-input {
+            background: rgba(10, 22, 40, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--cream);
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .login-error {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: -10px;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .login-btn {
+            background: var(--gold);
+            color: var(--navy);
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1200px) {
+            .excel-table {
+                font-size: 12px;
+            }
+            .excel-table th,
+            .excel-table td {
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Ekranı -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-box">
+            <div class="login-title">Admin Login</div>
+            <form class="login-form" id="login-form" onsubmit="handleLogin(event)">
+                <div class="login-input-group">
+                    <label class="login-label">Username</label>
+                    <input type="text" class="login-input" id="username" required autocomplete="username">
+                </div>
+                <div class="login-input-group">
+                    <label class="login-label">Password</label>
+                    <input type="password" class="login-input" id="password" required autocomplete="current-password">
+                </div>
+                <div class="login-error" id="login-error">Invalid username or password</div>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" id="main-container" style="display: none;">
+        <div class="header">
+            <h1>Program Yönetimi</h1>
+        </div>
+
+        <div class="controls-section">
+            <div class="controls-row">
+                <div class="control-group">
+                    <label class="control-label">Kategori Seç</label>
+                    <select class="category-select" id="category-select" onchange="switchCategory()">
+                        <option value="daily-activities">Daily Activities</option>
+                        <option value="kids-activities">Kids Activities</option>
+                        <option value="evening-kids-show">Evening Kids Show</option>
+                        <option value="evening-show">Evening Show</option>
+                        <option value="after-show">After Show</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Saat Ekle (HH:MM)</label>
+                    <div class="time-manager">
+                        <input type="text" class="time-input-custom" id="new-time-input" 
+                               placeholder="10:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$">
+                        <button class="btn btn-small" onclick="addTimeSlot()">+ Saat Ekle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="excel-table-container">
+            <table class="excel-table" id="excel-table">
+                <thead id="table-header"></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="save-section">
+            <button class="btn btn-success" onclick="saveAllPrograms()">Tüm Programları Kaydet</button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Login kontrolü
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'jojofurlong';
+
+        // Sayfa yüklendiğinde login kontrolü
+        function checkLogin() {
+            const isLoggedIn = sessionStorage.getItem('admin-logged-in') === 'true';
+            if (isLoggedIn) {
+                showMainContent();
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        function showLoginScreen() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('main-container').style.display = 'none';
+        }
+
+        function showMainContent() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-container').style.display = 'block';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('admin-logged-in', 'true');
+                errorDiv.classList.remove('show');
+                showMainContent();
+            } else {
+                errorDiv.classList.add('show');
+                document.getElementById('password').value = '';
+            }
+        }
+
+        // Sayfa yüklendiğinde login kontrolü
+        checkLogin();
+
+        const CATEGORIES = {
+            'daily-activities': 'Daily Activities',
+            'kids-activities': 'Kids Activities',
+            'evening-kids-show': 'Evening Kids Show',
+            'evening-show': 'Evening Show',
+            'after-show': 'After Show'
+        };
+
+        const DAYS = [
+            { num: 1, name: 'Monday' },
+            { num: 2, name: 'Tuesday' },
+            { num: 3, name: 'Wednesday' },
+            { num: 4, name: 'Thursday' },
+            { num: 5, name: 'Friday' },
+            { num: 6, name: 'Saturday' },
+            { num: 7, name: 'Sunday' }
+        ];
+
+        let programsData = {};
+        let timeSlots = [];
+        let currentCategory = 'daily-activities';
+
+        // Saat dilimlerini yükle
+        function loadTimeSlots() {
+            const stored = localStorage.getItem('voyage-time-slots');
+            if (stored) {
+                timeSlots = JSON.parse(stored);
+            } else {
+                // Varsayılan saatler
+                timeSlots = ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '20:00', '21:30', '23:00'];
+            }
+        }
+
+        // Programları yükle
+        function loadPrograms() {
+            const stored = localStorage.getItem('voyage-programs');
+            if (stored) {
+                programsData = JSON.parse(stored);
+            } else {
+                Object.keys(CATEGORIES).forEach(category => {
+                    programsData[category] = [];
+                });
+            }
+        }
+
+        // Saat ekle
+        function addTimeSlot() {
+            const input = document.getElementById('new-time-input');
+            const time = input.value.trim();
+            
+            if (!time) {
+                showNotification('Lütfen bir saat girin', 'error');
+                return;
+            }
+
+            // Saat formatını kontrol et (HH:MM)
+            const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+            if (!timeRegex.test(time)) {
+                showNotification('Geçerli bir saat formatı girin (HH:MM)', 'error');
+                return;
+            }
+
+            if (timeSlots.includes(time)) {
+                showNotification('Bu saat zaten ekli', 'error');
+                return;
+            }
+
+            timeSlots.push(time);
+            timeSlots.sort((a, b) => {
+                const [h1, m1] = a.split(':').map(Number);
+                const [h2, m2] = b.split(':').map(Number);
+                return (h1 * 60 + m1) - (h2 * 60 + m2);
+            });
+
+            localStorage.setItem('voyage-time-slots', JSON.stringify(timeSlots));
+            input.value = '';
+            renderTable();
+            showNotification('Saat eklendi', 'success');
+        }
+
+        // Saat sil
+        function removeTimeSlot(time) {
+            timeSlots = timeSlots.filter(t => t !== time);
+            localStorage.setItem('voyage-time-slots', JSON.stringify(timeSlots));
+            
+            // Bu saatteki tüm programları sil
+            Object.keys(programsData).forEach(category => {
+                programsData[category] = programsData[category].filter(p => p.time !== time);
+            });
+            
+            renderTable();
+            showNotification('Saat silindi', 'success');
+        }
+
+        // Kategori değiştir
+        function switchCategory() {
+            currentCategory = document.getElementById('category-select').value;
+            renderTable();
+        }
+
+        // Tabloyu render et
+        function renderTable() {
+            const header = document.getElementById('table-header');
+            const body = document.getElementById('table-body');
+            
+            // Header oluştur - İlk sütun boş, sonra günler
+            header.innerHTML = '<tr><th class="time-header">Time / Day</th>';
+            DAYS.forEach(day => {
+                header.innerHTML += `<th class="day-header">${day.name}</th>`;
+            });
+            header.innerHTML += '</tr>';
+
+            // Body oluştur - Saatler satırlarda
+            body.innerHTML = '';
+            timeSlots.forEach(time => {
+                const row = document.createElement('tr');
+                
+                // İlk sütun: Saat
+                const timeCell = document.createElement('td');
+                timeCell.className = 'time-cell';
+                timeCell.innerHTML = `
+                    <div class="time-header-content">
+                        ${time}
+                        <button class="time-remove-btn" onclick="removeTimeSlot('${time}')" title="Saat sil">×</button>
+                    </div>
+                `;
+                row.appendChild(timeCell);
+                
+                // Diğer sütunlar: Günler
+                DAYS.forEach(day => {
+                    const cell = document.createElement('td');
+                    const program = getProgram(day.num, time);
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'cell-input';
+                    input.value = program ? program.title : '';
+                    input.placeholder = '-';
+                    input.onchange = () => updateCell(day.num, time, input.value);
+                    input.onblur = () => updateCell(day.num, time, input.value);
+                    cell.appendChild(input);
+                    row.appendChild(cell);
+                });
+                
+                body.appendChild(row);
+            });
+        }
+
+        // Program getir
+        function getProgram(day, time) {
+            const categoryPrograms = programsData[currentCategory] || [];
+            return categoryPrograms.find(p => p.day === day && p.time === time);
+        }
+
+        // Hücre güncelle
+        function updateCell(day, time, title) {
+            if (!programsData[currentCategory]) {
+                programsData[currentCategory] = [];
+            }
+
+            const existingIndex = programsData[currentCategory].findIndex(
+                p => p.day === day && p.time === time
+            );
+
+            if (title && title.trim()) {
+                const program = {
+                    day: day,
+                    time: time,
+                    title: title.trim()
+                };
+
+                if (existingIndex >= 0) {
+                    programsData[currentCategory][existingIndex] = program;
+                } else {
+                    programsData[currentCategory].push(program);
+                }
+            } else {
+                // Boşsa sil
+                if (existingIndex >= 0) {
+                    programsData[currentCategory].splice(existingIndex, 1);
+                }
+            }
+        }
+
+        // Tüm programları kaydet
+        function saveAllPrograms() {
+            localStorage.setItem('voyage-programs', JSON.stringify(programsData));
+            showNotification('Tüm programlar başarıyla kaydedildi!', 'success');
+        }
+
+        // Bildirim göster
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Enter tuşu ile saat ekle
+        document.getElementById('new-time-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTimeSlot();
+            }
+        });
+
+        // Başlangıç - Sadece login yapıldıysa çalışsın
+        function initializeApp() {
+            loadTimeSlots();
+            loadPrograms();
+            renderTable();
+        }
+
+        // Sayfa yüklendiğinde login kontrolü
+        if (sessionStorage.getItem('admin-logged-in') === 'true') {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
