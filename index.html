@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="600">
     <title>Voyage Sorgun - Hoş Geldiniz</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -832,6 +833,41 @@
     </div>
 
     <script>
+        // Disable console logs in production
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            console.log = () => {};
+            console.error = () => {};
+            console.warn = () => {};
+        }
+
+        // Interval storage for cleanup
+        let dateTimeInterval = null;
+        let greetingInterval = null;
+        let themeInterval = null;
+        let programsInterval = null;
+        let weatherInterval = null;
+        let newsFetchInterval = null;
+
+        // Cleanup function
+        function cleanup() {
+            if (dateTimeInterval) clearInterval(dateTimeInterval);
+            if (greetingInterval) clearInterval(greetingInterval);
+            if (themeInterval) clearInterval(themeInterval);
+            if (programsInterval) clearInterval(programsInterval);
+            if (weatherInterval) clearInterval(weatherInterval);
+            if (newsFetchInterval) clearInterval(newsFetchInterval);
+            if (newsInterval) clearInterval(newsInterval);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', cleanup);
+
+        // Auto-refresh fallback (10 minutes = 600000ms)
+        // Meta tag handles refresh, but this is a backup
+        setTimeout(() => {
+            location.reload();
+        }, 10 * 60 * 1000);
+
         // Yıldızlar oluştur
         function createStars() {
             const starsContainer = document.getElementById('stars');
@@ -1230,7 +1266,13 @@
                 if (program) {
                     titleElement.textContent = program.title;
                     titleElement.classList.remove('program-empty');
-                    timeElement.innerHTML = `<span class="program-time-icon">🕐</span> ${program.time}`;
+                    // Use textContent for better performance, create icon separately
+                    const iconSpan = document.createElement('span');
+                    iconSpan.className = 'program-time-icon';
+                    iconSpan.textContent = '🕐';
+                    timeElement.textContent = '';
+                    timeElement.appendChild(iconSpan);
+                    timeElement.appendChild(document.createTextNode(' ' + program.time));
                 } else {
                     titleElement.textContent = 'No program';
                     titleElement.classList.add('program-empty');
@@ -1247,16 +1289,16 @@
         updateWeather();
         displayPrograms();
         
-        // Her dakika güncelle
-        setInterval(updateDateTime, 60000);
+        // Her dakika güncelle (stored for cleanup)
+        dateTimeInterval = setInterval(updateDateTime, 60000);
         // Her dakika selamlama güncelle
-        setInterval(updateGreeting, 60000);
+        greetingInterval = setInterval(updateGreeting, 60000);
         // Her dakika tema kontrolü
-        setInterval(updateTheme, 60000);
+        themeInterval = setInterval(updateTheme, 60000);
         // Her dakika programları güncelle
-        setInterval(displayPrograms, 60000);
+        programsInterval = setInterval(displayPrograms, 60000);
         // Her 10 dakikada bir hava durumu güncelle
-        setInterval(updateWeather, 600000);
+        weatherInterval = setInterval(updateWeather, 600000);
         
         // Guardian API Breaking News
         const GUARDIAN_API_KEY = '82e95f1d-52e8-41a8-8124-36e4dd61fa54';
@@ -1279,7 +1321,7 @@
                 const response = await fetch(
                     `https://content.guardianapis.com/search?` +
                     `order-by=newest&` +
-                    `page-size=15&` +
+                    `page-size=5&` +
                     `api-key=${GUARDIAN_API_KEY}`
                 );
                 
@@ -1325,7 +1367,8 @@
                 return;
             }
             
-            newsHeadlines = headlines;
+            // Limit to 5 items max to reduce memory usage
+            newsHeadlines = headlines.slice(0, 5);
             currentNewsIndex = 0;
             
             // Mevcut interval'i temizle
@@ -1404,7 +1447,7 @@
         console.log('- API Key: 82e95f1d-52e8-41a8-8124-36e4dd61fa54');
         
         fetchBreakingNews();
-        setInterval(fetchBreakingNews, NEWS_UPDATE_INTERVAL);
+        newsFetchInterval = setInterval(fetchBreakingNews, NEWS_UPDATE_INTERVAL);
     </script>
 </body>
 </html>
