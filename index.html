@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="600">
     <title>Voyage Sorgun - Hoş Geldiniz</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Allura&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,9 +14,9 @@
         }
 
         :root {
-            --gold: #d4af37;
-            --gold-light: #e8d4a0;
-            --gold-dark: #b8962b;
+            --gold: #000000;
+            --gold-light: #1a1a1a;
+            --gold-dark: #333333;
             --navy: #0a1628;
             --navy-light: #1a2a42;
             --cream: #faf8f5;
@@ -29,7 +29,7 @@
             --bg-tertiary: #0d1f3a;
             --text-primary: #faf8f5;
             --card-bg: rgba(26, 42, 66, 0.4);
-            --border-color: rgba(212, 175, 55, 0.2);
+            --border-color: rgba(0, 0, 0, 0.6);
             --wave-opacity: 0.1;
         }
 
@@ -40,7 +40,7 @@
             --bg-tertiary: #dae8f0;
             --text-primary: #1a2a42;
             --card-bg: rgba(255, 255, 255, 0.85);
-            --border-color: rgba(212, 175, 55, 0.5);
+            --border-color: rgba(0, 0, 0, 0.8);
             --wave-opacity: 0.2;
         }
         
@@ -66,172 +66,6 @@
             align-items: center;
         }
 
-        /* Animasyonlu arkaplan */
-        .background-animation {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        /* Yağmur efekti */
-        .rain {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 4;
-        }
-
-        .raindrop {
-            position: absolute;
-            width: 2px;
-            height: 20px;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            to {
-                transform: translateY(100vh);
-            }
-        }
-
-        /* Kar efekti */
-        .snow {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 4;
-        }
-
-        .snowflake {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1em;
-            animation: snowfall linear infinite;
-        }
-
-        @keyframes snowfall {
-            0% {
-                transform: translateY(-100vh) translateX(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) translateX(100px) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        /* Sis efekti */
-        .fog {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: fogMove 20s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 3;
-        }
-
-        @keyframes fogMove {
-            0%, 100% {
-                transform: translateX(0) translateY(0);
-                opacity: 0.3;
-            }
-            50% {
-                transform: translateX(-50px) translateY(-30px);
-                opacity: 0.5;
-            }
-        }
-
-        /* Fırtına efekti */
-        .lightning {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: rgba(255, 255, 255, 0);
-            pointer-events: none;
-            z-index: 5;
-            animation: lightningFlash 3s infinite;
-        }
-
-        @keyframes lightningFlash {
-            0%, 90%, 100% {
-                background: rgba(255, 255, 255, 0);
-            }
-            92%, 94%, 96% {
-                background: rgba(255, 255, 255, 0.3);
-            }
-        }
-
-        .wave {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 200%;
-            height: 100%;
-            background: linear-gradient(180deg, transparent 0%, rgba(74, 144, 226, calc(var(--wave-opacity) * 0.5)) 50%, rgba(74, 144, 226, var(--wave-opacity)) 100%);
-            animation: wave 25s ease-in-out infinite;
-            transition: background 1s ease;
-        }
-
-        .wave:nth-child(2) {
-            animation: wave 20s ease-in-out infinite reverse;
-            opacity: 0.5;
-            background: linear-gradient(180deg, transparent 0%, rgba(212, 175, 55, calc(var(--wave-opacity) * 0.3)) 50%, rgba(212, 175, 55, calc(var(--wave-opacity) * 0.8)) 100%);
-            transition: background 1s ease;
-        }
-
-        .wave:nth-child(3) {
-            animation: wave 30s ease-in-out infinite;
-            opacity: 0.3;
-        }
-
-        @keyframes wave {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            50% { transform: translateX(-25%) translateY(-20px); }
-        }
-
-        /* Yıldızlar efekti */
-        .stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            opacity: 1;
-            transition: opacity 1s ease;
-        }
-
-        body.day-theme .stars {
-            opacity: 0.2;
-        }
-
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            animation: twinkle 3s ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
-        }
 
         /* Ana container */
         .container {
@@ -270,17 +104,18 @@
         }
 
         .hotel-name {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Montserrat', 'Gotham', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
             font-size: clamp(36px, 3.75vw, 72px);
             font-weight: 300;
             letter-spacing: clamp(4px, 0.417vw, 8px);
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-transform: uppercase;
             line-height: 1;
             animation: shimmer 3s ease-in-out infinite;
+            display: inline-block;
         }
 
         @keyframes shimmer {
@@ -289,14 +124,16 @@
         }
 
         .hotel-tagline {
-            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-            font-size: clamp(12px, 0.833vw, 16px);
-            font-weight: 300;
+            font-family: 'Allura', cursive;
+            font-size: clamp(20px, 1.5vw, 28px);
+            font-weight: 400;
             letter-spacing: clamp(2px, 0.208vw, 4px);
             color: var(--gold-light);
             text-transform: none;
             margin-left: clamp(4px, 0.417vw, 8px);
             opacity: 0.9;
+            display: inline-block;
+            text-align: left;
         }
 
         .info-section {
@@ -370,7 +207,7 @@
 
         .weather-icon {
             font-size: clamp(14px, 1.042vw, 20px);
-            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+            filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.7));
             line-height: 1;
         }
 
@@ -418,7 +255,7 @@
             letter-spacing: clamp(3px, 0.313vw, 6px);
             color: var(--text-primary);
             margin-bottom: clamp(5px, 0.521vw, 10px);
-            text-shadow: 0 4px 30px rgba(212, 175, 55, 0.3);
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
             transition: color 1s ease;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -487,9 +324,9 @@
         .program-card:nth-child(5) { animation-delay: 1.8s; }
 
         .program-card:hover {
-            border-color: rgba(212, 175, 55, 0.5);
+            border-color: rgba(0, 0, 0, 0.8);
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         @keyframes fadeInUp {
@@ -540,41 +377,6 @@
             font-style: italic;
         }
 
-        /* Glow efekti */
-        .glow {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
-            filter: blur(60px);
-            animation: moveGlow 20s ease-in-out infinite;
-            z-index: 3;
-            transition: background 1s ease, opacity 1s ease;
-        }
-
-        body.day-theme .glow {
-            background: radial-gradient(circle, rgba(74, 144, 226, 0.2) 0%, transparent 70%);
-            opacity: 0.6;
-        }
-
-        .glow:nth-child(1) {
-            top: -200px;
-            left: -200px;
-        }
-
-        .glow:nth-child(2) {
-            bottom: -200px;
-            right: -200px;
-            animation-delay: 10s;
-        }
-
-        @keyframes moveGlow {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(100px, -100px); }
-            50% { transform: translate(-100px, 100px); }
-            75% { transform: translate(100px, 100px); }
-        }
 
         /* Responsive için basit ayarlar - Aspect ratio korunuyor */
         @media (min-width: 1921px) {
@@ -672,7 +474,7 @@
             left: 0;
             width: 100%;
             background: linear-gradient(90deg, rgba(10, 22, 40, 0.95), rgba(26, 42, 66, 0.95));
-            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            border-top: 1px solid rgba(0, 0, 0, 0.6);
             padding: 15px 0;
             overflow: hidden;
             z-index: 100;
@@ -717,7 +519,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
             font-size: 16px;
             font-weight: 400;
-            color: var(--gold-light);
+            color: #ffffff;
             text-align: center;
             white-space: normal;
             word-wrap: break-word;
@@ -725,33 +527,19 @@
         }
 
         .news-loading {
-            color: var(--gold);
+            color: #ffffff;
             opacity: 0.6;
         }
     </style>
 </head>
 <body>
-    <!-- Arkaplan animasyonları -->
-    <div class="background-animation">
-        <div class="wave"></div>
-        <div class="wave"></div>
-        <div class="wave"></div>
-        <div class="glow"></div>
-        <div class="glow"></div>
-        <div class="stars" id="stars"></div>
-        <div class="rain" id="rain"></div>
-        <div class="snow" id="snow"></div>
-        <div class="fog" id="fog" style="display: none;"></div>
-        <div class="lightning" id="lightning" style="display: none;"></div>
-    </div>
-
     <!-- Ana içerik -->
     <div class="container">
         <!-- Üst bar -->
         <div class="top-bar">
             <div class="logo-section">
                 <div class="hotel-name">VOYAGE SORGUN</div>
-                <div class="hotel-tagline">JOIN THE HAPPINESS</div>
+                <div class="hotel-tagline">Join the happiness</div>
             </div>
             
             <div class="info-section">
@@ -868,19 +656,6 @@
             location.reload();
         }, 10 * 60 * 1000);
 
-        // Yıldızlar oluştur
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 50; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                starsContainer.appendChild(star);
-            }
-        }
-
         // Selamlama mesajı güncelle
         function updateGreeting() {
             const now = new Date();
@@ -888,19 +663,35 @@
             const greetingElement = document.getElementById('greeting');
             const translationsElement = document.getElementById('greeting-translations');
             
+            // Her kelimenin ilk harfini büyük yapan fonksiyon
+            function capitalizeWords(str) {
+                return str.split(' • ').map(phrase => {
+                    return phrase.split(' ').map(word => {
+                        if (word.length === 0) return word;
+                        // İlk karakteri büyük, geri kalanını küçük yap
+                        const firstChar = word.charAt(0);
+                        const rest = word.slice(1);
+                        // Unicode-safe büyük/küçük harf dönüşümü
+                        const upperFirst = firstChar.toLocaleUpperCase('tr-TR');
+                        const lowerRest = rest.toLocaleLowerCase('tr-TR');
+                        return upperFirst + lowerRest;
+                    }).join(' ');
+                }).join(' • ');
+            }
+            
             let greeting, translations;
             if (hour >= 5 && hour < 12) {
                 greeting = 'Good Morning';
-                translations = 'Günaydın • Guten Morgen • Доброе утро';
+                translations = capitalizeWords('günaydın • guten morgen • доброе утро');
             } else if (hour >= 12 && hour < 17) {
                 greeting = 'Good Afternoon';
-                translations = 'Tünaydın • Guten Tag • Добрый день';
+                translations = capitalizeWords('tünaydın • guten tag • добрый день');
             } else if (hour >= 17 && hour < 22) {
                 greeting = 'Good Evening';
-                translations = 'İyi Akşamlar • Guten Abend • Добрый вечер';
+                translations = capitalizeWords('iyi akşamlar • guten abend • добрый вечер');
             } else {
                 greeting = 'Good Night';
-                translations = 'İyi Geceler • Gute Nacht • Спокойной ночи';
+                translations = capitalizeWords('iyi geceler • gute nacht • спокойной ночи');
             }
             
             greetingElement.textContent = greeting;
@@ -995,9 +786,6 @@
                     // Rüzgar hızı
                     document.getElementById('wind-speed').textContent = 
                         `${Math.round(windSpeed)} km/h`;
-                    
-                    // Hava durumuna göre efektleri güncelle
-                    updateWeatherEffects(weatherCode);
                 }
                 
                 if (marineResponse.ok) {
@@ -1015,83 +803,6 @@
                 document.getElementById('weather-icon').textContent = '☀️';
                 document.getElementById('wave-height').textContent = '0.3m';
                 document.getElementById('wind-speed').textContent = '12 km/h';
-                // Varsayılan olarak efektleri temizle
-                clearWeatherEffects();
-            }
-        }
-
-        // Hava durumuna göre efektleri güncelle
-        function updateWeatherEffects(weatherCode) {
-            // Önce tüm efektleri temizle
-            clearWeatherEffects();
-            
-            // Yağmur kodları: 51, 53, 55, 61, 63, 65, 80, 81, 82
-            const rainCodes = [51, 53, 55, 61, 63, 65, 80, 81, 82];
-            if (rainCodes.includes(weatherCode)) {
-                createRain();
-            }
-            
-            // Kar kodları: 71, 73, 75, 77, 85, 86
-            const snowCodes = [71, 73, 75, 77, 85, 86];
-            if (snowCodes.includes(weatherCode)) {
-                createSnow();
-            }
-            
-            // Sis kodları: 45, 48
-            const fogCodes = [45, 48];
-            if (fogCodes.includes(weatherCode)) {
-                document.getElementById('fog').style.display = 'block';
-            }
-            
-            // Fırtına kodları: 95, 96, 99
-            const thunderCodes = [95, 96, 99];
-            if (thunderCodes.includes(weatherCode)) {
-                document.getElementById('lightning').style.display = 'block';
-                // Fırtına varsa yağmur da olsun
-                createRain();
-            }
-        }
-
-        // Tüm efektleri temizle
-        function clearWeatherEffects() {
-            document.getElementById('rain').innerHTML = '';
-            document.getElementById('snow').innerHTML = '';
-            document.getElementById('fog').style.display = 'none';
-            document.getElementById('lightning').style.display = 'none';
-        }
-
-        // Yağmur oluştur
-        function createRain() {
-            const rainContainer = document.getElementById('rain');
-            const dropCount = 100;
-            
-            for (let i = 0; i < dropCount; i++) {
-                const drop = document.createElement('div');
-                drop.className = 'raindrop';
-                drop.style.left = Math.random() * 100 + '%';
-                drop.style.top = Math.random() * -100 + 'px';
-                drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
-                drop.style.animationDelay = Math.random() * 2 + 's';
-                drop.style.opacity = Math.random() * 0.5 + 0.3;
-                rainContainer.appendChild(drop);
-            }
-        }
-
-        // Kar oluştur
-        function createSnow() {
-            const snowContainer = document.getElementById('snow');
-            const flakeCount = 50;
-            
-            for (let i = 0; i < flakeCount; i++) {
-                const flake = document.createElement('div');
-                flake.className = 'snowflake';
-                flake.textContent = '❄';
-                flake.style.left = Math.random() * 100 + '%';
-                flake.style.top = Math.random() * -100 + 'px';
-                flake.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                flake.style.animationDelay = Math.random() * 2 + 's';
-                flake.style.fontSize = (Math.random() * 10 + 10) + 'px';
-                snowContainer.appendChild(flake);
             }
         }
 
@@ -1281,13 +992,25 @@
             });
         }
 
+        // Tagline genişliğini hotel name ile eşitle
+        function syncTaglineWidth() {
+            const hotelName = document.querySelector('.hotel-name');
+            const hotelTagline = document.querySelector('.hotel-tagline');
+            if (hotelName && hotelTagline) {
+                hotelTagline.style.width = hotelName.offsetWidth + 'px';
+            }
+        }
+
         // Başlangıç
         updateGreeting();
         updateTheme();
-        createStars();
         updateDateTime();
         updateWeather();
         displayPrograms();
+        
+        // Sayfa yüklendiğinde ve resize olduğunda genişliği eşitle
+        syncTaglineWidth();
+        window.addEventListener('resize', syncTaglineWidth);
         
         // Her dakika güncelle (stored for cleanup)
         dateTimeInterval = setInterval(updateDateTime, 60000);
