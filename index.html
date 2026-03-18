@@ -110,28 +110,28 @@ html, body {
   padding-bottom: 22px;
   animation: fadeUp 0.9s ease both;
 }
-.logo-area { display: flex; align-items: center; gap: 16px; }
+.logo-area { display: flex; align-items: center; gap: 20px; }
 .logo-text {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 26px; font-weight: 300;
-  letter-spacing: 0.28em; color: var(--gold2);
+  font-size: 36px; font-weight: 300;
+  letter-spacing: 0.26em; color: var(--gold2);
   text-transform: uppercase;
 }
-.logo-sep { width: 1px; height: 34px; background: var(--gold); opacity: 0.35; }
+.logo-sep { width: 1px; height: 48px; background: var(--gold); opacity: 0.35; }
 .logo-sub {
-  font-size: 10px; font-weight: 300;
-  letter-spacing: 0.32em; color: rgba(255,255,255,0.42);
-  text-transform: uppercase; line-height: 1.5;
+  font-size: 14px; font-weight: 400;
+  letter-spacing: 0.28em; color: rgba(255,255,255,0.5);
+  text-transform: uppercase; line-height: 1.45;
 }
-.top-right { display: flex; align-items: flex-end; flex-direction: column; gap: 4px; }
+.top-right { display: flex; align-items: flex-end; flex-direction: column; gap: 8px; }
 .clock-time {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 62px; font-weight: 300;
-  letter-spacing: 0.04em; color: var(--white); line-height: 1;
+  font-size: 84px; font-weight: 300;
+  letter-spacing: 0.03em; color: var(--white); line-height: 1;
 }
 .clock-date {
-  font-size: 11px; font-weight: 300;
-  letter-spacing: 0.2em; color: rgba(255,255,255,0.45);
+  font-size: 15px; font-weight: 400;
+  letter-spacing: 0.18em; color: rgba(255,255,255,0.52);
   text-transform: uppercase;
 }
 
@@ -149,14 +149,9 @@ html, body {
   display: flex; flex-direction: column; gap: 28px;
   animation: fadeUp 0.9s 0.15s ease both;
 }
-.greeting-label {
-  font-size: 10px; font-weight: 400;
-  letter-spacing: 0.35em; color: var(--gold);
-  text-transform: uppercase; margin-bottom: 8px;
-}
 .greeting-text {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 76px; font-weight: 300;
+  font-size: 108px; font-weight: 300;
   line-height: 1.02; color: var(--white);
 }
 .greeting-text em { font-style: italic; color: var(--gold2); }
@@ -173,6 +168,8 @@ html, body {
   border-radius: 14px; padding: 22px 26px;
   backdrop-filter: blur(10px);
   display: flex; flex-direction: column; gap: 14px;
+  min-height: 380px;
+  justify-content: space-between;
 }
 .weather-top { display: flex; align-items: flex-start; justify-content: space-between; }
 .weather-temp {
@@ -209,19 +206,7 @@ html, body {
   animation: fadeUp 0.9s 0.35s ease both;
 }
 .map-header {
-  display: flex; align-items: center; justify-content: space-between;
-}
-.map-legend {
-  display: flex; align-items: center; gap: 16px;
-}
-.legend-item {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 300;
-  letter-spacing: 0.12em; color: rgba(255,255,255,0.45);
-}
-.legend-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  flex-shrink: 0;
+  display: flex; align-items: center;
 }
 .map-container {
   flex: 1;
@@ -707,7 +692,6 @@ html, body {
     <!-- ── LEFT ── -->
     <div class="col-left">
       <div>
-        <div class="greeting-label">Welcome</div>
         <div class="greeting-text" id="greeting">Good<br><em>Morning</em></div>
       </div>
       <div class="welcome-tagline">
@@ -719,7 +703,7 @@ html, body {
             <div class="weather-temp" id="temp"><span class="loading-pulse">—</span><sup>°C</sup></div>
             <div class="weather-desc" id="w-desc">Fetching...</div>
           </div>
-          <div class="weather-icon-big" id="w-icon">🌤</div>
+          <div class="weather-icon-big" id="w-icon">🌤️</div>
         </div>
         <div class="weather-meta">
           <div class="weather-meta-item"><span class="meta-label">Humidity</span><span class="meta-value" id="w-hum">—</span></div>
@@ -741,14 +725,6 @@ html, body {
     <div class="col-right">
       <div class="map-header">
         <span class="section-label">Resort Map &amp; Today's Programme</span>
-        <div style="display:flex;align-items:center;gap:16px">
-          <div class="map-legend">
-            <div class="legend-item"><div class="legend-dot" style="background:#c9a84c;box-shadow:0 0 6px #c9a84c"></div>Now</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#ffffff"></div>Upcoming</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#e07070"></div>Restaurant</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#5db8e0"></div>Facility</div>
-          </div>
-        </div>
       </div>
       <div class="map-container">
         <div id="resort-map"></div>
@@ -1021,7 +997,7 @@ function renderScreen() {
   const strip = document.getElementById('activity-strip');
   if (!strip) return;
   if (!upcoming.length) {
-    strip.innerHTML = '<div style="flex:1;text-align:center;font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:.1em;padding:10px">No activities scheduled</div>';
+    strip.innerHTML = '';
     return;
   }
   strip.innerHTML = upcoming.map(a => `
@@ -1064,7 +1040,13 @@ function pad(n) { return String(n).padStart(2,'0'); }
 //  WEATHER — Open-Meteo
 // ═══════════════════════════════════════════════
 const LAT = 36.772, LON = 31.394;
-const WMO_ICON = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'🌨',75:'❄️',80:'🌦',81:'🌧',82:'⛈',95:'⛈',96:'⛈',99:'⛈'};
+/** Emoji sunumu (U+FE0F) — 🌧 vb. metin glifinde kaybolmasın (koyu arka plan) */
+function emojiPresent(s) {
+  if (!s) return s;
+  return (s.endsWith('\uFE0F') || s.endsWith('\uFE0E')) ? s : s + '\uFE0F';
+}
+const WMO_ICON_RAW = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'🌨',75:'❄️',80:'🌦',81:'🌧',82:'⛈',95:'⛈',96:'⛈',99:'⛈'};
+const WMO_ICON = Object.fromEntries(Object.entries(WMO_ICON_RAW).map(([k, v]) => [k, emojiPresent(v)]));
 const WMO_DESC = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Rain showers',81:'Heavy showers',82:'Violent showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Thunderstorm + hail'};
 
 async function fetchWeather() {
@@ -1074,7 +1056,7 @@ async function fetchWeather() {
     const c = d.current;
     document.getElementById('temp').innerHTML = Math.round(c.temperature_2m)+'<sup>°C</sup>';
     document.getElementById('w-desc').textContent = WMO_DESC[c.weather_code]||'Clear';
-    document.getElementById('w-icon').textContent = WMO_ICON[c.weather_code]||'🌤';
+    document.getElementById('w-icon').textContent = WMO_ICON[c.weather_code] || emojiPresent('🌤');
     document.getElementById('w-hum').textContent = c.relative_humidity_2m+'%';
     document.getElementById('w-wind').textContent = Math.round(c.wind_speed_10m)+' km/h';
     document.getElementById('w-feels').textContent = Math.round(c.apparent_temperature)+'°C';
@@ -1082,7 +1064,7 @@ async function fetchWeather() {
   } catch {
     document.getElementById('temp').innerHTML = '28<sup>°C</sup>';
     document.getElementById('w-desc').textContent = 'Clear sky';
-    document.getElementById('w-icon').textContent = '☀️';
+    document.getElementById('w-icon').textContent = emojiPresent('☀️');
     document.getElementById('w-hum').textContent = '65%';
     document.getElementById('w-wind').textContent = '14 km/h';
     document.getElementById('w-feels').textContent = '30°C';
@@ -1320,27 +1302,27 @@ document.head.appendChild(kfStyle);
 
 // Harita kartları: ikon + okunaklı metin (foto yok)
 const MAP_CARD_W = 228;
-const MAP_CARD_H = 82;
-const MAP_ICON_COL = 52;
+const MAP_CARD_H = 68;
+const MAP_ICON_COL = 46;
 
 // ── CARD HTML FACTORIES ───────────────────────
 function actCardHTML(a) {
   const timeStr = pad(a.hour)+':'+pad(a.min);
   const icon = a.icon || '⭐';
   return `
-    <div style="position:relative;width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(217,48,48,.55);border-radius:10px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.75),0 0 10px rgba(217,48,48,.18);font-family:'Montserrat',sans-serif;">
+    <div style="position:relative;width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(217,48,48,.55);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.75),0 0 10px rgba(217,48,48,.18);font-family:'Montserrat',sans-serif;">
       <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(160deg,#120828,#1c0d3a);display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(217,48,48,.25);">
-        <span style="font-size:26px;line-height:1;animation:dancer-sway 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,200,80,.45));">${icon}</span>
+        <span style="font-size:22px;line-height:1;animation:dancer-sway 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,200,80,.45));">${icon}</span>
       </div>
-      <div style="flex:1;min-width:0;padding:8px 10px 8px 10px;display:flex;flex-direction:column;justify-content:center;gap:4px;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:4px;background:#d93030;color:#fff;font-size:9px;font-weight:700;letter-spacing:.12em;padding:3px 7px;border-radius:4px;box-shadow:0 0 8px rgba(217,48,48,.45);">
-            <span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:live-dot 1.2s ease-in-out infinite;flex-shrink:0;"></span>LIVE
+      <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1;">
+          <div style="display:flex;align-items:center;gap:2px;background:#d93030;color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 5px;border-radius:3px;box-shadow:0 0 8px rgba(217,48,48,.45);">
+            <span style="width:5px;height:5px;border-radius:50%;background:#fff;animation:live-dot 1.2s ease-in-out infinite;flex-shrink:0;"></span>LIVE
           </div>
-          <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.75);letter-spacing:.04em;">${timeStr}</span>
+          <span style="font-size:12px;font-weight:600;color:#fff;letter-spacing:.03em;line-height:1;">${timeStr}</span>
         </div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.name}</div>
-        <div style="font-size:11px;font-weight:400;color:rgba(255,255,255,.5);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.venue||''}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">${a.name}</div>
+        <div style="font-size:11px;font-weight:500;color:#fff;letter-spacing:.02em;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">${a.venue||''}</div>
       </div>
       <div style="position:absolute;bottom:0;left:${MAP_ICON_COL}px;right:0;height:2px;background:linear-gradient(90deg,#d93030,transparent);animation:bar-pulse 2s ease-in-out infinite alternate;"></div>
     </div>`;
@@ -1349,18 +1331,15 @@ function actCardHTML(a) {
 function restoCardHTML(r) {
   const slot = restoTodaySlot(r);
   const hrs = slot ? `${slot.opens}–${slot.closes}` : `${r.opens}–${r.closes}`;
+  const nameLine = r.cuisine ? `${r.name} — ${r.cuisine}` : r.name;
   return `
-    <div style="width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;position:relative;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(201,168,76,.4);border-radius:10px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.65);font-family:'Montserrat',sans-serif;">
+    <div style="width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;position:relative;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(201,168,76,.4);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.65);font-family:'Montserrat',sans-serif;">
       <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(135deg,rgba(232,168,124,.2),rgba(14,22,45,.95));display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(201,168,76,.2);">
-        <span style="font-size:28px;line-height:1;">${r.icon}</span>
+        <span style="font-size:24px;line-height:1;">${r.icon}</span>
       </div>
-      <div style="flex:1;min-width:0;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:4px;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span style="background:rgba(93,187,138,.2);color:#5dbb8a;font-size:9px;font-weight:700;letter-spacing:.1em;padding:3px 7px;border-radius:4px;border:1px solid rgba(93,187,138,.35);">OPEN</span>
-          <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.65);letter-spacing:.03em;">${hrs}</span>
-        </div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:#e8c97a;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
-        <div style="font-size:11px;font-weight:400;color:rgba(255,255,255,.45);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.cuisine}</div>
+      <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
+        <div style="font-size:13px;font-weight:600;color:#fff;letter-spacing:.02em;line-height:1;">${hrs}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;">${nameLine}</div>
       </div>
     </div>`;
 }
@@ -1377,6 +1356,49 @@ function addMapCardMarker(html, w, h, latLng) {
     pitchAlignment: 'viewport',
     rotationAlignment: 'viewport'
   }).setLngLat([latLng[1], latLng[0]]).addTo(resortMap);
+}
+
+/** Ekranda altta kalan kartın pimi doğru; üstte çakışanlar yukarı ofsetlenir */
+function resolveMapMarkerOverlaps() {
+  if (!resortMap || !resortMap.isStyleLoaded()) return;
+  const W = MAP_CARD_W;
+  const H = MAP_CARD_H;
+  const margin = 10;
+  const all = [...activityMarkers, ...restoMarkers];
+  if (!all.length) return;
+  all.forEach(m => { try { m.setOffset([0, 0]); } catch (_) {} });
+  const items = all.map(m => ({ marker: m, lngLat: m.getLngLat() }));
+  items.sort((a, b) => {
+    const pa = resortMap.project(a.lngLat);
+    const pb = resortMap.project(b.lngLat);
+    if (Math.abs(pb.y - pa.y) > 2) return pb.y - pa.y;
+    return pa.x - pb.x;
+  });
+  const placed = [];
+  for (const { marker, lngLat } of items) {
+    const pt = resortMap.project(lngLat);
+    let offY = 0;
+    for (let step = 0; step < 100; step++) {
+      const bottom = pt.y + offY;
+      const top = bottom - H;
+      const left = pt.x - W / 2;
+      const right = pt.x + W / 2;
+      let clash = false;
+      for (const r of placed) {
+        if (!(right < r.left - margin || left > r.right + margin ||
+              bottom < r.top - margin || top > r.bottom + margin)) {
+          clash = true;
+          break;
+        }
+      }
+      if (!clash) {
+        placed.push({ top, bottom, left, right });
+        marker.setOffset([0, offY]);
+        break;
+      }
+      offY -= 8;
+    }
+  }
 }
 
 // ── MAP INIT ──────────────────────────────────
@@ -1448,6 +1470,7 @@ function renderRestaurantMarkers() {
     if (!coords) continue;
     restoMarkers.push(addMapCardMarker(restoCardHTML(r), MAP_CARD_W, MAP_CARD_H, coords));
   }
+  requestAnimationFrame(() => requestAnimationFrame(resolveMapMarkerOverlaps));
 }
 
 // ═══════════════════════════════════════════════
@@ -1461,7 +1484,12 @@ function scaleScreen() {
   const offsetX = (window.innerWidth - 1920*scale) / 2;
   const offsetY = (window.innerHeight - 1080*scale) / 2;
   sw.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-  if (resortMap) setTimeout(() => resortMap.resize(), 50);
+  if (resortMap) {
+    setTimeout(() => {
+      resortMap.resize();
+      setTimeout(resolveMapMarkerOverlaps, 80);
+    }, 50);
+  }
 }
 
 // ═══════════════════════════════════════════════
