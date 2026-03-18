@@ -27,7 +27,7 @@ PocketBase (kendi kurduğunuz sunucu)
 ├── app_config      → 14 günlük döngü başlangıç tarihi (tek kayıt)
 ├── venues          → harita birimleri (tanımlayıcı + ad + koordinat)
 ├── activities      → cycle_day (0–13), mekan eşlemesi
-├── announcements   → ticker metni, zaman pencereleri, aktif/pasif
+├── announcements   → duyuru metni, gösterim süresi (sn), zaman pencereleri, aktif/pasif
 └── restaurants     → haftalık saatler, mekan / koordinat
         │
         ├── voyage_welcome_screen.html  (okur, Realtime)
@@ -67,9 +67,12 @@ HTML dosyalarındaki PocketBase adresi, kendi örneğinizin URL’si ile değiş
 
 | Alan | Tip | Not |
 |------|-----|-----|
-| `text` | text | Ticker metni |
+| `text` | text | Duyuru metni |
+| `duration_sec` | number | TV’de bu duyurunun kaç saniye gösterileceği (3–600); yoksa 10 sn |
 | `windows` | json | Zaman pencereleri; boş = her zaman. Örn. gün listesi + açılış/kapanış saati (İstanbul) |
 | `active` | bool | Kapalıysa TV’de gösterilmez |
+
+TV’de duyurular **kayan yazı değil**: sırayla tam ekran şeridinde gösterilir, süre dolunca sonrakine geçer.
 
 ### `restaurants`
 

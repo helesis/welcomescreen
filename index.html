@@ -495,20 +495,23 @@ html, body {
   border: 1px solid rgba(201,168,76,0.2);
   border-radius: 3px; padding: 1px 6px;
 }
-.ticker-track-wrap { overflow: hidden; flex: 1; }
+.ticker-track-wrap { overflow: hidden; flex: 1; display: flex; align-items: center; min-width: 0; }
 .ticker-track {
-  display: flex; align-items: center;
-  animation: ticker 20s linear infinite;
-  white-space: nowrap;
+  display: flex; align-items: center; justify-content: center;
+  flex: 1; min-width: 0; min-height: 100%; padding: 0 24px 0 8px;
 }
 .ticker-item {
   font-size: 48px; font-weight: 400;
   letter-spacing: 0.04em; color: rgba(255,255,255,0.95);
-  padding: 0 72px; white-space: nowrap;
-  line-height: 1.15;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
 }
-.ticker-dot { color: var(--gold2); font-size: 40px; opacity: 0.75; line-height: 1; }
-@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* ═══════════════════════════════════════════════
    ADMIN PANEL (Activity Editor)
@@ -760,7 +763,7 @@ html, body {
     </div>
     <div class="ticker-track-wrap">
       <div class="ticker-track" id="ticker-track">
-        <span class="ticker-item loading-pulse">Loading latest news...</span>
+        <span class="ticker-item loading-pulse" id="ticker-current">Loading…</span>
       </div>
     </div>
   </div>
@@ -833,6 +836,9 @@ function refreshLucide(root) {
 let activities = [];
 let RESTO_MAP_DATA = [];
 let announcementRecords = [];
+/** Duyuru slayt listesi değişmediyse carousel’i yeniden başlatma */
+let lastTickerSlidesSig = '';
+let tickerCarouselTimer = null;
 let venueByKey = {};
 let cycleAnchor = '2025-01-01';
 
@@ -1008,18 +1014,60 @@ function isAnnouncementEnabled(r) {
 }
 
 function refreshTickerFromAnnouncements() {
-  const texts = announcementRecords
+  const slides = announcementRecords
     .filter(r => isAnnouncementEnabled(r) && announcementActiveNow(r.windows))
-    .map(r => r.text);
-  buildTicker(texts.length ? texts : ['Welcome to Voyage Sorgun']);
+    .sort((a, b) => String(b.created || '').localeCompare(String(a.created || '')))
+    .map(r => ({ text: r.text, duration_sec: r.duration_sec }));
+  buildTicker(slides);
 }
 
-function buildTicker(headlines) {
-  if (!headlines.length) headlines = ['Welcome to Voyage Sorgun'];
-  const all = [...headlines, ...headlines];
-  document.getElementById('ticker-track').innerHTML = all.map(h =>
-    `<span class="ticker-item">${h}</span><span class="ticker-dot"> ◆ </span>`
-  ).join('');
+function stopTickerCarousel() {
+  if (tickerCarouselTimer) {
+    clearTimeout(tickerCarouselTimer);
+    tickerCarouselTimer = null;
+  }
+}
+
+function toTickerSlides(raw) {
+  if (!raw || !raw.length)
+    return [{ text: 'Welcome to Voyage Sorgun', durationSec: 10 }];
+  const out = [];
+  if (typeof raw[0] === 'string') {
+    for (const t of raw) {
+      const tx = String(t).trim();
+      if (tx) out.push({ text: tx, durationSec: 8 });
+    }
+  } else {
+    for (const r of raw) {
+      const text = (r && r.text != null) ? String(r.text).trim() : '';
+      if (!text) continue;
+      let d = Number(r.duration_sec ?? r.durationSec);
+      if (!Number.isFinite(d) || d < 1) d = 10;
+      d = Math.min(600, Math.max(3, Math.round(d)));
+      out.push({ text, durationSec: d });
+    }
+  }
+  return out.length ? out : [{ text: 'Welcome to Voyage Sorgun', durationSec: 10 }];
+}
+
+/** PocketBase: { text, duration_sec } dizisi; yerel panel: string[] */
+function buildTicker(rawSlides) {
+  const slides = toTickerSlides(rawSlides);
+  const sig = JSON.stringify(slides.map(s => ({ t: s.text, d: s.durationSec })));
+  if (sig === lastTickerSlidesSig) return;
+  lastTickerSlidesSig = sig;
+  stopTickerCarousel();
+  const el = document.getElementById('ticker-current');
+  if (!el) return;
+  el.classList.remove('loading-pulse');
+  let idx = 0;
+  function showNext() {
+    const s = slides[idx];
+    el.textContent = s.text;
+    idx = (idx + 1) % slides.length;
+    tickerCarouselTimer = setTimeout(showNext, Math.max(2000, s.durationSec * 1000));
+  }
+  showNext();
 }
 
 // ═══════════════════════════════════════════════
@@ -1090,7 +1138,7 @@ function updateClock() {
     : h>=17&&h<21 ? 'Good<br><em>Evening</em>'
     : 'Good<br><em>Night</em>';
   if (g.innerHTML !== txt) g.innerHTML = txt;
-  if (s === 0) renderScreen();
+  if (s === 0) { renderScreen(); refreshTickerFromAnnouncements(); }
 }
 function pad(n) { return String(n).padStart(2,'0'); }
 

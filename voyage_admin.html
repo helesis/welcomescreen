@@ -384,12 +384,16 @@ body {
   <!-- ANNOUNCEMENTS TAB -->
   <div id="tab-announcements" class="content" style="display:none">
     <div class="section-title">Duyurular</div>
-    <div class="section-sub">TV ticker’da gösterilir. <strong>Saat aralığı</strong> ve <strong>haftanın günleri</strong> İstanbul saatine göre. Birden fazla satır ekleyebilirsin (ör. hafta içi 09–12 ve hafta sonu 10–22). <code class="key-mono">windows</code> boş bırakılırsa duyuru her zaman görünür.</div>
+    <div class="section-sub">TV’de duyurular <strong>sırayla</strong> gösterilir; her biri için <strong>gösterim süresi (sn)</strong> ayarlanır, süre bitince sonrakine geçer, sonda başa döner. <strong>Saat / gün</strong> İstanbul. <code class="key-mono">windows</code> boş = her zaman. PocketBase’de <code class="key-mono">duration_sec</code> sayı alanı olmalı.</div>
     <div class="add-form" style="flex-direction:column; align-items:stretch">
       <div class="form-group" style="width:100%">
         <span class="form-label">Duyuru metni</span>
         <input class="form-input w-xl" type="text" id="n-text" style="width:100%;max-width:none"
           placeholder="🍹 Happy Hour — Sunset Bar">
+      </div>
+      <div class="form-group" style="width:100%;max-width:220px">
+        <span class="form-label">TV’de gösterim süresi (sn)</span>
+        <input class="form-input w-sm" type="number" id="n-duration" min="3" max="600" value="10" placeholder="10">
       </div>
       <label style="display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:10px;cursor:pointer">
         <input type="checkbox" id="n-always" onchange="document.getElementById('ann-schedule-wrap').style.display=this.checked?'none':'block'">
@@ -496,6 +500,10 @@ body {
     <div class="form-group" style="margin-bottom:16px">
       <span class="form-label">Duyuru metni</span>
       <input type="text" id="ann-edit-text" class="form-input" style="width:100%;max-width:none" placeholder="Metin">
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <span class="form-label">Gösterim süresi (saniye)</span>
+      <input type="number" id="ann-edit-duration" class="form-input w-sm" min="3" max="600" value="10">
     </div>
     <label style="display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:12px;cursor:pointer">
       <input type="checkbox" id="ann-edit-active" checked>
@@ -1307,6 +1315,8 @@ async function openAnnEditModal(id) {
   try {
     const rec = await pbGetRecord('announcements', id);
     document.getElementById('ann-edit-text').value = rec.text || '';
+    const ds = Number(rec.duration_sec);
+    document.getElementById('ann-edit-duration').value = (Number.isFinite(ds) && ds >= 1) ? Math.min(600, Math.max(3, Math.round(ds))) : 10;
     document.getElementById('ann-edit-active').checked = rec.active !== false;
     const windows = parseAnnWindows(rec.windows);
     const always = !windows || !windows.length;
@@ -1351,9 +1361,12 @@ async function saveAnnEdit() {
   if (!always && !windows.length) { showToast('Zaman penceresi ekleyin veya “Her zaman” işaretle'); return; }
   try {
     const active = document.getElementById('ann-edit-active').checked;
+    let duration_sec = parseInt(document.getElementById('ann-edit-duration').value, 10);
+    if (!Number.isFinite(duration_sec) || duration_sec < 3) duration_sec = 10;
+    duration_sec = Math.min(600, duration_sec);
     const payload = always
-      ? { text, windows: [], active }
-      : { text, windows, active };
+      ? { text, windows: [], active, duration_sec }
+      : { text, windows, active, duration_sec };
     await pbPatch('announcements', editingAnnId, payload);
     closeAnnModal();
     loadAnnouncements();
@@ -1387,6 +1400,7 @@ async function loadAnnouncements() {
       <div class="record-info" style="flex:1;min-width:0">
         ${on ? '' : '<div class="ann-badge-pasif">PASİF — TV’de gösterilmiyor</div>'}
         <div class="record-text" style="font-weight:500;margin-bottom:4px">${escapeHtml(a.text)}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:4px">${(a.duration_sec != null && Number(a.duration_sec) >= 1) ? escapeHtml(String(Math.min(600, Math.max(3, Math.round(Number(a.duration_sec)))))) + ' sn ekranda' : '10 sn (varsayılan)'}</div>
         ${formatAnnScheduleBlock(a.windows)}
       </div>
       <div style="display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:4px;flex-shrink:0">
@@ -1408,7 +1422,10 @@ async function addAnnouncement() {
   const windows = always ? null : collectAnnWindows();
   if (!always && !windows.length) { showToast('En az bir satırda gün + saat aralığı seçin veya “Her zaman” işaretle'); return; }
   try {
-    const payload = always ? { text, active: true } : { text, windows, active: true };
+    let duration_sec = parseInt(document.getElementById('n-duration')?.value, 10);
+    if (!Number.isFinite(duration_sec) || duration_sec < 3) duration_sec = 10;
+    duration_sec = Math.min(600, duration_sec);
+    const payload = always ? { text, active: true, duration_sec } : { text, windows, active: true, duration_sec };
     await pbPost('announcements', payload);
     document.getElementById('n-text').value = '';
     document.getElementById('n-always').checked = false;
