@@ -6,6 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    WRAPPER: Scale 1920×1080 into viewport
@@ -40,6 +41,7 @@ html, body {
   --glass2: rgba(255,255,255,0.025);
   --border: rgba(201,168,76,0.18);
   --border2:rgba(255,255,255,0.07);
+  --ticker-h: 104px;
 }
 
 /* ═══════════════════════════════════════════════
@@ -99,7 +101,7 @@ html, body {
   grid-template-columns: 460px 1fr;
   grid-template-rows: auto 1px 1fr;
   /* Alt: ticker yüksekliği kadar yukarı taşındı + ticker bandı — içerik üst üste binmesin */
-  padding: 44px 56px calc(16px + 58px + 58px);
+  padding: 44px 56px calc(16px + var(--ticker-h) + var(--ticker-h));
   gap: 0;
 }
 
@@ -161,14 +163,14 @@ html, body {
   line-height: 1.7; max-width: 380px;
 }
 
-/* Weather card */
+/* Weather card (kısaltıldı — announcement ribbon ile çakışmayı azaltır) */
 .weather-card {
   background: var(--glass);
   border: 1px solid var(--border);
-  border-radius: 14px; padding: 22px 26px;
+  border-radius: 14px; padding: 16px 22px;
   backdrop-filter: blur(10px);
-  display: flex; flex-direction: column; gap: 14px;
-  min-height: 380px;
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 300px;
   justify-content: space-between;
 }
 .weather-top { display: flex; align-items: flex-start; justify-content: space-between; }
@@ -184,7 +186,6 @@ html, body {
   opacity: 0.92;
   font-weight: 300;
 }
-.weather-icon-big { font-size: 50px; line-height: 1; }
 .weather-desc {
   font-size: 12px; font-weight: 300;
   letter-spacing: 0.18em; color: rgba(255,255,255,0.5);
@@ -217,11 +218,12 @@ html, body {
 }
 .map-container {
   flex: 1;
+  min-height: 0;
+  margin-bottom: -13px; /* harita ~56px kısa; şerit konumu aynı, altta nefes payı */
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--border);
   position: relative;
-  min-height: 0;
 }
 #resort-map {
   width: 100%; height: 100%;
@@ -395,8 +397,16 @@ html, body {
 .strip-item.now .si-time { color: var(--gold2); }
 .strip-item.now .si-name { color: var(--white); font-weight: 500; }
 
-.si-icon { font-size: 20px; flex-shrink: 0; }
+.si-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 40px; color: #fff; }
+.si-icon svg { width: 26px; height: 26px; stroke-width: 2; }
 .strip-item.now .si-icon { animation: icon-bounce 2s ease-in-out infinite; }
+.weather-icon-big { display: flex; align-items: center; justify-content: center; color: #fff; }
+.weather-icon-big svg { width: 56px; height: 56px; stroke-width: 1.6; }
+.wave-icon { display: flex; align-items: center; justify-content: center; color: var(--gold2); flex-shrink: 0; }
+.wave-icon svg { width: 28px; height: 28px; stroke-width: 2; }
+.map-card-lucide { display: flex; align-items: center; justify-content: center; color: #fff; }
+.map-card-lucide svg { width: 22px; height: 22px; stroke-width: 2.2; }
+.map-card-lucide-gold { color: rgba(232,201,122,.95); }
 @keyframes icon-bounce {
   0%,100% { transform: scale(1); }
   50%      { transform: scale(1.15); }
@@ -446,7 +456,6 @@ html, body {
    TICKER
 ═══════════════════════════════════════════════ */
 .ticker-wrap {
-  --ticker-h: 58px;
   position: absolute;
   left: 0;
   right: 0;
@@ -461,7 +470,7 @@ html, body {
 }
 .ticker-badge {
   flex-shrink: 0;
-  height: 100%; padding: 0 22px 0 24px;
+  height: 100%; padding: 0 28px 0 32px;
   background: rgba(8,13,28,0.95);
   border-right: 1px solid rgba(201,168,76,0.25);
   display: flex; align-items: center; gap: 10px;
@@ -471,12 +480,13 @@ html, body {
 }
 .ticker-badge:hover { background: rgba(201,168,76,0.08); }
 .ticker-badge-icon {
-  font-size: 13px; opacity: 0.8;
+  font-size: 36px; opacity: 0.85; line-height: 1;
 }
 .ticker-badge-text {
-  font-size: 9px; font-weight: 500;
-  letter-spacing: 0.3em; color: var(--gold);
+  font-size: 22px; font-weight: 600;
+  letter-spacing: 0.2em; color: var(--gold2);
   text-transform: uppercase;
+  line-height: 1.1;
 }
 .ticker-badge-edit {
   font-size: 8px; font-weight: 300;
@@ -488,15 +498,16 @@ html, body {
 .ticker-track-wrap { overflow: hidden; flex: 1; }
 .ticker-track {
   display: flex; align-items: center;
-  animation: ticker 90s linear infinite;
+  animation: ticker 20s linear infinite;
   white-space: nowrap;
 }
 .ticker-item {
-  font-size: 12px; font-weight: 300;
-  letter-spacing: 0.08em; color: rgba(255,255,255,0.55);
-  padding: 0 48px; white-space: nowrap;
+  font-size: 48px; font-weight: 400;
+  letter-spacing: 0.04em; color: rgba(255,255,255,0.95);
+  padding: 0 72px; white-space: nowrap;
+  line-height: 1.15;
 }
-.ticker-dot { color: var(--gold); font-size: 10px; opacity: 0.6; }
+.ticker-dot { color: var(--gold2); font-size: 40px; opacity: 0.75; line-height: 1; }
 @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* ═══════════════════════════════════════════════
@@ -710,7 +721,7 @@ html, body {
             <div class="weather-temp" id="temp"><span class="loading-pulse">—</span><sup>°C</sup></div>
             <div class="weather-desc" id="w-desc">Fetching...</div>
           </div>
-          <div class="weather-icon-big" id="w-icon">🌤️</div>
+          <div class="weather-icon-big" id="w-icon"><i data-lucide="cloud-sun"></i></div>
         </div>
         <div class="weather-meta">
           <div class="weather-meta-item"><span class="meta-label">Humidity</span><span class="meta-value" id="w-hum">—</span></div>
@@ -719,7 +730,7 @@ html, body {
           <div class="weather-meta-item"><span class="meta-label">UV Index</span><span class="meta-value" id="w-uv">—</span></div>
         </div>
         <div class="wave-badge">
-          <div class="wave-icon">🌊</div>
+          <div class="wave-icon"><i data-lucide="waves"></i></div>
           <div>
             <div class="wave-label">Wave height · Swell period</div>
             <div class="wave-value" id="wave-data">Loading...</div>
@@ -768,20 +779,55 @@ html, body {
 const PB = 'https://hotel-data.voyagestars.com';
 
 const ICON_MAP = {
-  yoga:"🧘", aqua:"💧", water:"💧", swim:"🏊",
-  tennis:"🎾", volleyball:"🏐", football:"⚽", basketball:"🏀",
-  billiard:"🎱", darts:"🎯", archery:"🎯", table:"🏓",
-  kids:"🎨", mini:"🎨", dance:"💃", animation:"🎭", show:"✨",
-  music:"🎵", live:"🎵", dj:"🎧", disco:"🎧",
-  foam:"🫧", aquapark:"🫧",
-  lunch:"🍽", dinner:"🥂", breakfast:"🍳", buffet:"🍽",
-  cocktail:"🍹", happy:"🍹", bar:"🍹",
-  sunset:"🌅", morning:"🌅", night:"🌙",
+  yoga:'flower2', aqua:'droplets', water:'droplets', swim:'waves',
+  tennis:'activity', volleyball:'volleyball', football:'football', basketball:'basketball',
+  billiard:'circle-dot', darts:'target', archery:'target', table:'table-2',
+  kids:'baby', mini:'palette', dance:'music-2', animation:'clapperboard', show:'sparkles',
+  music:'music', live:'mic-2', dj:'disc-3', disco:'disc-3',
+  foam:'waves', aquapark:'waves',
+  lunch:'utensils-crossed', dinner:'wine', breakfast:'egg-fried', buffet:'utensils-crossed',
+  cocktail:'glass-water', happy:'party-popper', bar:'beer',
+  sunset:'sunset', morning:'sunrise', night:'moon',
 };
-function guessIcon(name) {
-  const l = name.toLowerCase();
+const EMOJI_TO_LUCIDE = {
+  '🧘':'flower2','⭐':'star','💧':'droplets','🏊':'waves','🫧':'waves',
+  '🍽':'utensils-crossed','🥂':'wine','🍳':'egg-fried','🍹':'glass-water',
+  '🌅':'sunrise','🌙':'moon','🎾':'activity','🏐':'volleyball','⚽':'football','🏀':'basketball',
+  '🎱':'circle-dot','🎯':'target','🏓':'table-2','🎨':'palette','💃':'music-2','🎭':'clapperboard',
+  '✨':'sparkles','🎵':'music','🎧':'headphones','🍱':'utensils','🕐':'clock','🫒':'salad',
+  '🥩':'drumstick','🍝':'soup','💆':'sparkles','🏖':'umbrella','🏨':'building-2','🌊':'waves',
+};
+function guessLucideFromName(name) {
+  const l = (name||'').toLowerCase();
   for (const [k, v] of Object.entries(ICON_MAP)) { if (l.includes(k)) return v; }
-  return '⭐';
+  return 'star';
+}
+/** PocketBase ikon alanı: emoji, Lucide adı veya boş */
+function resolveActivityLucide(act) {
+  const raw = act && act.icon != null ? String(act.icon).trim() : '';
+  if (raw && /^[a-z][a-z0-9-]*$/i.test(raw) && raw.length < 48) return raw.toLowerCase();
+  if (EMOJI_TO_LUCIDE[raw]) return EMOJI_TO_LUCIDE[raw];
+  return guessLucideFromName(act && act.name);
+}
+function resolveRestoLucide(r) {
+  const raw = r && r.icon != null ? String(r.icon).trim() : '';
+  if (raw && /^[a-z][a-z0-9-]*$/i.test(raw) && raw.length < 48) return raw.toLowerCase();
+  if (EMOJI_TO_LUCIDE[raw]) return EMOJI_TO_LUCIDE[raw];
+  const n = (r && r.name) || '';
+  const l = n.toLowerCase();
+  if (l.includes('bar') || l.includes('wine')) return 'glass-water';
+  if (l.includes('steak') || l.includes('grill')) return 'drumstick';
+  if (l.includes('italian') || l.includes('pasta')) return 'soup';
+  if (l.includes('greek')) return 'salad';
+  if (l.includes('teppan') || l.includes('japan')) return 'utensils';
+  if (l.includes('24') || l.includes('cuisine')) return 'clock';
+  return 'utensils-crossed';
+}
+function refreshLucide(root) {
+  try {
+    if (!window.lucide || typeof lucide.createIcons !== 'function') return;
+    if (root) lucide.createIcons({ root }); else lucide.createIcons();
+  } catch (e) { console.warn('lucide', e); }
 }
 
 let activities = [];
@@ -832,7 +878,7 @@ async function fetchFromPB() {
       .filter(r => activityMatchesCycle(r, dayIdx))
       .map(r => ({
         hour: r.hour, min: r.minute||0, name: r.name,
-        venue: r.venue||'', icon: r.icon||guessIcon(r.name),
+        venue: r.venue||'', icon: r.icon||guessLucideFromName(r.name),
         venue_key: r.venue_key||''
       }))
       .sort((a,b) => a.hour*60+a.min - (b.hour*60+b.min));
@@ -856,7 +902,11 @@ async function fetchFromPB() {
     }));
 
     renderScreen();
-    if (resortMap && resortMap.isStyleLoaded()) { renderMapActivities(); renderRestaurantMarkers(); }
+    if (resortMap && resortMap.isStyleLoaded()) {
+      renderMapActivities();
+      renderRestaurantMarkers();
+      requestAnimationFrame(() => refreshLucide());
+    }
   } catch(e) {
     console.error('PocketBase fetch error:', e);
   }
@@ -1009,7 +1059,7 @@ function renderScreen() {
   }
   strip.innerHTML = upcoming.map(a => `
     <div class="strip-item${a.isNow?' now':''}">
-      <div class="si-icon">${a.icon||guessIcon(a.name)}</div>
+      <div class="si-icon"><i data-lucide="${resolveActivityLucide(a)}"></i></div>
       <div class="si-time">${pad(a.hour)}:${pad(a.min)}</div>
       <div class="si-info">
         <div class="si-name">${a.name}</div>
@@ -1018,6 +1068,7 @@ function renderScreen() {
       ${a.isNow ? '' : ''}
     </div>
   `).join('');
+  refreshLucide(strip);
 }
 
 // ═══════════════════════════════════════════════
@@ -1047,14 +1098,24 @@ function pad(n) { return String(n).padStart(2,'0'); }
 //  WEATHER — Open-Meteo
 // ═══════════════════════════════════════════════
 const LAT = 36.772, LON = 31.394;
-/** Emoji sunumu (U+FE0F) — 🌧 vb. metin glifinde kaybolmasın (koyu arka plan) */
-function emojiPresent(s) {
-  if (!s) return s;
-  return (s.endsWith('\uFE0F') || s.endsWith('\uFE0E')) ? s : s + '\uFE0F';
-}
-const WMO_ICON_RAW = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'🌨',75:'❄️',80:'🌦',81:'🌧',82:'⛈',95:'⛈',96:'⛈',99:'⛈'};
-const WMO_ICON = Object.fromEntries(Object.entries(WMO_ICON_RAW).map(([k, v]) => [k, emojiPresent(v)]));
+const WMO_LUCIDE = {
+  0:'sun', 1:'cloud-sun', 2:'cloud', 3:'cloud',
+  45:'cloud-fog', 48:'cloud-fog', 51:'cloud-drizzle', 53:'cloud-drizzle', 55:'cloud-rain',
+  61:'cloud-rain', 63:'cloud-rain', 65:'cloud-rain', 71:'cloud-snow', 73:'cloud-snow', 75:'snowflake',
+  80:'cloud-rain', 81:'cloud-rain', 82:'cloud-lightning', 95:'cloud-lightning', 96:'cloud-lightning', 99:'cloud-lightning'
+};
 const WMO_DESC = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Rain showers',81:'Heavy showers',82:'Violent showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Thunderstorm + hail'};
+
+function setWeatherLucide(code) {
+  const name = WMO_LUCIDE[code] || 'sun';
+  const el = document.getElementById('w-icon');
+  if (!el) return;
+  el.innerHTML = '';
+  const i = document.createElement('i');
+  i.setAttribute('data-lucide', name);
+  el.appendChild(i);
+  refreshLucide(el);
+}
 
 async function fetchWeather() {
   try {
@@ -1063,7 +1124,7 @@ async function fetchWeather() {
     const c = d.current;
     document.getElementById('temp').innerHTML = Math.round(c.temperature_2m)+'<sup>°C</sup>';
     document.getElementById('w-desc').textContent = WMO_DESC[c.weather_code]||'Clear';
-    document.getElementById('w-icon').textContent = WMO_ICON[c.weather_code] || emojiPresent('🌤');
+    setWeatherLucide(c.weather_code);
     document.getElementById('w-hum').textContent = c.relative_humidity_2m+'%';
     document.getElementById('w-wind').textContent = Math.round(c.wind_speed_10m)+' km/h';
     document.getElementById('w-feels').textContent = Math.round(c.apparent_temperature)+'°C';
@@ -1071,7 +1132,7 @@ async function fetchWeather() {
   } catch {
     document.getElementById('temp').innerHTML = '28<sup>°C</sup>';
     document.getElementById('w-desc').textContent = 'Clear sky';
-    document.getElementById('w-icon').textContent = emojiPresent('☀️');
+    setWeatherLucide(0);
     document.getElementById('w-hum').textContent = '65%';
     document.getElementById('w-wind').textContent = '14 km/h';
     document.getElementById('w-feels').textContent = '30°C';
@@ -1315,11 +1376,11 @@ const MAP_ICON_COL = 46;
 // ── CARD HTML FACTORIES ───────────────────────
 function actCardHTML(a) {
   const timeStr = pad(a.hour)+':'+pad(a.min);
-  const icon = a.icon || '⭐';
+  const lucideName = resolveActivityLucide(a);
   return `
     <div style="position:relative;width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(217,48,48,.55);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.75),0 0 10px rgba(217,48,48,.18);font-family:'Montserrat',sans-serif;">
       <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(160deg,#120828,#1c0d3a);display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(217,48,48,.25);">
-        <span style="font-size:22px;line-height:1;animation:dancer-sway 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,200,80,.45));">${icon}</span>
+        <div class="map-card-lucide" style="animation:dancer-sway 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,200,80,.35));"><i data-lucide="${lucideName}"></i></div>
       </div>
       <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
         <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1;">
@@ -1342,7 +1403,7 @@ function restoCardHTML(r) {
   return `
     <div style="width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;position:relative;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(201,168,76,.4);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.65);font-family:'Montserrat',sans-serif;">
       <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(135deg,rgba(232,168,124,.2),rgba(14,22,45,.95));display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(201,168,76,.2);">
-        <span style="font-size:24px;line-height:1;">${r.icon}</span>
+        <div class="map-card-lucide map-card-lucide-gold"><i data-lucide="${resolveRestoLucide(r)}"></i></div>
       </div>
       <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
         <div style="font-size:13px;font-weight:600;color:#fff;letter-spacing:.02em;line-height:1;">${hrs}</div>
@@ -1415,9 +1476,9 @@ function initMap() {
       container: 'resort-map',
       style: CARTO_VOYAGER_STYLE,
       center: [CENTER[1], CENTER[0]],
-      zoom: 18,
-      minZoom: 18,
-      maxZoom: 18,
+      zoom: 17,
+      minZoom: 17,
+      maxZoom: 17,
       pitch: MAP_PITCH,
       bearing: MAP_BEARING,
       attributionControl: false,
@@ -1433,6 +1494,7 @@ function initMap() {
     resortMap.on('load', () => {
       renderMapActivities();
       renderRestaurantMarkers();
+      requestAnimationFrame(() => refreshLucide());
     });
   } catch (e) {
     console.error('MapLibre init:', e);
@@ -1477,7 +1539,10 @@ function renderRestaurantMarkers() {
     if (!coords) continue;
     restoMarkers.push(addMapCardMarker(restoCardHTML(r), MAP_CARD_W, MAP_CARD_H, coords));
   }
-  requestAnimationFrame(() => requestAnimationFrame(resolveMapMarkerOverlaps));
+  requestAnimationFrame(() => {
+    refreshLucide();
+    requestAnimationFrame(resolveMapMarkerOverlaps);
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -1514,6 +1579,7 @@ function showToast(msg) {
 createParticles();
 updateClock();
 scaleScreen();
+requestAnimationFrame(() => refreshLucide());
 
 // PocketBase'den veri çek
 fetchFromPB();
@@ -1521,7 +1587,7 @@ fetchFromPB();
 connectRealtime();
 
 setTimeout(initMap, 100);
-setInterval(() => { renderScreen(); renderMapActivities(); renderRestaurantMarkers(); }, 60000);
+setInterval(() => { renderScreen(); renderMapActivities(); renderRestaurantMarkers(); requestAnimationFrame(() => refreshLucide()); }, 60000);
 setInterval(updateClock, 1000);
 window.addEventListener('resize', scaleScreen);
 
