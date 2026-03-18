@@ -868,7 +868,9 @@ function fillCycleDaySelect() {
 
 async function loadCycleTab() {
   try {
-    const pub = await fetch(`${PB}/api/collections/app_config/records?perPage=1`).then(r => r.json());
+    const pub = await fetch(`${PB}/api/collections/app_config/records?perPage=1`, {
+      headers: { Authorization: token }
+    }).then(r => r.json());
     const items = pub.items || [];
     if (items[0]) {
       cycleRecordId = items[0].id;
