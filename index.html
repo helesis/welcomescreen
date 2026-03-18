@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Voyage Sorgun – Welcome Screen</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    WRAPPER: Scale 1920×1080 into viewport
@@ -88,14 +88,18 @@ html, body {
 .screen {
   position: relative; z-index: 2;
   width: 1920px; height: 1080px;
-  display: grid;
-  grid-template-rows: 1fr 58px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .main-content {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 460px 1fr;
   grid-template-rows: auto 1px 1fr;
-  padding: 44px 56px 16px;
+  /* Alt: ticker yüksekliği kadar yukarı taşındı + ticker bandı — içerik üst üste binmesin */
+  padding: 44px 56px calc(16px + 58px + 58px);
   gap: 0;
 }
 
@@ -231,14 +235,10 @@ html, body {
   width: 100%; height: 100%;
 }
 
-/* Leaflet genel */
-.leaflet-container { background: #e8e0d8 !important; }
-.leaflet-control-zoom a {
-  background: rgba(255,255,255,0.9) !important;
-  color: #333 !important;
-  border-color: rgba(0,0,0,0.2) !important;
-}
-.leaflet-control-attribution { display: none !important; }
+/* MapLibre GL */
+.maplibregl-map { background: #e8e0d8 !important; }
+.maplibregl-ctrl-attribution { display: none !important; }
+.map-card-marker { pointer-events: none; }
 
 /* ── LIVE CALLOUT popup (pin üstünde) ── */
 .live-callout {
@@ -321,32 +321,6 @@ html, body {
   font-size:9px; font-weight:300;
   color:rgba(255,255,255,0.35); letter-spacing:0.1em;
 }
-/* Callout ok */
-.leaflet-popup-tip-container { display: none; }
-.lc-popup .leaflet-popup-content-wrapper {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-.lc-popup .leaflet-popup-content { margin: 0 !important; }
-.lc-popup .leaflet-popup-close-button { display: none !important; }
-
-/* ── RESTORAN POPUP ── */
-.resto-popup .leaflet-popup-content-wrapper {
-  background: rgba(8,13,28,0.97) !important;
-  border: 1px solid rgba(201,168,76,0.3) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important;
-  color: #fff !important;
-  padding: 0 !important;
-  overflow: hidden;
-  width: 240px;
-}
-.resto-popup .leaflet-popup-content { margin: 0 !important; }
-.resto-popup .leaflet-popup-tip { background: rgba(8,13,28,0.97) !important; }
-.resto-popup .leaflet-popup-close-button { color: rgba(255,255,255,0.4) !important; top:6px; right:8px; }
 .rp-header { padding: 12px 14px 8px; }
 .rp-name {
   font-family:'Cormorant Garamond',serif;
@@ -480,11 +454,18 @@ html, body {
    TICKER
 ═══════════════════════════════════════════════ */
 .ticker-wrap {
-  height: 58px;
+  --ticker-h: 58px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--ticker-h);
+  height: var(--ticker-h);
   background: rgba(8,13,28,0.92);
   border-top: 1px solid rgba(201,168,76,0.25);
   display: flex; align-items: center;
-  overflow: hidden; position: relative; z-index: 10;
+  overflow: hidden;
+  z-index: 20;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.35);
 }
 .ticker-badge {
   flex-shrink: 0;
@@ -892,7 +873,7 @@ async function fetchFromPB() {
     }));
 
     renderScreen();
-    if (resortMap) { renderMapActivities(); renderRestaurantMarkers(); }
+    if (resortMap && resortMap.isStyleLoaded()) { renderMapActivities(); renderRestaurantMarkers(); }
   } catch(e) {
     console.error('PocketBase fetch error:', e);
   }
@@ -1219,7 +1200,7 @@ function createParticles() {
 }
 
 // ═══════════════════════════════════════════════
-//  RESORT MAP — Leaflet + CARTO Dark
+//  RESORT MAP — MapLibre GL + CARTO Voyager (raster, pitch)
 //  Center: 36.756893, 31.418769 (Voyage Sorgun)
 // ═══════════════════════════════════════════════
 
@@ -1300,10 +1281,31 @@ function restoTodaySlot(r) {
   return { opens: r.opens||'09:00', closes: r.closes||'23:00' };
 }
 
-// ── LEAFLET MAP ───────────────────────────────
+// ── MAPLIBRE MAP ──────────────────────────────
 let resortMap = null;
 let activityMarkers = [];
 let restoMarkers = [];
+
+const CARTO_VOYAGER_STYLE = {
+  version: 8,
+  sources: {
+    carto: {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
+      ],
+      tileSize: 256,
+      attribution: '© OpenStreetMap © CARTO'
+    }
+  },
+  layers: [{ id: 'carto-raster', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 }]
+};
+
+const MAP_PITCH = 50;
+const MAP_BEARING = -24;
 
 // Keyframe CSS
 const kfStyle = document.createElement('style');
@@ -1363,34 +1365,49 @@ function restoCardHTML(r) {
     </div>`;
 }
 
-function makeCardIcon(html, w, h) {
-  return L.divIcon({ html, className:'', iconSize:[w,h], iconAnchor:[w/2,h] });
+function addMapCardMarker(html, w, h, latLng) {
+  const el = document.createElement('div');
+  el.className = 'map-card-marker';
+  el.style.width = w + 'px';
+  el.style.height = h + 'px';
+  el.innerHTML = html;
+  return new maplibregl.Marker({
+    element: el,
+    anchor: 'bottom',
+    pitchAlignment: 'viewport',
+    rotationAlignment: 'viewport'
+  }).setLngLat([latLng[1], latLng[0]]).addTo(resortMap);
 }
 
 // ── MAP INIT ──────────────────────────────────
 function initMap() {
-  resortMap = L.map('resort-map', {
-    center: CENTER,
-    zoom: 18,
-    minZoom: 18,
-    maxZoom: 18,
-    zoomControl: false,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    dragging: false,
-    touchZoom: false,
-    boxZoom: false,
-    keyboard: false,
-    tap: false,
-    attributionControl: false,
-  });
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd', maxZoom: 20, opacity: 1,
-  }).addTo(resortMap);
-
-  renderMapActivities();
-  renderRestaurantMarkers();
+  try {
+    resortMap = new maplibregl.Map({
+      container: 'resort-map',
+      style: CARTO_VOYAGER_STYLE,
+      center: [CENTER[1], CENTER[0]],
+      zoom: 18,
+      minZoom: 18,
+      maxZoom: 18,
+      pitch: MAP_PITCH,
+      bearing: MAP_BEARING,
+      attributionControl: false,
+      maxPitch: 60
+    });
+    resortMap.dragPan.disable();
+    resortMap.scrollZoom.disable();
+    resortMap.boxZoom.disable();
+    resortMap.dragRotate.disable();
+    resortMap.keyboard.disable();
+    resortMap.doubleClickZoom.disable();
+    resortMap.touchZoomRotate.disable();
+    resortMap.on('load', () => {
+      renderMapActivities();
+      renderRestaurantMarkers();
+    });
+  } catch (e) {
+    console.error('MapLibre init:', e);
+  }
 }
 
 function isRestoOpen(r) {
@@ -1404,7 +1421,8 @@ function isRestoOpen(r) {
 }
 
 function renderMapActivities() {
-  activityMarkers.forEach(m => resortMap.removeLayer(m));
+  if (!resortMap || !resortMap.isStyleLoaded()) return;
+  activityMarkers.forEach(m => m.remove());
   activityMarkers = [];
 
   const nowMin = new Date().getHours()*60 + new Date().getMinutes();
@@ -1415,23 +1433,20 @@ function renderMapActivities() {
     const diff = (a.hour*60+a.min) - nowMin;
     if (!(diff <= 0 && diff > -90)) return;
 
-    const icon = makeCardIcon(actCardHTML(a), MAP_CARD_W, MAP_CARD_H);
-    const m = L.marker(coords, { icon, interactive:false }).addTo(resortMap);
-    activityMarkers.push(m);
+    activityMarkers.push(addMapCardMarker(actCardHTML(a), MAP_CARD_W, MAP_CARD_H, coords));
   });
 }
 
 function renderRestaurantMarkers() {
-  restoMarkers.forEach(m => resortMap.removeLayer(m));
+  if (!resortMap || !resortMap.isStyleLoaded()) return;
+  restoMarkers.forEach(m => m.remove());
   restoMarkers = [];
 
   for (const r of RESTO_MAP_DATA) {
     if (!isRestoOpen(r)) continue;
     const coords = restoCoords(r);
     if (!coords) continue;
-    const icon = makeCardIcon(restoCardHTML(r), MAP_CARD_W, MAP_CARD_H);
-    const m = L.marker(coords, { icon, interactive:false }).addTo(resortMap);
-    restoMarkers.push(m);
+    restoMarkers.push(addMapCardMarker(restoCardHTML(r), MAP_CARD_W, MAP_CARD_H, coords));
   }
 }
 
@@ -1446,7 +1461,7 @@ function scaleScreen() {
   const offsetX = (window.innerWidth - 1920*scale) / 2;
   const offsetY = (window.innerHeight - 1080*scale) / 2;
   sw.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-  if (resortMap) setTimeout(() => resortMap.invalidateSize(), 50);
+  if (resortMap) setTimeout(() => resortMap.resize(), 50);
 }
 
 // ═══════════════════════════════════════════════
