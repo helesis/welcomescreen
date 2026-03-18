@@ -1497,6 +1497,39 @@ setInterval(fetchMarine, 10*60*1000);
 // 14 günlük döngü günü gece yarısı değişir; Realtime tetiklemez → periyodik yenile
 setInterval(fetchFromPB, 2 * 60 * 1000);
 setInterval(refreshTickerFromAnnouncements, 45 * 1000);
+
+// GitHub Pages: deploy sonrası TV’de yeni sürüm — version.json içindeki `v` değişince tam yenileme
+(function welcomeVersionReload() {
+  const STORAGE_KEY = 'welcome_screen_ver';
+  const CHECK_EVERY_MS = 90 * 1000;
+  const url = () => {
+    try {
+      const u = new URL('version.json', location.href);
+      u.searchParams.set('_', String(Date.now()));
+      return u.toString();
+    } catch {
+      return 'version.json?_=' + Date.now();
+    }
+  };
+  async function checkVersion() {
+    try {
+      const r = await fetch(url(), { cache: 'no-store' });
+      if (!r.ok) return;
+      const j = await r.json();
+      const v = String(j.v ?? j.version ?? '').trim();
+      if (!v) return;
+      const prev = sessionStorage.getItem(STORAGE_KEY);
+      if (prev != null && prev !== v) {
+        sessionStorage.setItem(STORAGE_KEY, v);
+        location.reload();
+        return;
+      }
+      sessionStorage.setItem(STORAGE_KEY, v);
+    } catch (_) {}
+  }
+  checkVersion();
+  setInterval(checkVersion, CHECK_EVERY_MS);
+})();
 </script>
 </body>
 </html>

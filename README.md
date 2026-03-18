@@ -10,8 +10,13 @@
 
 | Dosya | Açıklama |
 |-------|----------|
-| `voyage_welcome_screen.html` | TV ekranı |
+| `index.html` | TV ekranı (GitHub Pages vb.) |
+| `version.json` | Deploy sonrası ekranların yenilenmesi için sürüm (`v` değişince otomatik reload) |
 | `voyage_admin.html` | İçerik yönetim paneli |
+
+### GitHub Pages — TV otomatik güncelleme
+
+`index.html` yaklaşık **90 saniyede bir** `version.json` dosyasını çeker. **`v` alanını** her deploy’da artır (örn. `"2"`, `"2025-03-19"`); açık olan TV tarayıcıları yeni sürümü görünce **sayfayı yeniler**. Sadece `index.html` değiştiyse bile `version.json`’u güncelle.
 
 ---
 
