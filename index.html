@@ -243,56 +243,61 @@ html, body {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 10px;
-  padding: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: 1fr;
+  gap: 8px;
+  padding: 10px;
   box-sizing: border-box;
+  align-items: stretch;
 }
 .schedule-cell {
   background: var(--glass);
   border: 1px solid rgba(201,168,76,.22);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 8px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 0;
   overflow: hidden;
 }
 .schedule-cell-h {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gold2);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   flex-shrink: 0;
   border-bottom: 1px solid rgba(201,168,76,.15);
-  padding-bottom: 6px;
+  padding-bottom: 5px;
+  line-height: 1.25;
 }
 .schedule-cell ul {
   margin: 0;
-  padding: 0 0 0 16px;
+  padding: 0 0 0 12px;
   list-style: none;
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 300;
   color: rgba(255,255,255,.88);
-  line-height: 1.35;
+  line-height: 1.32;
+  word-break: break-word;
 }
 .schedule-cell li {
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   position: relative;
 }
 .schedule-cell li::before {
   content: '·';
   position: absolute;
-  left: -12px;
+  left: -10px;
   color: var(--gold);
   opacity: 0.6;
 }
-.schedule-cell .sq-time { color: var(--gold2); font-weight: 500; margin-right: 6px; font-size: 13px; }
+.schedule-cell .sq-time { color: var(--gold2); font-weight: 500; margin-right: 4px; font-size: 11px; }
 .schedule-evening-block { font-size: 14px; font-weight: 300; color: rgba(255,255,255,.9); line-height: 1.45; }
 .schedule-evening-block .sq-ev-row { margin-bottom: 10px; }
 .schedule-evening-block .sq-ev-label {
@@ -991,34 +996,51 @@ function startTvViewRotation() {
   const s = document.getElementById('schedule-view-pane');
   const title = document.getElementById('col-right-title');
   if (!m || !s) return;
-  const mapSec = Math.max(10, Number(tvViewConfig.mapSec) || 30);
-  const schSec = Math.max(10, Number(tvViewConfig.scheduleSec) || 30);
+  const mapT = Math.min(600, Math.max(0, Number(tvViewConfig.mapSec) || 0));
+  const schT = Math.min(600, Math.max(0, Number(tvViewConfig.scheduleSec) || 0));
+  const showMap = mapT > 0;
+  const showSch = schT > 0;
+  function showMapOnly() {
+    m.classList.remove('hidden-map');
+    s.classList.remove('active');
+    if (title) title.textContent = 'Resort Map';
+    setTimeout(() => {
+      try {
+        resortMap?.resize();
+        setTimeout(resolveMapMarkerOverlaps, 100);
+      } catch (_) {}
+    }, 150);
+  }
+  function showSchOnly() {
+    m.classList.add('hidden-map');
+    s.classList.add('active');
+    renderScheduleGrid();
+    if (title) title.textContent = "Today's Programme";
+  }
+  if (!showMap && !showSch) {
+    showMapOnly();
+    return;
+  }
+  if (showMap && !showSch) {
+    showMapOnly();
+    return;
+  }
+  if (!showMap && showSch) {
+    showSchOnly();
+    return;
+  }
   let showingMap = true;
   function applyView() {
-    if (showingMap) {
-      m.classList.remove('hidden-map');
-      s.classList.remove('active');
-      if (title) title.textContent = 'Resort Map';
-      setTimeout(() => {
-        try {
-          resortMap?.resize();
-          setTimeout(resolveMapMarkerOverlaps, 100);
-        } catch (_) {}
-      }, 150);
-    } else {
-      m.classList.add('hidden-map');
-      s.classList.add('active');
-      renderScheduleGrid();
-      if (title) title.textContent = "Today's Programme";
-    }
+    if (showingMap) showMapOnly();
+    else showSchOnly();
   }
   applyView();
   function loop() {
     showingMap = !showingMap;
     applyView();
-    tvRotTimer = setTimeout(loop, (showingMap ? mapSec : schSec) * 1000);
+    tvRotTimer = setTimeout(loop, (showingMap ? mapT : schT) * 1000);
   }
-  tvRotTimer = setTimeout(loop, mapSec * 1000);
+  tvRotTimer = setTimeout(loop, mapT * 1000);
 }
 
 function istanbulTodayYMD() {
@@ -1049,8 +1071,14 @@ async function fetchFromPB() {
       const cfg0 = cfgD.items?.[0];
       if (cfg0) {
         if (cfg0.cycle_anchor) cycleAnchor = cfg0.cycle_anchor;
-        tvViewConfig.mapSec = Math.max(10, Number(cfg0.map_schedule_map_sec) || 30);
-        tvViewConfig.scheduleSec = Math.max(10, Number(cfg0.map_schedule_schedule_sec) || 30);
+        function parseTvDur(v, def) {
+          if (v === null || v === undefined || v === '') return def;
+          const n = Number(v);
+          if (!Number.isFinite(n) || n < 0) return def;
+          return Math.min(600, Math.floor(n));
+        }
+        tvViewConfig.mapSec = parseTvDur(cfg0.map_schedule_map_sec, 30);
+        tvViewConfig.scheduleSec = parseTvDur(cfg0.map_schedule_schedule_sec, 30);
       }
     }
 

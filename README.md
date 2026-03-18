@@ -55,8 +55,8 @@ HTML dosyalarındaki PocketBase adresi, kendi örneğinizin URL’si ile değiş
 | Alan | Tip | Zorunlu | Not |
 |------|-----|---------|-----|
 | `cycle_anchor` | text | ✓ | Gün 0 tarihi `YYYY-MM-DD` (İstanbul). Bu tarihten itibaren 0→13 döngü. |
-| `map_schedule_map_sec` | number | | Harita süresi (sn), varsayılan 30 |
-| `map_schedule_schedule_sec` | number | | Program görünümü süresi (sn), varsayılan 30 |
+| `map_schedule_map_sec` | number | | Harita süresi (sn); **0** = harita hiç gösterilmez; boş → 30 |
+| `map_schedule_schedule_sec` | number | | Program süresi (sn); **0** = program hiç gösterilmez |
 
 Program kutuları **Aktiviteler** → `schedule_slot` (gündüz / çocuk / akşam) ile dolar; restoran kutusu bugün açık olanların tamamıdır.
 

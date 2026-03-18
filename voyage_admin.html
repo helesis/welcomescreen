@@ -522,15 +522,15 @@ body {
   <!-- TV MAP / SCHEDULE -->
   <div id="tab-tvview" class="content" style="display:none">
     <div class="section-title">TV — Harita / program süreleri</div>
-    <div class="section-sub">Karşılama ekranında <strong>harita</strong> ile <strong>program</strong> görünümü sırayla gösterilir. Programdaki gündüz / çocuk / akşam listeleri <strong>Aktiviteler</strong> sekmesindeki <code class="key-mono">TV program</code> seçimine göre doldurulur; restoranlar otomatik (bugün açık olanlar). Burada yalnızca <strong>gösterim süreleri</strong> ayarlanır.</div>
+    <div class="section-sub">Karşılama ekranında <strong>harita</strong> ile <strong>program</strong> görünümü sırayla gösterilir. <strong>0</strong> yazdığınız görünüm hiç gösterilmez (ikisi de 0 ise yalnızca harita). Program listesi <strong>Aktiviteler</strong> → TV program alanından gelir.</div>
     <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
       <div class="form-group">
-        <span class="form-label">Harita süresi (sn)</span>
-        <input type="number" class="form-input w-sm" id="tv-map-sec" min="10" max="600" value="30">
+        <span class="form-label">Harita süresi (sn, 0=kapat)</span>
+        <input type="number" class="form-input w-sm" id="tv-map-sec" min="0" max="600" value="30">
       </div>
       <div class="form-group">
-        <span class="form-label">Program görünümü süresi (sn)</span>
-        <input type="number" class="form-input w-sm" id="tv-sch-sec" min="10" max="600" value="30">
+        <span class="form-label">Program süresi (sn, 0=kapat)</span>
+        <input type="number" class="form-input w-sm" id="tv-sch-sec" min="0" max="600" value="30">
       </div>
       <button type="button" class="btn-add" onclick="saveTvViewConfig()">Kaydet</button>
     </div>
@@ -921,8 +921,10 @@ async function loadTvViewTab() {
     }).then(r => r.json());
     if (pub.items?.[0]) cfg = pub.items[0];
   } catch (_) {}
-  document.getElementById('tv-map-sec').value = cfg.map_schedule_map_sec != null ? cfg.map_schedule_map_sec : 30;
-  document.getElementById('tv-sch-sec').value = cfg.map_schedule_schedule_sec != null ? cfg.map_schedule_schedule_sec : 30;
+  document.getElementById('tv-map-sec').value =
+    cfg.map_schedule_map_sec != null && cfg.map_schedule_map_sec !== '' ? cfg.map_schedule_map_sec : 30;
+  document.getElementById('tv-sch-sec').value =
+    cfg.map_schedule_schedule_sec != null && cfg.map_schedule_schedule_sec !== '' ? cfg.map_schedule_schedule_sec : 30;
 }
 
 async function saveTvViewConfig() {
@@ -932,8 +934,8 @@ async function saveTvViewConfig() {
   }
   let mapSec = parseInt(document.getElementById('tv-map-sec').value, 10);
   let schSec = parseInt(document.getElementById('tv-sch-sec').value, 10);
-  if (!Number.isFinite(mapSec) || mapSec < 10) mapSec = 30;
-  if (!Number.isFinite(schSec) || schSec < 10) schSec = 30;
+  if (!Number.isFinite(mapSec) || mapSec < 0) mapSec = 30;
+  if (!Number.isFinite(schSec) || schSec < 0) schSec = 30;
   mapSec = Math.min(600, mapSec);
   schSec = Math.min(600, schSec);
   try {
