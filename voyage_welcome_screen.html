@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Voyage Sorgun – Welcome Screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   WRAPPER: Scale 1920×1080 into viewport
+═══════════════════════════════════════════════ */
+html, body {
+  margin: 0; padding: 0;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+}
+.scale-wrapper {
+  width: 1920px; height: 1080px;
+  transform-origin: top left;
+  position: absolute; top: 0; left: 0;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --navy:   #080d1c;
+  --navy2:  #0b1229;
+  --blue1:  #0e2050;
+  --gold:   #c9a84c;
+  --gold2:  #e8c97a;
+  --gold3:  #f5dfa0;
+  --cream:  #f5efe6;
+  --white:  #ffffff;
+  --glass:  rgba(255,255,255,0.055);
+  --glass2: rgba(255,255,255,0.025);
+  --border: rgba(201,168,76,0.18);
+  --border2:rgba(255,255,255,0.07);
+}
+
+/* ═══════════════════════════════════════════════
+   BACKGROUND
+═══════════════════════════════════════════════ */
+.bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 10% 85%, rgba(26,50,110,0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 70% at 88% 15%, rgba(12,32,75,0.65) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 40% at 50% 102%, rgba(201,168,76,0.07) 0%, transparent 48%),
+    linear-gradient(160deg, #08101f 0%, #0b1630 45%, #060e20 100%);
+}
+
+/* Subtle grid overlay */
+.bg-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+/* ═══════════════════════════════════════════════
+   PARTICLES
+═══════════════════════════════════════════════ */
+.particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation: float-p var(--d,15s) var(--dl,0s) ease-in-out infinite;
+}
+@keyframes float-p {
+  0%   { opacity: 0; transform: translateY(0) scale(0.4); }
+  15%  { opacity: 0.7; }
+  85%  { opacity: 0.2; }
+  100% { opacity: 0; transform: translateY(-500px) scale(1.8); }
+}
+
+
+
+/* ═══════════════════════════════════════════════
+   SCREEN LAYOUT
+═══════════════════════════════════════════════ */
+.screen {
+  position: relative; z-index: 2;
+  width: 1920px; height: 1080px;
+  display: grid;
+  grid-template-rows: 1fr 58px;
+}
+.main-content {
+  display: grid;
+  grid-template-columns: 460px 1fr;
+  grid-template-rows: auto 1px 1fr;
+  padding: 44px 56px 16px;
+  gap: 0;
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  grid-column: 1/-1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 22px;
+  animation: fadeUp 0.9s ease both;
+}
+.logo-area { display: flex; align-items: center; gap: 16px; }
+.logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 300;
+  letter-spacing: 0.28em; color: var(--gold2);
+  text-transform: uppercase;
+}
+.logo-sep { width: 1px; height: 34px; background: var(--gold); opacity: 0.35; }
+.logo-sub {
+  font-size: 10px; font-weight: 300;
+  letter-spacing: 0.32em; color: rgba(255,255,255,0.42);
+  text-transform: uppercase; line-height: 1.5;
+}
+.top-right { display: flex; align-items: flex-end; flex-direction: column; gap: 4px; }
+.clock-time {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 62px; font-weight: 300;
+  letter-spacing: 0.04em; color: var(--white); line-height: 1;
+}
+.clock-date {
+  font-size: 11px; font-weight: 300;
+  letter-spacing: 0.2em; color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+}
+
+/* Gold divider */
+.divider-row { grid-column: 1/-1; }
+.gold-line {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold) 70%, transparent 100%);
+  opacity: 0.3;
+}
+
+/* ════ LEFT COLUMN ════ */
+.col-left {
+  padding: 32px 44px 0 0;
+  display: flex; flex-direction: column; gap: 28px;
+  animation: fadeUp 0.9s 0.15s ease both;
+}
+.greeting-label {
+  font-size: 10px; font-weight: 400;
+  letter-spacing: 0.35em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.greeting-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 76px; font-weight: 300;
+  line-height: 1.02; color: var(--white);
+}
+.greeting-text em { font-style: italic; color: var(--gold2); }
+.welcome-tagline {
+  font-size: 13px; font-weight: 200;
+  letter-spacing: 0.14em; color: rgba(255,255,255,0.38);
+  line-height: 1.7; max-width: 380px;
+}
+
+/* Weather card */
+.weather-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px 26px;
+  backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.weather-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.weather-temp {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 68px; font-weight: 300; line-height: 1;
+}
+.weather-temp sup { font-size: 26px; vertical-align: super; color: var(--gold2); }
+.weather-icon-big { font-size: 50px; line-height: 1; }
+.weather-desc {
+  font-size: 12px; font-weight: 300;
+  letter-spacing: 0.18em; color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+.weather-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.weather-meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label { font-size: 9px; font-weight: 400; letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase; }
+.meta-value { font-size: 15px; font-weight: 300; color: var(--white); }
+.wave-badge {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(201,168,76,0.07);
+  border: 1px solid rgba(201,168,76,0.18);
+  border-radius: 8px; padding: 10px 14px;
+}
+.wave-icon { font-size: 22px; }
+.wave-label { font-size: 9px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
+.wave-value { font-size: 17px; font-weight: 300; color: var(--white); }
+
+/* ════ RIGHT COLUMN ════ */
+
+/* ── MAP COLUMN ── */
+.col-right {
+  padding: 28px 0 0 36px;
+  display: flex; flex-direction: column; gap: 12px;
+  animation: fadeUp 0.9s 0.35s ease both;
+}
+.map-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.map-legend {
+  display: flex; align-items: center; gap: 16px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 300;
+  letter-spacing: 0.12em; color: rgba(255,255,255,0.45);
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.map-container {
+  flex: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+  min-height: 0;
+}
+#resort-map {
+  width: 100%; height: 100%;
+}
+
+/* Leaflet genel */
+.leaflet-container { background: #e8e0d8 !important; }
+.leaflet-control-zoom a {
+  background: rgba(255,255,255,0.9) !important;
+  color: #333 !important;
+  border-color: rgba(0,0,0,0.2) !important;
+}
+.leaflet-control-attribution { display: none !important; }
+
+/* ── LIVE CALLOUT popup (pin üstünde) ── */
+.live-callout {
+  width: 200px;
+  background: linear-gradient(150deg, rgba(8,13,28,0.97), rgba(18,26,52,0.97));
+  border: 1px solid rgba(217,48,48,0.55);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.7), 0 0 20px rgba(217,48,48,0.2);
+  font-family: 'Montserrat', sans-serif;
+}
+/* Sahne alanı — küçük */
+.lc-stage {
+  height: 90px;
+  background: linear-gradient(150deg, #120828 0%, #1c0d3a 50%, #0a1220 100%);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.lc-stage::before {
+  content: '';
+  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  width: 80px; height: 120px;
+  background: radial-gradient(ellipse, rgba(255,200,80,0.22) 0%, transparent 70%);
+  animation: spotlight 4s ease-in-out infinite alternate;
+}
+.lc-dancer {
+  position: relative; z-index: 2;
+  animation: dancer-sway 1.2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 6px rgba(255,200,80,0.5));
+}
+.lc-dancer svg { width: 36px; height: 50px; }
+.lc-notes { position: absolute; inset: 0; pointer-events: none; }
+.lc-note {
+  position: absolute; font-size: 11px; opacity: 0;
+  animation: note-float 3s ease-in-out infinite;
+  color: rgba(255,220,100,0.8);
+}
+.lc-note:nth-child(1) { left:18%; top:50%; animation-delay:0s; }
+.lc-note:nth-child(2) { left:68%; top:35%; animation-delay:1.1s; }
+.lc-note:nth-child(3) { left:42%; top:25%; animation-delay:2.1s; }
+/* Seyirci */
+.lc-audience {
+  position: absolute; bottom: 5px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 4px;
+}
+.lc-aud {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  animation: aud-bob 1s ease-in-out infinite alternate;
+}
+.lc-aud:nth-child(2){animation-delay:.15s}
+.lc-aud:nth-child(3){animation-delay:.30s}
+.lc-aud:nth-child(4){animation-delay:.45s}
+.lc-aud:nth-child(5){animation-delay:.20s}
+/* Info */
+.lc-info { padding: 10px 12px 12px; }
+.lc-badge-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+.lc-badge {
+  display:flex; align-items:center; gap:4px;
+  background:#d93030; color:#fff;
+  font-size:7px; font-weight:700; letter-spacing:0.18em;
+  padding:2px 6px; border-radius:3px;
+  box-shadow:0 0 7px rgba(217,48,48,0.5);
+}
+.lc-badge::before {
+  content:''; width:4px; height:4px; border-radius:50%;
+  background:#fff; flex-shrink:0;
+  animation: live-dot 1.2s ease-in-out infinite;
+}
+.lc-time {
+  font-size:11px; font-weight:300;
+  color:rgba(255,255,255,0.4); letter-spacing:0.1em;
+}
+.lc-name {
+  font-family:'Cormorant Garamond',serif;
+  font-size:16px; font-weight:400; color:#fff;
+  line-height:1.15; margin-bottom:2px;
+}
+.lc-venue {
+  font-size:9px; font-weight:300;
+  color:rgba(255,255,255,0.35); letter-spacing:0.1em;
+}
+/* Callout ok */
+.leaflet-popup-tip-container { display: none; }
+.lc-popup .leaflet-popup-content-wrapper {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+.lc-popup .leaflet-popup-content { margin: 0 !important; }
+.lc-popup .leaflet-popup-close-button { display: none !important; }
+
+/* ── RESTORAN POPUP ── */
+.resto-popup .leaflet-popup-content-wrapper {
+  background: rgba(8,13,28,0.97) !important;
+  border: 1px solid rgba(201,168,76,0.3) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important;
+  color: #fff !important;
+  padding: 0 !important;
+  overflow: hidden;
+  width: 240px;
+}
+.resto-popup .leaflet-popup-content { margin: 0 !important; }
+.resto-popup .leaflet-popup-tip { background: rgba(8,13,28,0.97) !important; }
+.resto-popup .leaflet-popup-close-button { color: rgba(255,255,255,0.4) !important; top:6px; right:8px; }
+.rp-header { padding: 12px 14px 8px; }
+.rp-name {
+  font-family:'Cormorant Garamond',serif;
+  font-size:17px; font-weight:400; color:var(--gold2);
+  margin-bottom:2px;
+}
+.rp-meta {
+  display:flex; align-items:center; gap:8px;
+  font-size:10px; font-weight:300; color:rgba(255,255,255,0.4);
+  letter-spacing:0.08em;
+}
+.rp-open { color:#5dbb8a; font-weight:500; }
+.rp-closed { color:#e07070; font-weight:500; }
+.rp-thumbs {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+  padding: 0 2px 2px;
+}
+.rp-thumb {
+  aspect-ratio:1; overflow:hidden; border-radius:4px;
+  background: rgba(255,255,255,0.06);
+  position: relative;
+}
+.rp-thumb img {
+  width:100%; height:100%; object-fit:cover;
+  transition: transform 0.3s;
+}
+.rp-thumb:hover img { transform: scale(1.08); }
+.rp-thumb-placeholder {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; background: rgba(255,255,255,0.04);
+  animation: pulse 2s ease-in-out infinite;
+}
+/* Edit button */
+.edit-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 8px; padding: 9px 16px;
+  color: var(--gold2); font-size: 10px; font-weight: 400;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
+  flex-shrink: 0;
+}
+.edit-btn:hover { background: rgba(201,168,76,0.16); border-color: rgba(201,168,76,0.45); }
+.edit-btn svg { width: 13px; height: 13px; }
+
+/* ── ACTIVITY STRIP (below map) ── */
+.activity-strip {
+  display: flex; gap: 8px;
+  flex-shrink: 0;
+}
+.strip-item {
+  flex: 1; display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  border-radius: 9px; transition: all 0.4s; min-width: 0;
+  position: relative; overflow: hidden;
+}
+
+/* NOW — canlı etkinlik */
+.strip-item.now {
+  background: linear-gradient(135deg, rgba(201,168,76,0.13) 0%, rgba(201,168,76,0.05) 100%);
+  border-color: rgba(201,168,76,0.45);
+  box-shadow: 0 0 18px rgba(201,168,76,0.12), inset 0 0 20px rgba(201,168,76,0.04);
+}
+/* Kayan shimmer efekti */
+.strip-item.now::before {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%   { left: -60%; }
+  100% { left: 160%; }
+}
+.strip-item.now .si-time { color: var(--gold2); }
+.strip-item.now .si-name { color: var(--white); font-weight: 500; }
+
+.si-icon { font-size: 20px; flex-shrink: 0; }
+.strip-item.now .si-icon { animation: icon-bounce 2s ease-in-out infinite; }
+@keyframes icon-bounce {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+
+.si-time {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 300;
+  color: rgba(255,255,255,0.8); white-space: nowrap; flex-shrink: 0;
+}
+.si-info { flex: 1; min-width: 0; }
+.si-name {
+  font-size: 11px; font-weight: 400; color: var(--white);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.si-venue {
+  font-size: 9px; font-weight: 300;
+  color: rgba(255,255,255,0.35); letter-spacing: 0.08em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* LIVE badge — kırmızı, yanıp sönen */
+.si-now {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 8px; font-weight: 700; letter-spacing: 0.18em;
+  color: #fff;
+  background: linear-gradient(135deg, #e03a3a, #c0202020);
+  background: #d93030;
+  padding: 3px 8px 3px 6px; border-radius: 4px;
+  text-transform: uppercase; flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(217,48,48,0.5);
+}
+.si-now::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: live-dot 1.2s ease-in-out infinite;
+}
+@keyframes live-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.3; transform: scale(0.6); }
+}
+
+/* ═══════════════════════════════════════════════
+   TICKER
+═══════════════════════════════════════════════ */
+.ticker-wrap {
+  height: 58px;
+  background: rgba(8,13,28,0.92);
+  border-top: 1px solid rgba(201,168,76,0.25);
+  display: flex; align-items: center;
+  overflow: hidden; position: relative; z-index: 10;
+}
+.ticker-badge {
+  flex-shrink: 0;
+  height: 100%; padding: 0 22px 0 24px;
+  background: rgba(8,13,28,0.95);
+  border-right: 1px solid rgba(201,168,76,0.25);
+  display: flex; align-items: center; gap: 10px;
+  white-space: nowrap; cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+.ticker-badge:hover { background: rgba(201,168,76,0.08); }
+.ticker-badge-icon {
+  font-size: 13px; opacity: 0.8;
+}
+.ticker-badge-text {
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 0.3em; color: var(--gold);
+  text-transform: uppercase;
+}
+.ticker-badge-edit {
+  font-size: 8px; font-weight: 300;
+  letter-spacing: 0.15em; color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 3px; padding: 1px 6px;
+}
+.ticker-track-wrap { overflow: hidden; flex: 1; }
+.ticker-track {
+  display: flex; align-items: center;
+  animation: ticker 90s linear infinite;
+  white-space: nowrap;
+}
+.ticker-item {
+  font-size: 12px; font-weight: 300;
+  letter-spacing: 0.08em; color: rgba(255,255,255,0.55);
+  padding: 0 48px; white-space: nowrap;
+}
+.ticker-dot { color: var(--gold); font-size: 10px; opacity: 0.6; }
+@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ═══════════════════════════════════════════════
+   ADMIN PANEL (Activity Editor)
+═══════════════════════════════════════════════ */
+.panel-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.panel-overlay.open { opacity: 1; pointer-events: all; }
+.panel {
+  width: 820px; max-height: 85vh;
+  background: linear-gradient(145deg, #0c1428, #09101e);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 30px 100px rgba(0,0,0,0.8);
+  transform: translateY(20px);
+  transition: transform 0.3s;
+}
+.panel-overlay.open .panel { transform: translateY(0); }
+
+.panel-head {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 300;
+  color: var(--gold2); letter-spacing: 0.08em;
+}
+.panel-sub {
+  font-size: 11px; font-weight: 300;
+  color: rgba(255,255,255,0.35); letter-spacing: 0.12em; margin-top: 4px;
+}
+.panel-close {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.5); font-size: 18px;
+  transition: all 0.2s;
+}
+.panel-close:hover { background: rgba(255,0,0,0.12); border-color: rgba(255,0,0,0.25); color: #ff6b6b; }
+
+.panel-body {
+  flex: 1; overflow-y: auto; padding: 20px 28px;
+  scrollbar-width: thin; scrollbar-color: rgba(201,168,76,0.3) transparent;
+}
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
+/* Add form */
+.add-form {
+  display: grid; grid-template-columns: 90px 90px 1fr 120px 50px;
+  gap: 10px; align-items: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.form-label {
+  font-size: 9px; letter-spacing: 0.2em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.form-field { display: flex; flex-direction: column; }
+.form-input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px; padding: 8px 11px;
+  color: var(--white); font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  outline: none; transition: border-color 0.2s;
+  width: 100%;
+}
+.form-input:focus { border-color: rgba(201,168,76,0.4); }
+.form-input::placeholder { color: rgba(255,255,255,0.2); }
+.add-btn {
+  background: linear-gradient(135deg, var(--gold), #a8852e);
+  border: none; border-radius: 7px;
+  width: 40px; height: 40px; margin-top: 14px;
+  cursor: pointer; font-size: 20px; color: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.2s; font-weight: 700;
+}
+.add-btn:hover { opacity: 0.85; }
+
+/* Activity rows */
+.act-row {
+  display: grid; grid-template-columns: 70px 70px 1fr 110px 40px;
+  gap: 10px; align-items: center;
+  padding: 11px 14px;
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  border-radius: 9px; margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+.act-row:hover { border-color: rgba(201,168,76,0.2); }
+.act-row-time {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 300; color: var(--gold2);
+}
+.act-row-icon { font-size: 22px; text-align: center; }
+.act-row-name { font-size: 13px; font-weight: 400; color: var(--white); margin-bottom: 2px; }
+.act-row-venue { font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 0.08em; }
+.del-btn {
+  background: rgba(255,60,60,0.08);
+  border: 1px solid rgba(255,60,60,0.15);
+  border-radius: 6px; width: 32px; height: 32px;
+  cursor: pointer; color: rgba(255,100,100,0.7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: all 0.2s;
+}
+.del-btn:hover { background: rgba(255,60,60,0.2); color: #ff6b6b; }
+
+.panel-foot {
+  padding: 16px 28px;
+  border-top: 1px solid rgba(201,168,76,0.12);
+  display: flex; gap: 12px; justify-content: flex-end;
+  flex-shrink: 0;
+}
+.btn-reset {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 10px 20px;
+  color: rgba(255,255,255,0.45); font-size: 11px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+.btn-reset:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
+.btn-save {
+  background: linear-gradient(135deg, var(--gold), #a8852e);
+  border: none; border-radius: 8px; padding: 10px 28px;
+  color: var(--navy); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: opacity 0.2s;
+}
+.btn-save:hover { opacity: 0.88; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 80px; right: 40px; z-index: 200;
+  background: rgba(201,168,76,0.15);
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: 10px; padding: 12px 20px;
+  font-size: 12px; font-weight: 400;
+  letter-spacing: 0.1em; color: var(--gold2);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.loading-pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:0.85} }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="particles" id="particles"></div>
+
+
+<div class="scale-wrapper" id="scaleWrapper">
+<div class="screen">
+  <div class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="logo-area">
+        <div class="logo-text">Voyage Sorgun</div>
+        <div class="logo-sep"></div>
+        <div class="logo-sub">MANAVGAT · SIDE<br>TÜRKIYE</div>
+      </div>
+      <div class="top-right">
+        <div class="clock-time" id="clock">00:00</div>
+        <div class="clock-date" id="clock-date">—</div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="divider-row"><div class="gold-line"></div></div>
+
+    <!-- ── LEFT ── -->
+    <div class="col-left">
+      <div>
+        <div class="greeting-label">Welcome</div>
+        <div class="greeting-text" id="greeting">Good<br><em>Morning</em></div>
+      </div>
+      <div class="welcome-tagline">
+        We hope you enjoy your stay at Voyage Sorgun.<br>The Mediterranean is waiting for you.
+      </div>
+      <div class="weather-card">
+        <div class="weather-top">
+          <div>
+            <div class="weather-temp" id="temp"><span class="loading-pulse">—</span><sup>°C</sup></div>
+            <div class="weather-desc" id="w-desc">Fetching...</div>
+          </div>
+          <div class="weather-icon-big" id="w-icon">🌤</div>
+        </div>
+        <div class="weather-meta">
+          <div class="weather-meta-item"><span class="meta-label">Humidity</span><span class="meta-value" id="w-hum">—</span></div>
+          <div class="weather-meta-item"><span class="meta-label">Wind</span><span class="meta-value" id="w-wind">—</span></div>
+          <div class="weather-meta-item"><span class="meta-label">Feels like</span><span class="meta-value" id="w-feels">—</span></div>
+          <div class="weather-meta-item"><span class="meta-label">UV Index</span><span class="meta-value" id="w-uv">—</span></div>
+        </div>
+        <div class="wave-badge">
+          <div class="wave-icon">🌊</div>
+          <div>
+            <div class="wave-label">Wave height · Swell period</div>
+            <div class="wave-value" id="wave-data">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: MAP + ACTIVITY STRIP ── -->
+    <div class="col-right">
+      <div class="map-header">
+        <span class="section-label">Resort Map &amp; Today's Programme</span>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#c9a84c;box-shadow:0 0 6px #c9a84c"></div>Now</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ffffff"></div>Upcoming</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e07070"></div>Restaurant</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#5db8e0"></div>Facility</div>
+          </div>
+        </div>
+      </div>
+      <div class="map-container">
+        <div id="resort-map"></div>
+      </div>
+      <div class="activity-strip" id="activity-strip"></div>
+    </div>
+
+  </div><!-- main-content -->
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-badge">
+      <span class="ticker-badge-icon">◆</span>
+      <span class="ticker-badge-text">Announcements</span>
+    </div>
+    <div class="ticker-track-wrap">
+      <div class="ticker-track" id="ticker-track">
+        <span class="ticker-item loading-pulse">Loading latest news...</span>
+      </div>
+    </div>
+  </div>
+</div><!-- screen -->
+</div><!-- scale-wrapper -->
+
+<!-- ═══════════════════════════════════════════
+     ACTIVITY EDITOR PANEL
+═══════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  POCKETBASE
+// ═══════════════════════════════════════════════
+const PB = 'https://hotel-data.voyagestars.com';
+
+const ICON_MAP = {
+  yoga:"🧘", aqua:"💧", water:"💧", swim:"🏊",
+  tennis:"🎾", volleyball:"🏐", football:"⚽", basketball:"🏀",
+  billiard:"🎱", darts:"🎯", archery:"🎯", table:"🏓",
+  kids:"🎨", mini:"🎨", dance:"💃", animation:"🎭", show:"✨",
+  music:"🎵", live:"🎵", dj:"🎧", disco:"🎧",
+  foam:"🫧", aquapark:"🫧",
+  lunch:"🍽", dinner:"🥂", breakfast:"🍳", buffet:"🍽",
+  cocktail:"🍹", happy:"🍹", bar:"🍹",
+  sunset:"🌅", morning:"🌅", night:"🌙",
+};
+function guessIcon(name) {
+  const l = name.toLowerCase();
+  for (const [k, v] of Object.entries(ICON_MAP)) { if (l.includes(k)) return v; }
+  return '⭐';
+}
+
+let activities = [];
+let RESTO_MAP_DATA = [];
+let announcementRecords = [];
+let venueByKey = {};
+let cycleAnchor = '2025-01-01';
+
+function istanbulTodayYMD() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
+}
+
+function getCurrentCycleDay() {
+  const anchor = cycleAnchor || '2025-01-01';
+  const [y1, m1, d1] = anchor.split('-').map(Number);
+  const [y2, m2, d2] = istanbulTodayYMD().split('-').map(Number);
+  const t0 = Date.UTC(y1, m1 - 1, d1);
+  const t1 = Date.UTC(y2, m2 - 1, d2);
+  const diff = Math.round((t1 - t0) / 86400000);
+  return ((diff % 14) + 14) % 14;
+}
+
+function activityMatchesCycle(r, dayIdx) {
+  const cd = r.cycle_day;
+  if (cd === null || cd === undefined || cd === '') return true;
+  return Number(cd) === dayIdx;
+}
+
+async function fetchFromPB() {
+  try {
+    const cfgR = await fetch(`${PB}/api/collections/app_config/records?perPage=1`);
+    if (cfgR.ok) {
+      const cfgD = await cfgR.json();
+      if (cfgD.items?.[0]?.cycle_anchor) cycleAnchor = cfgD.items[0].cycle_anchor;
+    }
+
+    venueByKey = {};
+    const vR = await fetch(`${PB}/api/collections/venues/records?perPage=200`);
+    if (vR.ok) {
+      const vD = await vR.json();
+      (vD.items || []).forEach(v => { if (v.key) venueByKey[v.key] = [Number(v.lat), Number(v.lng)]; });
+    }
+
+    const dayIdx = getCurrentCycleDay();
+    const ar = await fetch(`${PB}/api/collections/activities/records?perPage=200&sort=hour,minute`);
+    const ad = await ar.json();
+    activities = (ad.items||[])
+      .filter(r => activityMatchesCycle(r, dayIdx))
+      .map(r => ({
+        hour: r.hour, min: r.minute||0, name: r.name,
+        venue: r.venue||'', icon: r.icon||guessIcon(r.name),
+        venue_key: r.venue_key||''
+      }))
+      .sort((a,b) => a.hour*60+a.min - (b.hour*60+b.min));
+
+    const nr = await fetch(`${PB}/api/collections/announcements/records?perPage=200`);
+    const nd = await nr.json();
+    announcementRecords = (nd.items || []).map(rec => ({
+      ...rec,
+      windows: parseAnnouncementWindows(rec.windows) ?? rec.windows
+    }));
+    refreshTickerFromAnnouncements();
+
+    const rr = await fetch(`${PB}/api/collections/restaurants/records?perPage=200`);
+    const rd = await rr.json();
+    RESTO_MAP_DATA = (rd.items||[]).map(r => ({
+      name: r.name, icon: r.icon||'🍽', cuisine: r.cuisine||'',
+      opens: r.opens||'00:00', closes: r.closes||'23:59',
+      weekly: r.weekly || null,
+      lat: r.lat, lng: r.lng, query: r.query||r.name,
+      venue_key: r.venue_key||''
+    }));
+
+    renderScreen();
+    if (resortMap) { renderMapActivities(); renderRestaurantMarkers(); }
+  } catch(e) {
+    console.error('PocketBase fetch error:', e);
+  }
+}
+
+// PocketBase Realtime — admin değişiklik yapınca anında güncelle
+function connectRealtime() {
+  const es = new EventSource(`${PB}/api/realtime`);
+  let clientId = null;
+
+  es.addEventListener('PB_CONNECT', e => {
+    clientId = JSON.parse(e.data).clientId;
+    // 3 koleksiyona subscribe ol
+    ['activities','announcements','restaurants','venues','app_config'].forEach(col => {
+      fetch(`${PB}/api/realtime`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({clientId, subscriptions:[`${col}/*`]})
+      });
+    });
+  });
+
+  es.addEventListener('message', () => {
+    fetchFromPB(); // herhangi bir değişiklikte yeniden çek
+  });
+
+  es.onerror = () => {
+    setTimeout(connectRealtime, 5000); // bağlantı kopunca yeniden bağlan
+  };
+}
+
+function getIstanbulDowMon0() {
+  const wd = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Istanbul', weekday: 'long' }).format(new Date());
+  const map = {
+    Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6
+  };
+  return map[wd] ?? 0;
+}
+
+function getIstanbulMinutes() {
+  const d = new Date();
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Istanbul', hour: 'numeric', minute: 'numeric', hour12: false
+    }).formatToParts(d);
+    const hp = parts.find(p => p.type === 'hour');
+    const mp = parts.find(p => p.type === 'minute');
+    if (hp && mp) {
+      let h = parseInt(hp.value, 10), m = parseInt(mp.value, 10);
+      if (!Number.isNaN(h) && !Number.isNaN(m)) return h * 60 + m;
+    }
+  } catch (_) {}
+  const s = d.toLocaleString('en-GB', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', hour12: false });
+  const match = s.match(/(\d{1,2})[.:](\d{2})/);
+  if (match) return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+  return d.getHours() * 60 + d.getMinutes();
+}
+
+function timeRangeContains(nowMin, openStr, closeStr) {
+  const po = String(openStr).trim().split(':').map(Number);
+  const pc = String(closeStr).trim().split(':').map(Number);
+  const o = (po[0] || 0) * 60 + (po[1] || 0);
+  const c = (pc[0] || 0) * 60 + (pc[1] || 0);
+  if (c < o) return nowMin >= o || nowMin <= c;
+  return nowMin >= o && nowMin <= c;
+}
+
+function parseAnnouncementWindows(raw) {
+  if (raw == null || raw === '') return null;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      const p = JSON.parse(raw);
+      return Array.isArray(p) ? p : null;
+    } catch (_) { return null; }
+  }
+  return null;
+}
+
+/** windows: [{d:[0..6], o, c}] veya boş → her zaman */
+function announcementActiveNow(windows) {
+  const arr = parseAnnouncementWindows(windows);
+  if (!arr || arr.length === 0) return true;
+  const dow = getIstanbulDowMon0();
+  const nowMin = getIstanbulMinutes();
+  for (const w of arr) {
+    const rawDays = w.d ?? w.days ?? [];
+    const dayList = (Array.isArray(rawDays) ? rawDays : []).map(n => Number(n));
+    if (!dayList.length || !dayList.includes(dow)) continue;
+    const o = w.o ?? w.open, c = w.c ?? w.close;
+    if (o == null || c == null || String(o).trim() === '' || String(c).trim() === '') continue;
+    if (timeRangeContains(nowMin, o, c)) return true;
+  }
+  return false;
+}
+
+function isAnnouncementEnabled(r) {
+  return r.active !== false;
+}
+
+function refreshTickerFromAnnouncements() {
+  const texts = announcementRecords
+    .filter(r => isAnnouncementEnabled(r) && announcementActiveNow(r.windows))
+    .map(r => r.text);
+  buildTicker(texts.length ? texts : ['Welcome to Voyage Sorgun']);
+}
+
+function buildTicker(headlines) {
+  if (!headlines.length) headlines = ['Welcome to Voyage Sorgun'];
+  const all = [...headlines, ...headlines];
+  document.getElementById('ticker-track').innerHTML = all.map(h =>
+    `<span class="ticker-item">${h}</span><span class="ticker-dot"> ◆ </span>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  UPCOMING 5
+// ═══════════════════════════════════════════════
+function getUpcoming() {
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  const windowMin = 5*60;
+  let result = [];
+  for (let i = 0; i < activities.length; i++) {
+    const a = activities[i];
+    const aMin = a.hour*60+a.min;
+    const nextMin = i < activities.length-1
+      ? activities[i+1].hour*60+activities[i+1].min
+      : aMin + 90;
+    const isNow = aMin <= nowMin && nowMin < nextMin;
+    const upcoming = aMin > nowMin && aMin <= nowMin+windowMin;
+    if (isNow || upcoming) result.push({...a, isNow});
+    if (result.length >= 5) break;
+  }
+  if (result.length < 5) {
+    for (let i = 0; i < activities.length && result.length < 5; i++) {
+      result.push({...activities[i], isNow:false});
+    }
+  }
+  return result.slice(0,5);
+}
+
+function renderScreen() {
+  const upcoming = getUpcoming();
+  const strip = document.getElementById('activity-strip');
+  if (!strip) return;
+  if (!upcoming.length) {
+    strip.innerHTML = '<div style="flex:1;text-align:center;font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:.1em;padding:10px">No activities scheduled</div>';
+    return;
+  }
+  strip.innerHTML = upcoming.map(a => `
+    <div class="strip-item${a.isNow?' now':''}">
+      <div class="si-icon">${a.icon||guessIcon(a.name)}</div>
+      <div class="si-time">${pad(a.hour)}:${pad(a.min)}</div>
+      <div class="si-info">
+        <div class="si-name">${a.name}</div>
+        <div class="si-venue">${a.venue||''}</div>
+      </div>
+      ${a.isNow ? '' : ''}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  CLOCK
+// ═══════════════════════════════════════════════
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+  document.getElementById('clock').textContent = pad(h)+':'+pad(m);
+  document.getElementById('clock-date').textContent =
+    DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+
+  const g = document.getElementById('greeting');
+  const txt = h>=5&&h<12 ? 'Good<br><em>Morning</em>'
+    : h>=12&&h<17 ? 'Good<br><em>Afternoon</em>'
+    : h>=17&&h<21 ? 'Good<br><em>Evening</em>'
+    : 'Good<br><em>Night</em>';
+  if (g.innerHTML !== txt) g.innerHTML = txt;
+  if (s === 0) renderScreen();
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+
+// ═══════════════════════════════════════════════
+//  WEATHER — Open-Meteo
+// ═══════════════════════════════════════════════
+const LAT = 36.772, LON = 31.394;
+const WMO_ICON = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'🌨',75:'❄️',80:'🌦',81:'🌧',82:'⛈',95:'⛈',96:'⛈',99:'⛈'};
+const WMO_DESC = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Rain showers',81:'Heavy showers',82:'Violent showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Thunderstorm + hail'};
+
+async function fetchWeather() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index&wind_speed_unit=kmh&timezone=Europe%2FIstanbul`;
+    const d = await (await fetch(url)).json();
+    const c = d.current;
+    document.getElementById('temp').innerHTML = Math.round(c.temperature_2m)+'<sup>°C</sup>';
+    document.getElementById('w-desc').textContent = WMO_DESC[c.weather_code]||'Clear';
+    document.getElementById('w-icon').textContent = WMO_ICON[c.weather_code]||'🌤';
+    document.getElementById('w-hum').textContent = c.relative_humidity_2m+'%';
+    document.getElementById('w-wind').textContent = Math.round(c.wind_speed_10m)+' km/h';
+    document.getElementById('w-feels').textContent = Math.round(c.apparent_temperature)+'°C';
+    document.getElementById('w-uv').textContent = c.uv_index??'—';
+  } catch {
+    document.getElementById('temp').innerHTML = '28<sup>°C</sup>';
+    document.getElementById('w-desc').textContent = 'Clear sky';
+    document.getElementById('w-icon').textContent = '☀️';
+    document.getElementById('w-hum').textContent = '65%';
+    document.getElementById('w-wind').textContent = '14 km/h';
+    document.getElementById('w-feels').textContent = '30°C';
+    document.getElementById('w-uv').textContent = '7';
+  }
+}
+
+async function fetchMarine() {
+  try {
+    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=wave_height,wave_period,wave_direction,sea_surface_temperature&timezone=Europe%2FIstanbul`;
+    const d = await (await fetch(url)).json();
+    const c = d.current;
+    document.getElementById('wave-data').textContent =
+      (c.wave_height?.toFixed(1)??'—')+'m  ·  '+(c.wave_period?Math.round(c.wave_period)+'s':'—');
+    const dirs=['N','NE','E','SE','S','SW','W','NW'];
+    document.getElementById('wave-dir').textContent =
+      c.wave_direction!=null ? dirs[Math.round(c.wave_direction/45)%8] : '—';
+    document.getElementById('sea-temp').textContent =
+      c.sea_surface_temperature!=null ? Math.round(c.sea_surface_temperature)+'°C' : '—';
+  } catch {
+    document.getElementById('wave-data').textContent = '0.4m  ·  8s';
+    document.getElementById('wave-dir').textContent = 'SW';
+    document.getElementById('sea-temp').textContent = '26°C';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  DUYURULAR (Ticker)
+// ═══════════════════════════════════════════════
+const DEFAULT_ANNOUNCEMENTS = [
+  "🌊 Aquapark today 10:00–18:00 — slides, wave pool & kids zone open",
+  "🍽 Gala Dinner tonight at 19:00 — Main Restaurant, smart casual dress code",
+  "💆 Sense Spa: 20% off all treatments booked before 14:00 today",
+  "🎭 Evening Show at 22:00 — Amphitheatre · Doors open at 21:30",
+  "🏖 Beach towels available at Reception — please return by 18:00",
+  "🍹 Cocktail Hour 17:00–18:00 at Sunset Bar — complimentary welcome drink",
+  "🧘 Morning Yoga on the Beach Stage — tomorrow at 07:00, all levels welcome",
+  "🚌 Airport transfer service available 24h — contact Reception for booking",
+];
+
+let announcements = [];
+
+function loadAnnouncements() {
+  try {
+    const s = localStorage.getItem('voyage_announcements');
+    announcements = s ? JSON.parse(s) : [...DEFAULT_ANNOUNCEMENTS];
+  } catch { announcements = [...DEFAULT_ANNOUNCEMENTS]; }
+}
+
+function saveAnnouncements() {
+  localStorage.setItem('voyage_announcements', JSON.stringify(announcements));
+  buildTicker(announcements.length ? announcements : ['Welcome to Voyage Sorgun']);
+  closeAnnouncementPanel();
+  showToast('Announcements saved ✓');
+}
+
+// Duyuru paneli (yerel önizleme; ana ticker PocketBase)
+function openAnnouncementPanel() {
+  document.getElementById('ann-overlay').classList.add('open');
+  renderAnnouncementPanel();
+}
+function closeAnnouncementPanel() {
+  document.getElementById('ann-overlay').classList.remove('open');
+}
+function renderAnnouncementPanel() {
+  document.getElementById('ann-list').innerHTML = announcements.map((a, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;margin-bottom:8px;">
+      <div style="flex:1;font-size:13px;font-weight:300;color:rgba(255,255,255,0.8);letter-spacing:0.04em;">${a}</div>
+      <button class="del-btn" onclick="deleteAnnouncement(${i})">✕</button>
+    </div>
+  `).join('') || '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px;text-align:center;">No announcements yet</div>';
+}
+function deleteAnnouncement(i) { announcements.splice(i,1); renderAnnouncementPanel(); }
+function addAnnouncement() {
+  const val = document.getElementById('ann-input').value.trim();
+  if (!val) return;
+  announcements.push(val);
+  document.getElementById('ann-input').value = '';
+  renderAnnouncementPanel();
+}
+function resetAnnouncements() {
+  if (!confirm('Reset to default announcements?')) return;
+  announcements = [...DEFAULT_ANNOUNCEMENTS];
+  renderAnnouncementPanel();
+}
+
+loadAnnouncements();
+refreshTickerFromAnnouncements();
+
+// ═══════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════
+function createParticles() {
+  const c = document.getElementById('particles');
+  const configs = [
+    {color:'#c9a84c', size:2, count:18},
+    {color:'#ffffff', size:1.5, count:12},
+    {color:'#e8c97a', size:1, count:8},
+  ];
+  configs.forEach(({color,size,count}) => {
+    for (let i=0;i<count;i++) {
+      const p = document.createElement('div');
+      p.className='particle';
+      p.style.cssText = `
+        left:${Math.random()*100}%;
+        bottom:${Math.random()*40}%;
+        width:${size}px; height:${size}px;
+        background:${color};
+        --d:${10+Math.random()*20}s;
+        --dl:${Math.random()*18}s;
+      `;
+      c.appendChild(p);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  RESORT MAP — Leaflet + CARTO Dark
+//  Center: 36.756893, 31.418769 (Voyage Sorgun)
+// ═══════════════════════════════════════════════
+
+// ── STATIC LOCATIONS ──────────────────────────
+const CENTER = [36.756893, 31.418769];
+
+const RESTAURANTS = [
+  { name:'Degusto',     sub:'Main Restaurant & Buffet',  icon:'🍽', lat:36.7578, lng:31.4198 },
+  { name:'Teppanyaki',  sub:'Japanese · À la carte',     icon:'🍱', lat:36.7562, lng:31.4205 },
+  { name:'Cuisine 24',  sub:'All-day dining',            icon:'🕐', lat:36.7572, lng:31.4182 },
+  { name:'Greek Rest.', sub:'Greek cuisine',             icon:'🫒', lat:36.7582, lng:31.4208 },
+  { name:'Steakhouse',  sub:'Grill & Steak',             icon:'🥩', lat:36.7565, lng:31.4215 },
+  { name:'Italian',     sub:'Italian cuisine',           icon:'🍝', lat:36.7558, lng:31.4190 },
+  { name:'Beach Bar',   sub:'Poolside & Beach',          icon:'🍹', lat:36.7548, lng:31.4193 },
+];
+
+const FACILITIES = [
+  { name:'Main Pool',    sub:'7 outdoor pools',          icon:'🏊', lat:36.7570, lng:31.4200 },
+  { name:'Aquapark',     sub:'Beach aquapark',           icon:'🌊', lat:36.7550, lng:31.4202 },
+  { name:'Sense Spa',    sub:'Spa & Wellness',           icon:'💆', lat:36.7575, lng:31.4212 },
+  { name:'Beach',        sub:'Private Blue Flag beach',  icon:'🏖', lat:36.7542, lng:31.4196 },
+  { name:'Amphitheatre', sub:'Show & Events',            icon:'🎭', lat:36.7585, lng:31.4185 },
+  { name:'Sports Zone',  sub:'Tennis · Volleyball',      icon:'🎾', lat:36.7568, lng:31.4222 },
+  { name:'Mini Club',    sub:'Kids\' Club',              icon:'🎨', lat:36.7580, lng:31.4210 },
+  { name:'Reception',    sub:'24h Front Desk',           icon:'🏨', lat:36.7572, lng:31.4172 },
+];
+
+// Activity locations (venue → approximate lat/lng)
+const VENUE_COORDS = {
+  'beach stage · sunrise deck':     [36.7545, 31.4190],
+  'main pool':                      [36.7570, 31.4200],
+  'sports zone b':                  [36.7565, 31.4225],
+  'beach court 1 & 2':              [36.7552, 31.4200],
+  'mini club · deck c':             [36.7580, 31.4210],
+  'amphitheatre':                   [36.7585, 31.4185],
+  'main restaurant & beach buffet': [36.7578, 31.4198],
+  'aquapark zone':                  [36.7550, 31.4202],
+  'sports zone a':                  [36.7568, 31.4220],
+  'games room':                     [36.7574, 31.4178],
+  'beach bar':                      [36.7548, 31.4193],
+  'court 1':                        [36.7566, 31.4223],
+  'sunset bar · lobby bar':         [36.7573, 31.4170],
+  'panorama deck':                  [36.7576, 31.4167],
+  'main restaurant':                [36.7578, 31.4198],
+  'show stage':                     [36.7586, 31.4182],
+  'disco & aquapark':               [36.7551, 31.4203],
+};
+
+function getVenueCoords(venue) {
+  if (!venue) return null;
+  const key = venue.toLowerCase();
+  for (const [k, v] of Object.entries(VENUE_COORDS)) {
+    if (key.includes(k) || k.includes(key.split('·')[0].trim())) return v;
+  }
+  return null;
+}
+
+function getActivityCoords(a) {
+  if (a.venue_key && venueByKey[a.venue_key]) return venueByKey[a.venue_key];
+  return getVenueCoords(a.venue);
+}
+
+function restoCoords(r) {
+  if (r.venue_key && venueByKey[r.venue_key]) return venueByKey[r.venue_key];
+  if (r.lat != null && r.lng != null) return [Number(r.lat), Number(r.lng)];
+  return null;
+}
+
+function restoTodaySlot(r) {
+  const dow = (new Date().getDay() + 6) % 7;
+  const w = r.weekly;
+  if (w && typeof w === 'object') {
+    const slot = w[String(dow)];
+    if (slot === null || slot === undefined) return null;
+    const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
+    if (o && c) return { opens: o, closes: c };
+  }
+  return { opens: r.opens||'09:00', closes: r.closes||'23:00' };
+}
+
+// ── LEAFLET MAP ───────────────────────────────
+let resortMap = null;
+let activityMarkers = [];
+let restoMarkers = [];
+
+// Keyframe CSS
+const kfStyle = document.createElement('style');
+kfStyle.textContent = `
+  @keyframes live-ring  { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(2.4);opacity:0} }
+  @keyframes live-dot   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.5)} }
+  @keyframes dancer-sway{ 0%{transform:rotate(-4deg) translateX(-3px)} 100%{transform:rotate(4deg) translateX(3px)} }
+  @keyframes spotlight  { 0%{left:30%;opacity:.8} 100%{left:65%;opacity:1} }
+  @keyframes bar-pulse  { 0%{opacity:.6} 100%{opacity:1;box-shadow:0 0 6px rgba(217,48,48,.8)} }
+`;
+document.head.appendChild(kfStyle);
+
+// Harita kartları: ikon + okunaklı metin (foto yok)
+const MAP_CARD_W = 228;
+const MAP_CARD_H = 82;
+const MAP_ICON_COL = 52;
+
+// ── CARD HTML FACTORIES ───────────────────────
+function actCardHTML(a) {
+  const timeStr = pad(a.hour)+':'+pad(a.min);
+  const icon = a.icon || '⭐';
+  return `
+    <div style="position:relative;width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(217,48,48,.55);border-radius:10px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.75),0 0 10px rgba(217,48,48,.18);font-family:'Montserrat',sans-serif;">
+      <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(160deg,#120828,#1c0d3a);display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(217,48,48,.25);">
+        <span style="font-size:26px;line-height:1;animation:dancer-sway 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,200,80,.45));">${icon}</span>
+      </div>
+      <div style="flex:1;min-width:0;padding:8px 10px 8px 10px;display:flex;flex-direction:column;justify-content:center;gap:4px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:4px;background:#d93030;color:#fff;font-size:9px;font-weight:700;letter-spacing:.12em;padding:3px 7px;border-radius:4px;box-shadow:0 0 8px rgba(217,48,48,.45);">
+            <span style="width:6px;height:6px;border-radius:50%;background:#fff;animation:live-dot 1.2s ease-in-out infinite;flex-shrink:0;"></span>LIVE
+          </div>
+          <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.75);letter-spacing:.04em;">${timeStr}</span>
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:#fff;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.name}</div>
+        <div style="font-size:11px;font-weight:400;color:rgba(255,255,255,.5);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.venue||''}</div>
+      </div>
+      <div style="position:absolute;bottom:0;left:${MAP_ICON_COL}px;right:0;height:2px;background:linear-gradient(90deg,#d93030,transparent);animation:bar-pulse 2s ease-in-out infinite alternate;"></div>
+    </div>`;
+}
+
+function restoCardHTML(r) {
+  const slot = restoTodaySlot(r);
+  const hrs = slot ? `${slot.opens}–${slot.closes}` : `${r.opens}–${r.closes}`;
+  return `
+    <div style="width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;position:relative;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(201,168,76,.4);border-radius:10px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.65);font-family:'Montserrat',sans-serif;">
+      <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(135deg,rgba(232,168,124,.2),rgba(14,22,45,.95));display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(201,168,76,.2);">
+        <span style="font-size:28px;line-height:1;">${r.icon}</span>
+      </div>
+      <div style="flex:1;min-width:0;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:4px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="background:rgba(93,187,138,.2);color:#5dbb8a;font-size:9px;font-weight:700;letter-spacing:.1em;padding:3px 7px;border-radius:4px;border:1px solid rgba(93,187,138,.35);">OPEN</span>
+          <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.65);letter-spacing:.03em;">${hrs}</span>
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:#e8c97a;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div>
+        <div style="font-size:11px;font-weight:400;color:rgba(255,255,255,.45);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.cuisine}</div>
+      </div>
+    </div>`;
+}
+
+function makeCardIcon(html, w, h) {
+  return L.divIcon({ html, className:'', iconSize:[w,h], iconAnchor:[w/2,h] });
+}
+
+// ── MAP INIT ──────────────────────────────────
+function initMap() {
+  resortMap = L.map('resort-map', {
+    center: CENTER,
+    zoom: 18,
+    minZoom: 18,
+    maxZoom: 18,
+    zoomControl: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    dragging: false,
+    touchZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    tap: false,
+    attributionControl: false,
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd', maxZoom: 20, opacity: 1,
+  }).addTo(resortMap);
+
+  renderMapActivities();
+  renderRestaurantMarkers();
+}
+
+function isRestoOpen(r) {
+  const slot = restoTodaySlot(r);
+  if (!slot) return false;
+  const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+  const [oh,om] = String(slot.opens).split(':').map(Number);
+  const [ch,cm] = String(slot.closes).split(':').map(Number);
+  const open = oh*60+om, close = ch*60+cm;
+  return close < open ? (nowMin >= open || nowMin < close) : (nowMin >= open && nowMin < close);
+}
+
+function renderMapActivities() {
+  activityMarkers.forEach(m => resortMap.removeLayer(m));
+  activityMarkers = [];
+
+  const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+
+  activities.forEach(a => {
+    const coords = getActivityCoords(a);
+    if (!coords) return;
+    const diff = (a.hour*60+a.min) - nowMin;
+    if (!(diff <= 0 && diff > -90)) return;
+
+    const icon = makeCardIcon(actCardHTML(a), MAP_CARD_W, MAP_CARD_H);
+    const m = L.marker(coords, { icon, interactive:false }).addTo(resortMap);
+    activityMarkers.push(m);
+  });
+}
+
+function renderRestaurantMarkers() {
+  restoMarkers.forEach(m => resortMap.removeLayer(m));
+  restoMarkers = [];
+
+  for (const r of RESTO_MAP_DATA) {
+    if (!isRestoOpen(r)) continue;
+    const coords = restoCoords(r);
+    if (!coords) continue;
+    const icon = makeCardIcon(restoCardHTML(r), MAP_CARD_W, MAP_CARD_H);
+    const m = L.marker(coords, { icon, interactive:false }).addTo(resortMap);
+    restoMarkers.push(m);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  SCALE TO VIEWPORT
+// ═══════════════════════════════════════════════
+function scaleScreen() {
+  const sw = document.getElementById('scaleWrapper');
+  const scaleX = window.innerWidth / 1920;
+  const scaleY = window.innerHeight / 1080;
+  const scale = Math.min(scaleX, scaleY);
+  const offsetX = (window.innerWidth - 1920*scale) / 2;
+  const offsetY = (window.innerHeight - 1080*scale) / 2;
+  sw.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  if (resortMap) setTimeout(() => resortMap.invalidateSize(), 50);
+}
+
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+createParticles();
+updateClock();
+scaleScreen();
+
+// PocketBase'den veri çek
+fetchFromPB();
+// Realtime bağlantısı
+connectRealtime();
+
+setTimeout(initMap, 100);
+setInterval(() => { renderScreen(); renderMapActivities(); renderRestaurantMarkers(); }, 60000);
+setInterval(updateClock, 1000);
+window.addEventListener('resize', scaleScreen);
+
+fetchWeather();
+fetchMarine();
+setInterval(fetchWeather, 10*60*1000);
+setInterval(fetchMarine, 10*60*1000);
+// 14 günlük döngü günü gece yarısı değişir; Realtime tetiklemez → periyodik yenile
+setInterval(fetchFromPB, 2 * 60 * 1000);
+setInterval(refreshTickerFromAnnouncements, 45 * 1000);
+</script>
+</body>
+</html>

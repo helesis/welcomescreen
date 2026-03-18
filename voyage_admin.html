@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voyage Sorgun — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:  #080d1c;
+  --navy2: #0d1530;
+  --gold:  #c9a84c;
+  --gold2: #e8c97a;
+  --white: #ffffff;
+  --glass: rgba(255,255,255,0.06);
+  --border: rgba(201,168,76,0.2);
+  --border2: rgba(255,255,255,0.08);
+  --red: #d93030;
+  --green: #5dbb8a;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(160deg, #08101f 0%, #0b1630 50%, #060e20 100%);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* ── LOGIN ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+.login-box {
+  width: 380px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  backdrop-filter: blur(12px);
+}
+.login-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 300;
+  letter-spacing: 0.25em; color: var(--gold2);
+  text-align: center; margin-bottom: 6px;
+}
+.login-sub {
+  font-size: 10px; font-weight: 300;
+  letter-spacing: 0.25em; color: rgba(255,255,255,0.35);
+  text-align: center; text-transform: uppercase; margin-bottom: 32px;
+}
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-size: 9px; font-weight: 500;
+  letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.field input {
+  width: 100%; padding: 11px 14px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--white);
+  font-size: 14px; font-family: 'Montserrat', sans-serif;
+  outline: none; transition: border-color 0.2s;
+}
+.field input:focus { border-color: rgba(201,168,76,0.45); }
+.btn-primary {
+  width: 100%; padding: 12px;
+  background: linear-gradient(135deg, var(--gold), #a8852e);
+  border: none; border-radius: 8px;
+  color: var(--navy); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: opacity 0.2s; margin-top: 8px;
+}
+.btn-primary:hover { opacity: 0.88; }
+.login-error {
+  color: #e07070; font-size: 12px; text-align: center;
+  margin-top: 12px; display: none;
+}
+
+/* ── MAIN APP ── */
+#app { display: none; }
+
+.topbar {
+  background: rgba(8,13,28,0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px; position: sticky; top: 0; z-index: 50;
+}
+.topbar-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 300;
+  letter-spacing: 0.2em; color: var(--gold2);
+}
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-user { font-size: 11px; font-weight: 300; color: rgba(255,255,255,0.4); }
+.btn-logout {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border2);
+  border-radius: 7px; padding: 7px 16px;
+  color: rgba(255,255,255,0.5); font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--red); color: #e07070; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border2);
+  padding: 0 32px;
+  background: rgba(8,13,28,0.6);
+}
+.tab {
+  padding: 14px 24px;
+  font-size: 11px; font-weight: 400;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab:hover { color: rgba(255,255,255,0.6); }
+.tab.active { color: var(--gold2); border-bottom-color: var(--gold); }
+
+/* ── CONTENT ── */
+.content { padding: 32px; max-width: 900px; margin: 0 auto; }
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 300;
+  color: var(--gold2); margin-bottom: 6px; letter-spacing: 0.05em;
+}
+.section-sub {
+  font-size: 11px; font-weight: 300;
+  color: rgba(255,255,255,0.35); letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+
+/* Add form */
+.add-form {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+}
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 9px; font-weight: 500; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; }
+.form-input {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border2);
+  border-radius: 8px; padding: 9px 13px;
+  color: var(--white); font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+  outline: none; transition: border-color 0.2s;
+}
+.form-input:focus { border-color: rgba(201,168,76,0.4); }
+.form-input::placeholder { color: rgba(255,255,255,0.2); }
+.form-input.w-sm { width: 80px; }
+.form-input.w-md { width: 150px; }
+.form-input.w-lg { width: 280px; }
+.form-input.w-xl { flex: 1; min-width: 200px; }
+
+.btn-add {
+  background: linear-gradient(135deg, var(--gold), #a8852e);
+  border: none; border-radius: 8px;
+  padding: 9px 20px;
+  color: var(--navy); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  transition: opacity 0.2s; white-space: nowrap;
+}
+.btn-add:hover { opacity: 0.88; }
+
+/* Records list */
+.record-list { display: flex; flex-direction: column; gap: 8px; }
+.record-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px;
+  background: var(--glass);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+.record-row:hover { border-color: rgba(201,168,76,0.2); }
+.record-icon { font-size: 20px; flex-shrink: 0; }
+.record-time {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 300;
+  color: var(--gold2); min-width: 60px; flex-shrink: 0;
+}
+.record-info { flex: 1; min-width: 0; }
+.record-name { font-size: 14px; font-weight: 400; color: var(--white); margin-bottom: 2px; }
+.record-venue { font-size: 11px; font-weight: 300; color: rgba(255,255,255,0.35); letter-spacing: 0.06em; }
+.record-text { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.8); }
+.record-meta { font-size: 11px; color: rgba(255,255,255,0.35); white-space: nowrap; }
+.btn-del {
+  background: rgba(217,48,48,0.08);
+  border: 1px solid rgba(217,48,48,0.2);
+  border-radius: 7px; width: 32px; height: 32px;
+  cursor: pointer; color: rgba(255,100,100,0.6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: all 0.2s; flex-shrink: 0;
+}
+.btn-del:hover { background: rgba(217,48,48,0.2); color: #ff6b6b; }
+
+.empty-state {
+  text-align: center; padding: 40px;
+  color: rgba(255,255,255,0.25); font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+/* Status badge */
+.badge-open  { background:rgba(93,187,138,.15);color:#5dbb8a;border:1px solid rgba(93,187,138,.3); font-size:9px;font-weight:600;letter-spacing:.12em;padding:2px 7px;border-radius:4px;text-transform:uppercase; }
+.badge-closed{ background:rgba(217,48,48,.1);color:#e07070;border:1px solid rgba(217,48,48,.2); font-size:9px;font-weight:600;letter-spacing:.12em;padding:2px 7px;border-radius:4px;text-transform:uppercase; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 200;
+  background: rgba(201,168,76,0.15);
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: 10px; padding: 12px 20px;
+  font-size: 12px; font-weight: 400;
+  letter-spacing: 0.1em; color: var(--gold2);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+
+.loading { text-align:center; padding:40px; color:rgba(255,255,255,.3); font-size:12px; letter-spacing:.15em; }
+
+.tabs { flex-wrap: wrap; }
+.weekly-grid { width:100%; max-width:640px; display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.weekly-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(255,255,255,.03); padding:10px 12px; border-radius:8px; border:1px solid var(--border2); }
+.weekly-row .dow { width:36px; font-size:10px; font-weight:600; letter-spacing:.1em; color:var(--gold); }
+.weekly-row label { font-size:11px; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:6px; cursor:pointer; }
+.cycle-preview { margin-top:20px; padding:16px; background:var(--glass); border-radius:12px; border:1px solid var(--border); font-size:13px; color:var(--gold2); }
+.key-mono { font-family:ui-monospace,monospace; font-size:11px; color:rgba(255,255,255,.6); }
+
+.ann-win-block { width:100%; max-width:720px; margin-bottom:14px; padding:14px; background:rgba(255,255,255,.03); border:1px solid var(--border2); border-radius:10px; }
+.ann-win-row { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,.06); }
+.ann-win-row:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.ann-win-days { display:flex; flex-wrap:wrap; gap:6px 10px; flex:1; min-width:200px; }
+.ann-dow { font-size:10px; color:rgba(255,255,255,.55); display:flex; align-items:center; gap:4px; cursor:pointer; }
+.ann-schedule-hint { font-size:10px; color:rgba(255,255,255,.35); margin-top:6px; letter-spacing:.04em; }
+
+.ann-list-sched {
+  margin-top:10px; padding:10px 12px; background:rgba(201,168,76,.06); border:1px solid rgba(201,168,76,.18);
+  border-radius:8px; font-size:12px; line-height:1.45; color:rgba(245,239,230,.92);
+}
+.ann-list-sched-title { font-size:9px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+.ann-list-sched-row { padding:8px 0; border-top:1px solid rgba(255,255,255,.08); }
+.ann-list-sched-row:first-of-type { border-top:none; padding-top:0; }
+.ann-list-sched-days { color:rgba(255,255,255,.88); margin-top:2px; }
+.ann-list-sched-time { color:var(--gold2); font-weight:500; margin-top:4px; font-family:ui-monospace,monospace; }
+.ann-list-sched-always { color:rgba(93,187,138,.85); font-size:12px; }
+.ann-tz-note { font-size:10px; opacity:.45; margin-left:4px; }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.72);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  overflow-y: auto;
+}
+.modal-box {
+  width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto;
+  background: linear-gradient(165deg, #0d1530 0%, #080d1c 100%);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px 28px 20px; box-shadow: 0 24px 80px rgba(0,0,0,.5);
+}
+.modal-head {
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300;
+  color: var(--gold2); letter-spacing: .08em; margin-bottom: 20px;
+}
+.modal-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; justify-content: flex-end; }
+.btn-modal { padding: 10px 22px; border-radius: 8px; font-size: 11px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; cursor: pointer; font-family: 'Montserrat', sans-serif; border: none; }
+.btn-modal-save { background: linear-gradient(135deg, var(--gold), #a8852e); color: var(--navy); }
+.btn-modal-cancel { background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); border: 1px solid var(--border2); }
+.btn-edit {
+  background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.35); color: var(--gold2);
+  border-radius: 7px; padding: 7px 14px; font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; cursor: pointer; margin-right: 8px; flex-shrink: 0;
+}
+.btn-edit:hover { background: rgba(201,168,76,.2); }
+.btn-ann-toggle {
+  background: rgba(255,255,255,.06); border: 1px solid var(--border2); color: rgba(255,255,255,.65);
+  border-radius: 7px; padding: 7px 12px; font-size: 9px; letter-spacing: .12em;
+  text-transform: uppercase; cursor: pointer; margin-right: 8px; flex-shrink: 0;
+}
+.btn-ann-toggle:hover { border-color: var(--gold); color: var(--gold2); }
+.btn-ann-toggle.off { border-color: rgba(217,48,48,.35); color: #e07070; }
+.ann-row-pasif { opacity: .55; }
+.ann-badge-pasif {
+  display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: .12em;
+  padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
+  background: rgba(217,48,48,.12); color: #e07070; border: 1px solid rgba(217,48,48,.25);
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Voyage Sorgun</div>
+    <div class="login-sub">Admin Panel</div>
+    <div class="field">
+      <label>E-mail</label>
+      <input type="email" id="l-email" placeholder="admin@voyagesorgun.com" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div class="field">
+      <label>Şifre</label>
+      <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-primary" onclick="login()">Giriş Yap</button>
+    <div class="login-error" id="login-error">E-mail veya şifre hatalı</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">Voyage Sorgun · Admin</div>
+    <div class="topbar-right">
+      <div class="topbar-user" id="topbar-user"></div>
+      <button class="btn-logout" onclick="logout()">Çıkış</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('activities')">🎭 Aktiviteler</div>
+    <div class="tab" onclick="showTab('announcements')">📢 Duyurular</div>
+    <div class="tab" onclick="showTab('restaurants')">🍽 Restoranlar</div>
+    <div class="tab" onclick="showTab('venues')">📍 Konumlar</div>
+    <div class="tab" onclick="showTab('cycle')">🔁 14 Gün</div>
+  </div>
+
+  <!-- ACTIVITIES TAB -->
+  <div id="tab-activities" class="content">
+    <div class="section-title">Aktivite programı (14 günlük döngü)</div>
+    <div class="section-sub">Her kayıt, <strong>14 Gün</strong> sekmesindeki başlangıca göre yalnızca seçilen döngü gününde gösterilir. Boş bırakılırsa her gün. Harita pini için <strong>Konumlar</strong>’dan birim seçin veya mekan metni yedek eşleşir.</div>
+    <div class="add-form" style="align-items:flex-end">
+      <div class="form-group">
+        <span class="form-label">Döngü günü</span>
+        <select class="form-input w-md" id="a-cycle-day">
+          <option value="">Her gün göster</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <span class="form-label">Saat</span>
+        <input class="form-input w-sm" type="number" id="a-hour" min="0" max="23" placeholder="09">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Dakika</span>
+        <input class="form-input w-sm" type="number" id="a-min" min="0" max="59" placeholder="00">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Aktivite</span>
+        <input class="form-input w-lg" type="text" id="a-name" placeholder="Beach Volleyball">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Mekan (metin)</span>
+        <input class="form-input w-lg" type="text" id="a-venue" placeholder="Beach Court 1 & 2">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Harita birimi</span>
+        <select class="form-input w-lg" id="a-venue-key"><option value="">— Yok (metin yedeği) —</option></select>
+      </div>
+      <div class="form-group">
+        <span class="form-label">İkon</span>
+        <input class="form-input w-sm" type="text" id="a-icon" placeholder="🏐">
+      </div>
+      <button class="btn-add" onclick="addActivity()">+ Ekle</button>
+    </div>
+    <div class="record-list" id="act-list"><div class="loading">Yükleniyor...</div></div>
+  </div>
+
+  <!-- ANNOUNCEMENTS TAB -->
+  <div id="tab-announcements" class="content" style="display:none">
+    <div class="section-title">Duyurular</div>
+    <div class="section-sub">TV ticker’da gösterilir. <strong>Saat aralığı</strong> ve <strong>haftanın günleri</strong> İstanbul saatine göre. Birden fazla satır ekleyebilirsin (ör. hafta içi 09–12 ve hafta sonu 10–22). <code class="key-mono">windows</code> boş bırakılırsa duyuru her zaman görünür.</div>
+    <div class="add-form" style="flex-direction:column; align-items:stretch">
+      <div class="form-group" style="width:100%">
+        <span class="form-label">Duyuru metni</span>
+        <input class="form-input w-xl" type="text" id="n-text" style="width:100%;max-width:none"
+          placeholder="🍹 Happy Hour — Sunset Bar">
+      </div>
+      <label style="display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:10px;cursor:pointer">
+        <input type="checkbox" id="n-always" onchange="document.getElementById('ann-schedule-wrap').style.display=this.checked?'none':'block'">
+        Her zaman göster (zaman penceresi yok)
+      </label>
+      <div class="ann-win-block" id="ann-schedule-wrap">
+        <span class="form-label" style="display:block;margin-bottom:10px">Ne zaman gösterilsin?</span>
+        <div id="ann-win-rows"></div>
+        <button type="button" class="btn-add" style="margin-top:8px;padding:8px 14px" onclick="addAnnWinRow()">+ Başka saat aralığı</button>
+        <div class="ann-schedule-hint">Her satır: işaretli günlerde, başlangıç–bitiş saati arasında (24 saat, örn. 17:00). Gece sarkan saat: 22:00–02:00.</div>
+      </div>
+      <button class="btn-add" onclick="addAnnouncement()">+ Duyuruyu kaydet</button>
+    </div>
+    <div class="record-list" id="ann-list"><div class="loading">Yükleniyor...</div></div>
+  </div>
+
+  <!-- RESTAURANTS TAB -->
+  <div id="tab-restaurants" class="content" style="display:none">
+    <div class="section-title">Restoranlar (haftalık saat)</div>
+    <div class="section-sub">Pazartesi=0 … Pazar=6. Kapalı işaretli günler haritada o gün görünmez. Koordinat için Konumlar’dan birim seçebilir veya elle girersiniz.</div>
+    <div class="add-form" style="flex-direction:column; align-items:stretch">
+      <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end">
+        <div class="form-group">
+          <span class="form-label">İsim</span>
+          <input class="form-input w-md" type="text" id="r-name" placeholder="Vista">
+        </div>
+        <div class="form-group">
+          <span class="form-label">İkon</span>
+          <input class="form-input w-sm" type="text" id="r-icon" placeholder="🍷">
+        </div>
+        <div class="form-group">
+          <span class="form-label">Mutfak</span>
+          <input class="form-input w-md" type="text" id="r-cuisine" placeholder="Italian">
+        </div>
+        <div class="form-group">
+          <span class="form-label">Harita birimi</span>
+          <select class="form-input w-lg" id="r-venue-key" onchange="fillRestoCoordsFromVenue()"><option value="">— Elle koordinat —</option></select>
+        </div>
+        <div class="form-group">
+          <span class="form-label">Enlem</span>
+          <input class="form-input w-md" type="number" id="r-lat" placeholder="36.7555" step="0.0001">
+        </div>
+        <div class="form-group">
+          <span class="form-label">Boylam</span>
+          <input class="form-input w-md" type="number" id="r-lng" placeholder="31.4178" step="0.0001">
+        </div>
+      </div>
+      <div class="weekly-grid" id="r-weekly-rows"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <button type="button" class="btn-add" style="padding:8px 16px" onclick="copyMondayToAllDays()">Pzt saatlerini tüm günlere kopyala</button>
+        <button type="button" class="btn-add" onclick="addRestaurant()">+ Restoran ekle</button>
+      </div>
+    </div>
+    <div class="record-list" id="rest-list"><div class="loading">Yükleniyor...</div></div>
+  </div>
+
+  <!-- VENUES TAB -->
+  <div id="tab-venues" class="content" style="display:none">
+    <div class="section-title">Harita birimleri (koordinat)</div>
+    <div class="section-sub">Benzersiz <span class="key-mono">key</span> (örn. beach_court). Aktivite ve restoran bu anahtarla aynı noktayı kullanır.</div>
+    <div class="add-form">
+      <div class="form-group">
+        <span class="form-label">Key (slug)</span>
+        <input class="form-input w-md" type="text" id="v-key" placeholder="beach_court">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Görünen ad</span>
+        <input class="form-input w-lg" type="text" id="v-name" placeholder="Beach Court 1 & 2">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Enlem</span>
+        <input class="form-input w-md" type="number" id="v-lat" step="0.000001" placeholder="36.7552">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Boylam</span>
+        <input class="form-input w-md" type="number" id="v-lng" step="0.000001" placeholder="31.4200">
+      </div>
+      <button class="btn-add" onclick="addVenue()">+ Birim ekle</button>
+    </div>
+    <div class="record-list" id="venue-list"><div class="loading">Yükleniyor...</div></div>
+  </div>
+
+  <!-- 14-DAY CYCLE TAB -->
+  <div id="tab-cycle" class="content" style="display:none">
+    <div class="section-title">14 günlük döngü başlangıcı</div>
+    <div class="section-sub">Seçtiğiniz tarih <strong>Döngü Günü 1</strong> (indeks 0). Ertesi gün Gün 2 … 14. günün ardından tekrar Gün 1. Hesaplama <strong>Europe/Istanbul</strong> takvim günü ile yapılır; tek sefer ayarlanır, sonsuz tekrar.</div>
+    <div class="add-form" style="align-items:flex-end">
+      <div class="form-group">
+        <span class="form-label">Başlangıç tarihi (Gün 1)</span>
+        <input class="form-input w-md" type="date" id="cycle-anchor">
+      </div>
+      <button class="btn-add" onclick="saveCycleAnchor()">Kaydet</button>
+    </div>
+    <div class="cycle-preview" id="cycle-preview"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Duyuru düzenleme modal -->
+<div id="ann-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeAnnModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">Duyuruyu düzenle</div>
+    <div class="form-group" style="margin-bottom:16px">
+      <span class="form-label">Duyuru metni</span>
+      <input type="text" id="ann-edit-text" class="form-input" style="width:100%;max-width:none" placeholder="Metin">
+    </div>
+    <label style="display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:12px;cursor:pointer">
+      <input type="checkbox" id="ann-edit-active" checked>
+      <strong>Aktif</strong> — kapalıysa TV’de hiç gösterilmez
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:12px;cursor:pointer">
+      <input type="checkbox" id="ann-edit-always" onchange="document.getElementById('ann-edit-schedule-wrap').style.display=this.checked?'none':'block'">
+      Her zaman göster (zaman penceresi yok)
+    </label>
+    <div class="ann-win-block" id="ann-edit-schedule-wrap">
+      <span class="form-label" style="display:block;margin-bottom:10px">Ne zaman gösterilsin?</span>
+      <div id="ann-edit-win-rows"></div>
+      <button type="button" class="btn-add" style="margin-top:8px;padding:8px 14px" onclick="addAnnEditWinRow()">+ Saat aralığı ekle</button>
+      <div class="ann-schedule-hint">Her satırda gün seç + saat aralığı. İstanbul saati.</div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal btn-modal-cancel" onclick="closeAnnModal()">İptal</button>
+      <button type="button" class="btn-modal btn-modal-save" onclick="saveAnnEdit()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Aktivite düzenleme modal -->
+<div id="act-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeActModal()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:520px">
+    <div class="modal-head">Aktiviteyi düzenle</div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end">
+      <div class="form-group">
+        <span class="form-label">Döngü günü</span>
+        <select class="form-input w-md" id="act-edit-cycle-day"><option value="">Her gün</option></select>
+      </div>
+      <div class="form-group">
+        <span class="form-label">Saat</span>
+        <input class="form-input w-sm" type="number" id="act-edit-hour" min="0" max="23">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Dakika</span>
+        <input class="form-input w-sm" type="number" id="act-edit-min" min="0" max="59">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:14px">
+      <span class="form-label">Aktivite adı</span>
+      <input class="form-input" style="width:100%" type="text" id="act-edit-name">
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <span class="form-label">Mekan (metin)</span>
+      <input class="form-input" style="width:100%" type="text" id="act-edit-venue">
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <span class="form-label">Harita birimi</span>
+      <select class="form-input" style="width:100%" id="act-edit-venue-key"><option value="">— Yok —</option></select>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <span class="form-label">İkon</span>
+      <input class="form-input w-sm" type="text" id="act-edit-icon">
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal btn-modal-cancel" onclick="closeActModal()">İptal</button>
+      <button type="button" class="btn-modal btn-modal-save" onclick="saveActivityEdit()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Restoran düzenleme modal -->
+<div id="resto-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeRestoModal()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:680px">
+    <div class="modal-head">Restoranı düzenle</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px">
+      <div class="form-group">
+        <span class="form-label">İsim</span>
+        <input class="form-input w-md" type="text" id="r-edit-name">
+      </div>
+      <div class="form-group">
+        <span class="form-label">İkon</span>
+        <input class="form-input w-sm" type="text" id="r-edit-icon">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Mutfak</span>
+        <input class="form-input w-md" type="text" id="r-edit-cuisine">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Harita birimi</span>
+        <select class="form-input w-lg" id="r-edit-venue-key" onchange="fillRestoEditCoordsFromVenue()"><option value="">— Elle koordinat —</option></select>
+      </div>
+      <div class="form-group">
+        <span class="form-label">Enlem</span>
+        <input class="form-input w-md" type="number" id="r-edit-lat" step="0.0001">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Boylam</span>
+        <input class="form-input w-md" type="number" id="r-edit-lng" step="0.0001">
+      </div>
+    </div>
+    <span class="form-label" style="display:block;margin-bottom:8px">Haftalık saatler (Pzt–Paz)</span>
+    <div class="weekly-grid" id="r-edit-weekly-rows"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <button type="button" class="btn-add" style="padding:8px 14px" onclick="copyREditMondayToAll()">Pzt → tüm günlere kopyala</button>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal btn-modal-cancel" onclick="closeRestoModal()">İptal</button>
+      <button type="button" class="btn-modal btn-modal-save" onclick="saveRestaurantEdit()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Konum (venue) düzenleme modal -->
+<div id="venue-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeVenueModal()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:480px">
+    <div class="modal-head">Harita birimini düzenle</div>
+    <p style="font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;margin-bottom:16px;letter-spacing:.04em">
+      <strong>Key</strong> değişirse, aktivite ve restoran kayıtlarındaki <span class="key-mono">venue_key</span> alanlarını da yeni key ile güncellemen gerekir.
+    </p>
+    <div class="form-group" style="margin-bottom:14px">
+      <span class="form-label">Key (slug)</span>
+      <input class="form-input" style="width:100%" type="text" id="v-edit-key" placeholder="beach_court">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <span class="form-label">Görünen ad</span>
+      <input class="form-input" style="width:100%" type="text" id="v-edit-name">
+    </div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <div class="form-group">
+        <span class="form-label">Enlem</span>
+        <input class="form-input w-md" type="number" id="v-edit-lat" step="0.000001">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Boylam</span>
+        <input class="form-input w-md" type="number" id="v-edit-lng" step="0.000001">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-modal btn-modal-cancel" onclick="closeVenueModal()">İptal</button>
+      <button type="button" class="btn-modal btn-modal-save" onclick="saveVenueEdit()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PB = 'https://hotel-data.voyagestars.com';
+let token = localStorage.getItem('voyage_admin_token') || '';
+let currentTab = 'activities';
+
+// ── AUTH ──────────────────────────────────────
+function clearStoredToken() {
+  token = '';
+  localStorage.removeItem('voyage_admin_token');
+}
+
+async function login() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  try {
+    const r = await fetch(`${PB}/api/admins/auth-with-password`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({identity: email, password: pass})
+    });
+    const raw = await r.text();
+    if (!r.ok) {
+      let msg = raw;
+      try { msg = JSON.parse(raw).message || raw; } catch (_) {}
+      console.error('[voyage_admin] login failed', r.status, msg);
+      errEl.textContent = r.status === 400 ? 'E-mail veya şifre hatalı' : `Giriş hatası (${r.status})`;
+      errEl.style.display = 'block';
+      return;
+    }
+    const d = JSON.parse(raw);
+    if (!d.token) {
+      console.error('[voyage_admin] login: no token in response', d);
+      errEl.textContent = 'Sunucu yanıtı geçersiz';
+      errEl.style.display = 'block';
+      return;
+    }
+    token = d.token;
+    localStorage.setItem('voyage_admin_token', token);
+    document.getElementById('topbar-user').textContent = d.admin?.email || email;
+    console.log('[voyage_admin] login OK', d.admin?.email || email);
+    showApp();
+  } catch (e) {
+    console.error('[voyage_admin] login network/error', e);
+    errEl.textContent = 'Bağlantı hatası — ağı kontrol edin';
+    errEl.style.display = 'block';
+  }
+}
+
+async function verifyToken() {
+  if (!token) return false;
+  try {
+    const r = await fetch(`${PB}/api/admins/auth-refresh`, {
+      method: 'POST',
+      headers: {'Authorization': token}
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      console.warn('[voyage_admin] auth-refresh failed', r.status, t);
+      clearStoredToken();
+      return false;
+    }
+    const d = await r.json();
+    token = d.token;
+    localStorage.setItem('voyage_admin_token', token);
+    document.getElementById('topbar-user').textContent = d.admin?.email || '';
+    console.log('[voyage_admin] session restored', d.admin?.email || '(admin)');
+    return true;
+  } catch (e) {
+    console.warn('[voyage_admin] auth-refresh error', e);
+    clearStoredToken();
+    return false;
+  }
+}
+
+function logout() {
+  clearStoredToken();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadAll();
+}
+
+const TAB_IDS = ['activities','announcements','restaurants','venues','cycle'];
+let venuesCache = [];
+let cycleRecordId = null;
+
+// ── TABS ──────────────────────────────────────
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', TAB_IDS[i] === tab);
+  });
+  TAB_IDS.forEach(t => {
+    const el = document.getElementById(`tab-${t}`);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'cycle') updateCyclePreview();
+}
+
+// ── API HELPERS ───────────────────────────────
+async function pbList(collection, sort) {
+  const q = sort ? `?perPage=200&sort=${encodeURIComponent(sort)}` : '?perPage=200';
+  const r = await fetch(`${PB}/api/collections/${collection}/records${q}`, {
+    headers: {'Authorization': token}
+  });
+  const d = await r.json();
+  return d.items || [];
+}
+
+async function pbPost(collection, data) {
+  const r = await fetch(`${PB}/api/collections/${collection}/records`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Authorization': token},
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function pbPatch(collection, id, data) {
+  const r = await fetch(`${PB}/api/collections/${collection}/records/${id}`, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json','Authorization': token},
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function pbDelete(collection, id) {
+  const r = await fetch(`${PB}/api/collections/${collection}/records/${id}`, {
+    method: 'DELETE',
+    headers: {'Authorization': token}
+  });
+  if (!r.ok) throw new Error();
+}
+
+// ── CYCLE (14 gün) ────────────────────────────
+function istanbulTodayYMD() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
+}
+
+function cycleDayIndex(anchorYMD) {
+  const [y1, m1, d1] = anchorYMD.split('-').map(Number);
+  const [y2, m2, d2] = istanbulTodayYMD().split('-').map(Number);
+  const t0 = Date.UTC(y1, m1 - 1, d1);
+  const t1 = Date.UTC(y2, m2 - 1, d2);
+  const diff = Math.round((t1 - t0) / 86400000);
+  return ((diff % 14) + 14) % 14;
+}
+
+function fillCycleDaySelect() {
+  const sel = document.getElementById('a-cycle-day');
+  const keep = sel.querySelector('option[value=""]');
+  sel.innerHTML = '';
+  sel.appendChild(keep);
+  for (let i = 0; i < 14; i++) {
+    const o = document.createElement('option');
+    o.value = String(i);
+    o.textContent = `Gün ${i + 1} (döngü ${i})`;
+    sel.appendChild(o);
+  }
+}
+
+async function loadCycleTab() {
+  try {
+    const pub = await fetch(`${PB}/api/collections/app_config/records?perPage=1`).then(r => r.json());
+    const items = pub.items || [];
+    if (items[0]) {
+      cycleRecordId = items[0].id;
+      document.getElementById('cycle-anchor').value = items[0].cycle_anchor || '';
+    } else {
+      cycleRecordId = null;
+      document.getElementById('cycle-anchor').value = istanbulTodayYMD();
+    }
+  } catch {
+    cycleRecordId = null;
+    document.getElementById('cycle-anchor').value = istanbulTodayYMD();
+  }
+  updateCyclePreview();
+}
+
+function updateCyclePreview() {
+  const el = document.getElementById('cycle-preview');
+  const anchor = document.getElementById('cycle-anchor')?.value || istanbulTodayYMD();
+  const idx = cycleDayIndex(anchor);
+  el.innerHTML = `<strong>Bugün (İstanbul):</strong> <span style="color:#fff">Döngü Günü ${idx + 1}</span> &nbsp;·&nbsp; indeks <code class="key-mono">${idx}</code><br>
+    <span style="font-size:11px;opacity:.75">Anchor: ${anchor} → o tarih Gün 1 (indeks 0).</span>`;
+}
+
+async function saveCycleAnchor() {
+  const v = document.getElementById('cycle-anchor').value;
+  if (!v) { showToast('Tarih seçin'); return; }
+  try {
+    if (cycleRecordId) {
+      await pbPatch('app_config', cycleRecordId, { cycle_anchor: v });
+    } else {
+      const rec = await pbPost('app_config', { cycle_anchor: v });
+      cycleRecordId = rec.id;
+    }
+    showToast('Döngü kaydedildi ✓');
+    updateCyclePreview();
+  } catch (e) {
+    showToast('app_config koleksiyonu yok veya yetki hatası — README şemayı kontrol edin');
+    console.error(e);
+  }
+}
+
+// ── VENUES ────────────────────────────────────
+function venueSelectOptions() {
+  let h = '<option value="">— Yok —</option>';
+  venuesCache.forEach(v => { h += `<option value="${escapeAttr(v.key)}">${escapeAttr(v.name)} (${escapeAttr(v.key)})</option>`; });
+  return h;
+}
+
+function escapeAttr(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+async function refreshVenuesCache() {
+  try {
+    venuesCache = await pbList('venues', 'key');
+  } catch { venuesCache = []; }
+  const a = document.getElementById('a-venue-key');
+  const r = document.getElementById('r-venue-key');
+  if (a) a.innerHTML = '<option value="">— Metin yedeği —</option>' + venuesCache.map(v =>
+    `<option value="${escapeAttr(v.key)}">${escapeAttr(v.name)}</option>`).join('');
+  if (r) r.innerHTML = '<option value="">— Elle koordinat —</option>' + venuesCache.map(v =>
+    `<option value="${escapeAttr(v.key)}">${escapeAttr(v.name)}</option>`).join('');
+}
+
+async function loadVenuesTab() {
+  const list = document.getElementById('venue-list');
+  try {
+    const items = await pbList('venues', 'key');
+    if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz birim yok</div>'; return; }
+    list.innerHTML = items.map(v => `
+      <div class="record-row" style="align-items:center">
+        <div class="record-info">
+          <div class="record-name"><span class="key-mono">${escapeHtml(v.key)}</span> — ${escapeHtml(v.name||'')}</div>
+          <div class="record-venue">${Number(v.lat).toFixed(5)}, ${Number(v.lng).toFixed(5)}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0">
+          <button type="button" class="btn-edit" onclick="openVenueEditModal('${v.id}')">Düzenle</button>
+          <button class="btn-del" onclick="delVenue('${v.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  } catch {
+    list.innerHTML = '<div class="empty-state">venues koleksiyonu yok — PocketBase’de oluşturun (README)</div>';
+  }
+}
+
+async function addVenue() {
+  let key = document.getElementById('v-key').value.trim().toLowerCase().replace(/\s+/g, '_');
+  const name = document.getElementById('v-name').value.trim();
+  const lat = parseFloat(document.getElementById('v-lat').value);
+  const lng = parseFloat(document.getElementById('v-lng').value);
+  if (!key || !name || isNaN(lat) || isNaN(lng)) { showToast('Key, ad ve koordinat zorunlu'); return; }
+  try {
+    await pbPost('venues', { key, name, lat, lng });
+    ['v-key','v-name','v-lat','v-lng'].forEach(id => document.getElementById(id).value = '');
+    await refreshVenuesCache();
+    loadVenuesTab();
+    showToast('Birim eklendi ✓');
+  } catch { showToast('Hata (key benzersiz olmalı)'); }
+}
+
+async function delVenue(id) {
+  if (!confirm('Birimi sil?')) return;
+  await pbDelete('venues', id);
+  await refreshVenuesCache();
+  loadVenuesTab();
+  showToast('Silindi');
+}
+
+let editingVenueId = null;
+
+async function openVenueEditModal(id) {
+  editingVenueId = id;
+  try {
+    const r = await fetch(`${PB}/api/collections/venues/records/${id}`, { headers: { Authorization: token } });
+    if (!r.ok) throw new Error(await r.text());
+    const rec = await r.json();
+    document.getElementById('v-edit-key').value = rec.key || '';
+    document.getElementById('v-edit-name').value = rec.name || '';
+    document.getElementById('v-edit-lat').value = rec.lat ?? '';
+    document.getElementById('v-edit-lng').value = rec.lng ?? '';
+    document.getElementById('venue-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } catch (e) {
+    console.error(e);
+    showToast('Kayıt yüklenemedi');
+    editingVenueId = null;
+  }
+}
+
+function closeVenueModal() {
+  document.getElementById('venue-modal-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  editingVenueId = null;
+}
+
+async function saveVenueEdit() {
+  if (!editingVenueId) return;
+  let key = document.getElementById('v-edit-key').value.trim().toLowerCase().replace(/\s+/g, '_');
+  const name = document.getElementById('v-edit-name').value.trim();
+  const lat = parseFloat(document.getElementById('v-edit-lat').value);
+  const lng = parseFloat(document.getElementById('v-edit-lng').value);
+  if (!key || !name || isNaN(lat) || isNaN(lng)) { showToast('Key, ad ve koordinat zorunlu'); return; }
+  try {
+    await pbPatch('venues', editingVenueId, { key, name, lat, lng });
+    closeVenueModal();
+    await refreshVenuesCache();
+    loadVenuesTab();
+    showToast('Birim güncellendi ✓');
+  } catch (e) {
+    console.error(e);
+    showToast('Kaydedilemedi — key benzersiz olmalı');
+  }
+}
+
+// ── WEEKLY RESTAURANT UI ──────────────────────
+const DOW_TR = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+function initWeeklyRows() {
+  const el = document.getElementById('r-weekly-rows');
+  if (!el || el.children.length) return;
+  el.innerHTML = DOW_TR.map((name, i) => `
+    <div class="weekly-row">
+      <span class="dow">${name}</span>
+      <label><input type="checkbox" id="w-closed-${i}"> Kapalı</label>
+      <input class="form-input w-sm" id="w-open-${i}" placeholder="12:00" value="12:00">
+      <input class="form-input w-sm" id="w-close-${i}" placeholder="23:00" value="23:00">
+    </div>
+  `).join('');
+}
+
+function copyMondayToAllDays() {
+  const co = document.getElementById('w-closed-0').checked;
+  const o = document.getElementById('w-open-0').value;
+  const c = document.getElementById('w-close-0').value;
+  for (let i = 1; i < 7; i++) {
+    document.getElementById(`w-closed-${i}`).checked = co;
+    document.getElementById(`w-open-${i}`).value = o;
+    document.getElementById(`w-close-${i}`).value = c;
+  }
+}
+
+function buildWeeklyJson() {
+  const w = {};
+  let anyOpen = false;
+  for (let i = 0; i < 7; i++) {
+    if (document.getElementById(`w-closed-${i}`).checked) {
+      w[String(i)] = null;
+    } else {
+      const o = document.getElementById(`w-open-${i}`).value.trim();
+      const c = document.getElementById(`w-close-${i}`).value.trim();
+      if (!o || !c) { showToast(`Pzt–Paz: ${DOW_TR[i]} saatleri eksik`); return null; }
+      w[String(i)] = { o, c };
+      anyOpen = true;
+    }
+  }
+  if (!anyOpen) { showToast('En az bir gün açık olmalı'); return null; }
+  return w;
+}
+
+function fillRestoCoordsFromVenue() {
+  const k = document.getElementById('r-venue-key').value;
+  if (!k) return;
+  const v = venuesCache.find(x => x.key === k);
+  if (v) {
+    document.getElementById('r-lat').value = v.lat;
+    document.getElementById('r-lng').value = v.lng;
+  }
+}
+
+function slotOpenNow(o, c) {
+  const now = new Date().getHours() * 60 + new Date().getMinutes();
+  const [oh, om] = String(o).split(':').map(Number);
+  const [ch, cm] = String(c).split(':').map(Number);
+  const op = oh * 60 + om, cl = ch * 60 + cm;
+  return cl < op ? (now >= op || now < cl) : (now >= op && now < cl);
+}
+
+function restoOpenNow(r) {
+  const dow = (new Date().getDay() + 6) % 7;
+  const weekly = r.weekly;
+  if (weekly && typeof weekly === 'object') {
+    const slot = weekly[String(dow)];
+    if (slot === null || slot === undefined) return false;
+    const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
+    if (o && c) return slotOpenNow(o, c);
+  }
+  const opens = r.opens || '09:00', closes = r.closes || '23:00';
+  return slotOpenNow(opens, closes);
+}
+
+// ── LOAD ALL ──────────────────────────────────
+async function loadAll() {
+  initWeeklyRows();
+  resetAnnWinForm();
+  fillCycleDaySelect();
+  await refreshVenuesCache();
+  await loadCycleTab();
+  loadVenuesTab();
+  loadActivities();
+  loadAnnouncements();
+  loadRestaurants();
+}
+
+let editingActId = null;
+
+function fillActEditCycleSelect() {
+  const sel = document.getElementById('act-edit-cycle-day');
+  sel.innerHTML = '<option value="">Her gün göster</option>';
+  for (let i = 0; i < 14; i++) {
+    const o = document.createElement('option');
+    o.value = String(i);
+    o.textContent = `Gün ${i + 1} (döngü ${i})`;
+    sel.appendChild(o);
+  }
+}
+
+function fillActEditVenueKeySelect() {
+  const sel = document.getElementById('act-edit-venue-key');
+  sel.innerHTML = '<option value="">— Yok (metin yedeği) —</option>' +
+    venuesCache.map(v => `<option value="${escapeAttr(v.key)}">${escapeAttr(v.name)}</option>`).join('');
+}
+
+async function openActivityEditModal(id) {
+  editingActId = id;
+  await refreshVenuesCache();
+  fillActEditCycleSelect();
+  fillActEditVenueKeySelect();
+  try {
+    const r = await fetch(`${PB}/api/collections/activities/records/${id}`, { headers: { Authorization: token } });
+    if (!r.ok) throw new Error(await r.text());
+    const rec = await r.json();
+    document.getElementById('act-edit-hour').value = rec.hour ?? 0;
+    document.getElementById('act-edit-min').value = rec.minute ?? 0;
+    document.getElementById('act-edit-name').value = rec.name || '';
+    document.getElementById('act-edit-venue').value = rec.venue || '';
+    document.getElementById('act-edit-icon').value = rec.icon || '';
+    document.getElementById('act-edit-venue-key').value = rec.venue_key || '';
+    const cd = rec.cycle_day;
+    document.getElementById('act-edit-cycle-day').value =
+      (cd === null || cd === undefined || cd === '') ? '' : String(Number(cd));
+    document.getElementById('act-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } catch (e) {
+    console.error(e);
+    showToast('Kayıt yüklenemedi');
+    editingActId = null;
+  }
+}
+
+function closeActModal() {
+  document.getElementById('act-modal-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  editingActId = null;
+}
+
+async function saveActivityEdit() {
+  if (!editingActId) return;
+  let h = parseInt(document.getElementById('act-edit-hour').value, 10);
+  let m = parseInt(document.getElementById('act-edit-min').value, 10);
+  if (isNaN(m) || m < 0) m = 0;
+  if (m > 59) m = 59;
+  const name = document.getElementById('act-edit-name').value.trim();
+  const venue = document.getElementById('act-edit-venue').value.trim();
+  const icon = document.getElementById('act-edit-icon').value.trim();
+  const venue_key = document.getElementById('act-edit-venue-key').value.trim();
+  const cyc = document.getElementById('act-edit-cycle-day').value;
+  if (isNaN(h) || h < 0 || h > 23 || !name) { showToast('Saat (0–23) ve isim zorunlu'); return; }
+  const payload = { hour: h, minute: m, name, venue, icon };
+  if (venue_key) payload.venue_key = venue_key;
+  else payload.venue_key = null;
+  if (cyc !== '') payload.cycle_day = parseInt(cyc, 10);
+  else payload.cycle_day = null;
+  try {
+    await pbPatch('activities', editingActId, payload);
+    closeActModal();
+    loadActivities();
+    showToast('Aktivite güncellendi ✓');
+  } catch (e) {
+    console.error(e);
+    showToast('Kaydedilemedi');
+  }
+}
+
+// ── ACTIVITIES ────────────────────────────────
+async function loadActivities() {
+  let items = [];
+  try {
+    items = await pbList('activities', 'cycle_day,hour,minute');
+  } catch { items = []; }
+  const list = document.getElementById('act-list');
+  if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz aktivite yok</div>'; return; }
+  list.innerHTML = items.map(a => {
+    const cd = a.cycle_day;
+    const dayLabel = (cd === null || cd === undefined || cd === '') ? 'Her gün' : `Gün ${Number(cd) + 1}`;
+    return `
+      <div class="record-row" style="align-items:center">
+        <div class="record-icon">${a.icon||'⭐'}</div>
+        <div class="record-time">${pad(a.hour)}:${pad(a.minute||0)}</div>
+        <div class="record-info">
+          <div class="record-name">${escapeHtml(a.name)} <span class="record-meta">${dayLabel}</span></div>
+          <div class="record-venue">${escapeHtml(a.venue||'—')} ${a.venue_key ? '· <span class="key-mono">' + escapeHtml(a.venue_key) + '</span>' : ''}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0">
+          <button type="button" class="btn-edit" onclick="openActivityEditModal('${a.id}')">Düzenle</button>
+          <button class="btn-del" onclick="delActivity('${a.id}')">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+async function addActivity() {
+  const h = parseInt(document.getElementById('a-hour').value);
+  const m = parseInt(document.getElementById('a-min').value) || 0;
+  const name = document.getElementById('a-name').value.trim();
+  const venue = document.getElementById('a-venue').value.trim();
+  const icon = document.getElementById('a-icon').value.trim();
+  const venue_key = document.getElementById('a-venue-key').value.trim() || '';
+  const cyc = document.getElementById('a-cycle-day').value;
+  if (isNaN(h) || !name) { showToast('Saat ve isim zorunlu'); return; }
+  const payload = { hour: h, minute: m, name, venue, icon };
+  if (venue_key) payload.venue_key = venue_key;
+  if (cyc !== '') payload.cycle_day = parseInt(cyc, 10);
+  try {
+    await pbPost('activities', payload);
+    ['a-hour','a-min','a-name','a-venue','a-icon'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('a-venue-key').value = '';
+    document.getElementById('a-cycle-day').value = '';
+    loadActivities();
+    showToast('Aktivite eklendi ✓');
+  } catch (e) { showToast('Hata — cycle_day / venue_key alanları PB’de tanımlı mı?'); console.error(e); }
+}
+
+async function delActivity(id) {
+  if (!confirm('Aktiviteyi sil?')) return;
+  await pbDelete('activities', id);
+  loadActivities();
+  showToast('Silindi');
+}
+
+const ANN_DOW = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+const ANN_DOW_LONG = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+
+function parseAnnWindows(raw) {
+  if (raw == null || raw === '') return null;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      const p = JSON.parse(raw);
+      return Array.isArray(p) ? p : null;
+    } catch { return null; }
+  }
+  return null;
+}
+
+function annWinRowHtml(allDaysChecked) {
+  const checks = [0,1,2,3,4,5,6].map(i =>
+    `<label class="ann-dow"><input type="checkbox" data-dow="${i}" ${allDaysChecked ? 'checked' : ''}> ${ANN_DOW[i]}</label>`).join('');
+  return `<div class="ann-win-row">
+    <div class="ann-win-days">${checks}</div>
+    <input class="form-input w-sm ann-win-o" type="text" value="00:00" placeholder="09:00">
+    <span style="font-size:11px;opacity:.5">–</span>
+    <input class="form-input w-sm ann-win-c" type="text" value="23:59" placeholder="18:00">
+    <button type="button" class="btn-del" onclick="this.closest('.ann-win-row').remove()">✕</button>
+  </div>`;
+}
+
+function annWinRowFromWindow(win) {
+  const daySet = new Set((win.d || win.days || []).map(Number));
+  const checks = [0,1,2,3,4,5,6].map(i =>
+    `<label class="ann-dow"><input type="checkbox" data-dow="${i}" ${daySet.has(i) ? 'checked' : ''}> ${ANN_DOW[i]}</label>`).join('');
+  const o = String(win.o ?? win.open ?? '09:00');
+  const c = String(win.c ?? win.close ?? '18:00');
+  return `<div class="ann-win-row">
+    <div class="ann-win-days">${checks}</div>
+    <input class="form-input w-sm ann-win-o" type="text" value="${escapeAttr(o)}" placeholder="09:00">
+    <span style="font-size:11px;opacity:.5">–</span>
+    <input class="form-input w-sm ann-win-c" type="text" value="${escapeAttr(c)}" placeholder="18:00">
+    <button type="button" class="btn-del" onclick="this.closest('.ann-win-row').remove()">✕</button>
+  </div>`;
+}
+
+function resetAnnWinForm() {
+  const el = document.getElementById('ann-win-rows');
+  if (el) el.innerHTML = annWinRowHtml(true);
+}
+
+function addAnnWinRow() {
+  document.getElementById('ann-win-rows').insertAdjacentHTML('beforeend', annWinRowHtml(false));
+}
+
+function collectAnnWindowsFrom(containerId) {
+  const rows = document.querySelectorAll(`#${containerId} .ann-win-row`);
+  const out = [];
+  rows.forEach(row => {
+    const days = [];
+    row.querySelectorAll('input[data-dow]').forEach(cb => { if (cb.checked) days.push(+cb.dataset.dow); });
+    const o = row.querySelector('.ann-win-o')?.value.trim();
+    const c = row.querySelector('.ann-win-c')?.value.trim();
+    if (!days.length || !o || !c) return;
+    out.push({ d: days.sort((a,b)=>a-b), o, c });
+  });
+  return out;
+}
+
+function collectAnnWindows() {
+  return collectAnnWindowsFrom('ann-win-rows');
+}
+
+function formatAnnScheduleBlock(windowsRaw) {
+  const windows = parseAnnWindows(windowsRaw);
+  if (!windows || !windows.length) {
+    return `<div class="ann-list-sched">
+      <div class="ann-list-sched-title">TV’de ne zaman görünür?</div>
+      <div class="ann-list-sched-always">Her zaman — tüm günler, tüm saatler (zaman penceresi yok)</div>
+    </div>`;
+  }
+  const rows = windows.map((win, idx) => {
+    const dayIdx = win.d ?? win.days ?? [];
+    const daysStr = (Array.isArray(dayIdx) ? dayIdx : [])
+      .map(i => ANN_DOW_LONG[Number(i)] || ANN_DOW[Number(i)] || String(i))
+      .join(', ');
+    const o = win.o ?? win.open ?? '—';
+    const c = win.c ?? win.close ?? '—';
+    return `<div class="ann-list-sched-row">
+      <div class="ann-list-sched-title" style="margin-bottom:4px">Zaman aralığı ${idx + 1}</div>
+      <div class="ann-list-sched-days"><strong>Haftanın günleri:</strong> ${escapeHtml(daysStr || '—')}</div>
+      <div class="ann-list-sched-time"><strong>Gösterim saati:</strong> ${escapeHtml(String(o))} – ${escapeHtml(String(c))}<span class="ann-tz-note">İstanbul</span></div>
+    </div>`;
+  }).join('');
+  return `<div class="ann-list-sched">
+    <div class="ann-list-sched-title">TV’de ne zaman görünür?</div>
+    ${rows}
+  </div>`;
+}
+
+let editingAnnId = null;
+
+async function pbGetRecord(collection, id) {
+  const r = await fetch(`${PB}/api/collections/${collection}/records/${id}`, {
+    headers: { Authorization: token }
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function addAnnEditWinRow() {
+  document.getElementById('ann-edit-win-rows').insertAdjacentHTML('beforeend', annWinRowHtml(false));
+}
+
+async function openAnnEditModal(id) {
+  editingAnnId = id;
+  try {
+    const rec = await pbGetRecord('announcements', id);
+    document.getElementById('ann-edit-text').value = rec.text || '';
+    document.getElementById('ann-edit-active').checked = rec.active !== false;
+    const windows = parseAnnWindows(rec.windows);
+    const always = !windows || !windows.length;
+    document.getElementById('ann-edit-always').checked = always;
+    const wrap = document.getElementById('ann-edit-schedule-wrap');
+    const rowsEl = document.getElementById('ann-edit-win-rows');
+    wrap.style.display = always ? 'none' : 'block';
+    if (always) {
+      rowsEl.innerHTML = annWinRowHtml(true);
+    } else {
+      rowsEl.innerHTML = windows.map(w => annWinRowFromWindow(w)).join('');
+    }
+    document.getElementById('ann-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } catch (e) {
+    console.error(e);
+    showToast('Kayıt yüklenemedi');
+    editingAnnId = null;
+  }
+}
+
+function closeAnnModal() {
+  document.getElementById('ann-modal-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  editingAnnId = null;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('ann-modal-overlay')?.style.display === 'flex') closeAnnModal();
+  if (document.getElementById('act-modal-overlay')?.style.display === 'flex') closeActModal();
+  if (document.getElementById('resto-modal-overlay')?.style.display === 'flex') closeRestoModal();
+  if (document.getElementById('venue-modal-overlay')?.style.display === 'flex') closeVenueModal();
+});
+
+async function saveAnnEdit() {
+  if (!editingAnnId) return;
+  const text = document.getElementById('ann-edit-text').value.trim();
+  if (!text) { showToast('Metin zorunlu'); return; }
+  const always = document.getElementById('ann-edit-always').checked;
+  const windows = always ? null : collectAnnWindowsFrom('ann-edit-win-rows');
+  if (!always && !windows.length) { showToast('Zaman penceresi ekleyin veya “Her zaman” işaretle'); return; }
+  try {
+    const active = document.getElementById('ann-edit-active').checked;
+    const payload = always
+      ? { text, windows: [], active }
+      : { text, windows, active };
+    await pbPatch('announcements', editingAnnId, payload);
+    closeAnnModal();
+    loadAnnouncements();
+    showToast('Duyuru güncellendi ✓');
+  } catch (e) {
+    console.error(e);
+    showToast('Kaydedilemedi');
+  }
+}
+
+async function setAnnActive(id, makeActive) {
+  try {
+    await pbPatch('announcements', id, { active: !!makeActive });
+    showToast(makeActive ? 'Duyuru aktif' : 'Duyuru pasif');
+    loadAnnouncements();
+  } catch (e) {
+    console.error(e);
+    showToast('Güncellenemedi — active alanı PB’de var mı?');
+  }
+}
+
+// ── ANNOUNCEMENTS ─────────────────────────────
+async function loadAnnouncements() {
+  const items = await pbList('announcements', '-created');
+  const list = document.getElementById('ann-list');
+  if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz duyuru yok</div>'; return; }
+  list.innerHTML = items.map(a => {
+    const on = a.active !== false;
+    return `
+    <div class="record-row ann-row${on ? '' : '-pasif'}" style="align-items:flex-start">
+      <div class="record-info" style="flex:1;min-width:0">
+        ${on ? '' : '<div class="ann-badge-pasif">PASİF — TV’de gösterilmiyor</div>'}
+        <div class="record-text" style="font-weight:500;margin-bottom:4px">${escapeHtml(a.text)}</div>
+        ${formatAnnScheduleBlock(a.windows)}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:4px;flex-shrink:0">
+        <button type="button" class="btn-ann-toggle${on ? '' : ' off'}" onclick="setAnnActive('${a.id}', ${on ? 'false' : 'true'})">${on ? 'Pasifleştir' : 'Aktifleştir'}</button>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn-edit" onclick="openAnnEditModal('${a.id}')">Düzenle</button>
+          <button class="btn-del" onclick="delAnnouncement('${a.id}')">✕</button>
+        </div>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+async function addAnnouncement() {
+  const text = document.getElementById('n-text').value.trim();
+  if (!text) { showToast('Metin zorunlu'); return; }
+  const always = document.getElementById('n-always')?.checked;
+  const windows = always ? null : collectAnnWindows();
+  if (!always && !windows.length) { showToast('En az bir satırda gün + saat aralığı seçin veya “Her zaman” işaretle'); return; }
+  try {
+    const payload = always ? { text, active: true } : { text, windows, active: true };
+    await pbPost('announcements', payload);
+    document.getElementById('n-text').value = '';
+    document.getElementById('n-always').checked = false;
+    document.getElementById('ann-schedule-wrap').style.display = 'block';
+    resetAnnWinForm();
+    loadAnnouncements();
+    showToast('Duyuru eklendi ✓');
+  } catch (e) {
+    showToast('Hata — announcements.windows (JSON) alanı PB’de var mı?');
+    console.error(e);
+  }
+}
+
+async function delAnnouncement(id) {
+  if (!confirm('Duyuruyu sil?')) return;
+  await pbDelete('announcements', id);
+  loadAnnouncements();
+  showToast('Silindi');
+}
+
+// ── RESTAURANTS ───────────────────────────────
+async function loadRestaurants() {
+  const items = await pbList('restaurants', 'name');
+  const list = document.getElementById('rest-list');
+  if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz restoran yok</div>'; return; }
+  list.innerHTML = items.map(r => {
+    const sub = r.weekly ? 'Haftalık program' : `${r.opens||'—'} – ${r.closes||'—'}`;
+    return `
+    <div class="record-row" style="align-items:center">
+      <div class="record-icon">${r.icon||'🍽'}</div>
+      <div class="record-info">
+        <div class="record-name">${escapeHtml(r.name)} <span style="color:rgba(255,255,255,0.35);font-size:12px;font-weight:300;">· ${escapeHtml(r.cuisine||'')}</span></div>
+        <div class="record-venue">${sub} &nbsp;·&nbsp; ${r.lat!=null?Number(r.lat).toFixed(4):'—'}, ${r.lng!=null?Number(r.lng).toFixed(4):'—'}</div>
+      </div>
+      <span class="${restoOpenNow(r)?'badge-open':'badge-closed'}">${restoOpenNow(r)?'Açık':'Kapalı'}</span>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button type="button" class="btn-edit" onclick="openRestaurantEditModal('${r.id}')">Düzenle</button>
+        <button class="btn-del" onclick="delRestaurant('${r.id}')">✕</button>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+async function addRestaurant() {
+  const name = document.getElementById('r-name').value.trim();
+  const icon = document.getElementById('r-icon').value.trim();
+  const cuisine = document.getElementById('r-cuisine').value.trim();
+  const lat = parseFloat(document.getElementById('r-lat').value);
+  const lng = parseFloat(document.getElementById('r-lng').value);
+  const venue_key = document.getElementById('r-venue-key').value.trim() || '';
+  const weekly = buildWeeklyJson();
+  if (!weekly) return;
+  if (!name || isNaN(lat) || isNaN(lng)) {
+    showToast('İsim ve koordinat zorunlu'); return;
+  }
+  const mon = weekly['0'];
+  const opens = (mon && mon.o) ? mon.o : '12:00';
+  const closes = (mon && mon.c) ? mon.c : '23:00';
+  const query = name.toLowerCase() + ' ' + (cuisine||'') + ' restaurant food';
+  const payload = { name, icon, cuisine, weekly, opens, closes, lat, lng, query };
+  if (venue_key) payload.venue_key = venue_key;
+  try {
+    await pbPost('restaurants', payload);
+    ['r-name','r-icon','r-cuisine','r-lat','r-lng'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('r-venue-key').value = '';
+    loadRestaurants();
+    showToast('Restoran eklendi ✓');
+  } catch (e) { showToast('Hata — weekly JSON alanı PB’de var mı?'); console.error(e); }
+}
+
+async function delRestaurant(id) {
+  if (!confirm('Restoranı sil?')) return;
+  await pbDelete('restaurants', id);
+  loadRestaurants();
+  showToast('Silindi');
+}
+
+let editingRestoId = null;
+let editingRestoQuery = '';
+
+function weeklyFromRestoRecord(rec) {
+  let w = rec.weekly;
+  if (typeof w === 'string') {
+    try { w = JSON.parse(w); } catch (_) { w = null; }
+  }
+  if (w && typeof w === 'object' && Object.keys(w).length > 0) return { ...w };
+  const o = rec.opens || '12:00', c = rec.closes || '23:00';
+  const out = {};
+  for (let i = 0; i < 7; i++) out[String(i)] = { o, c };
+  return out;
+}
+
+function renderRestoEditWeeklyRows(weekly) {
+  const w = weekly || {};
+  return DOW_TR.map((name, i) => {
+    const slot = w[String(i)];
+    const closed = slot === null || slot === undefined;
+    const o = closed ? '12:00' : String(slot.o ?? slot.open ?? '12:00');
+    const c = closed ? '23:00' : String(slot.c ?? slot.close ?? '23:00');
+    return `<div class="weekly-row">
+      <span class="dow">${name}</span>
+      <label><input type="checkbox" id="r-edit-w-closed-${i}" ${closed ? 'checked' : ''}> Kapalı</label>
+      <input class="form-input w-sm" type="text" id="r-edit-w-open-${i}" value="${escapeAttr(o)}" placeholder="12:00">
+      <input class="form-input w-sm" type="text" id="r-edit-w-close-${i}" value="${escapeAttr(c)}" placeholder="23:00">
+    </div>`;
+  }).join('');
+}
+
+function fillRestoEditVenueKeySelect() {
+  const sel = document.getElementById('r-edit-venue-key');
+  sel.innerHTML = '<option value="">— Elle koordinat —</option>' +
+    venuesCache.map(v => `<option value="${escapeAttr(v.key)}">${escapeAttr(v.name)}</option>`).join('');
+}
+
+function fillRestoEditCoordsFromVenue() {
+  const k = document.getElementById('r-edit-venue-key').value;
+  if (!k) return;
+  const v = venuesCache.find(x => x.key === k);
+  if (v) {
+    document.getElementById('r-edit-lat').value = v.lat;
+    document.getElementById('r-edit-lng').value = v.lng;
+  }
+}
+
+function copyREditMondayToAll() {
+  const co = document.getElementById('r-edit-w-closed-0').checked;
+  const o = document.getElementById('r-edit-w-open-0').value;
+  const c = document.getElementById('r-edit-w-close-0').value;
+  for (let i = 1; i < 7; i++) {
+    document.getElementById(`r-edit-w-closed-${i}`).checked = co;
+    document.getElementById(`r-edit-w-open-${i}`).value = o;
+    document.getElementById(`r-edit-w-close-${i}`).value = c;
+  }
+}
+
+function collectWeeklyJsonEdit() {
+  const w = {};
+  let anyOpen = false;
+  for (let i = 0; i < 7; i++) {
+    if (document.getElementById(`r-edit-w-closed-${i}`).checked) {
+      w[String(i)] = null;
+    } else {
+      const o = document.getElementById(`r-edit-w-open-${i}`).value.trim();
+      const c = document.getElementById(`r-edit-w-close-${i}`).value.trim();
+      if (!o || !c) { showToast(`${DOW_TR[i]}: açılış/kapanış saati girin`); return null; }
+      w[String(i)] = { o, c };
+      anyOpen = true;
+    }
+  }
+  if (!anyOpen) { showToast('En az bir gün açık olmalı'); return null; }
+  return w;
+}
+
+async function openRestaurantEditModal(id) {
+  editingRestoId = id;
+  await refreshVenuesCache();
+  fillRestoEditVenueKeySelect();
+  try {
+    const r = await fetch(`${PB}/api/collections/restaurants/records/${id}`, { headers: { Authorization: token } });
+    if (!r.ok) throw new Error(await r.text());
+    const rec = await r.json();
+    editingRestoQuery = rec.query || '';
+    document.getElementById('r-edit-name').value = rec.name || '';
+    document.getElementById('r-edit-icon').value = rec.icon || '';
+    document.getElementById('r-edit-cuisine').value = rec.cuisine || '';
+    document.getElementById('r-edit-lat').value = rec.lat ?? '';
+    document.getElementById('r-edit-lng').value = rec.lng ?? '';
+    document.getElementById('r-edit-venue-key').value = rec.venue_key || '';
+    document.getElementById('r-edit-weekly-rows').innerHTML = renderRestoEditWeeklyRows(weeklyFromRestoRecord(rec));
+    document.getElementById('resto-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } catch (e) {
+    console.error(e);
+    showToast('Kayıt yüklenemedi');
+    editingRestoId = null;
+  }
+}
+
+function closeRestoModal() {
+  document.getElementById('resto-modal-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  editingRestoId = null;
+  editingRestoQuery = '';
+}
+
+async function saveRestaurantEdit() {
+  if (!editingRestoId) return;
+  const name = document.getElementById('r-edit-name').value.trim();
+  const icon = document.getElementById('r-edit-icon').value.trim();
+  const cuisine = document.getElementById('r-edit-cuisine').value.trim();
+  const lat = parseFloat(document.getElementById('r-edit-lat').value);
+  const lng = parseFloat(document.getElementById('r-edit-lng').value);
+  const venue_key = document.getElementById('r-edit-venue-key').value.trim();
+  const weekly = collectWeeklyJsonEdit();
+  if (!weekly) return;
+  if (!name || isNaN(lat) || isNaN(lng)) { showToast('İsim ve koordinat zorunlu'); return; }
+  const mon = weekly['0'];
+  const opens = (mon && mon.o) ? mon.o : '12:00';
+  const closes = (mon && mon.c) ? mon.c : '23:00';
+  const query = editingRestoQuery || (name.toLowerCase() + ' ' + (cuisine || '') + ' restaurant food').trim();
+  const payload = { name, icon, cuisine, weekly, opens, closes, lat, lng, query };
+  if (venue_key) payload.venue_key = venue_key;
+  else payload.venue_key = null;
+  try {
+    await pbPatch('restaurants', editingRestoId, payload);
+    closeRestoModal();
+    loadRestaurants();
+    showToast('Restoran güncellendi ✓');
+  } catch (e) {
+    console.error(e);
+    showToast('Kaydedilemedi');
+  }
+}
+
+document.getElementById('cycle-anchor')?.addEventListener('change', updateCyclePreview);
+
+// ── HELPERS ───────────────────────────────────
+function pad(n) { return String(n||0).padStart(2,'0'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── INIT ──────────────────────────────────────
+(async () => {
+  if (token && await verifyToken()) {
+    showApp();
+  }
+})();
+</script>
+</body>
+</html>
