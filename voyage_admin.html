@@ -210,6 +210,26 @@ body {
 }
 .btn-del:hover { background: rgba(217,48,48,0.2); color: #ff6b6b; }
 
+.tv-pick-scroll {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: rgba(0,0,0,.18);
+}
+.tv-pick-scroll label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  color: rgba(255,255,255,.85);
+  line-height: 1.35;
+}
+.tv-pick-scroll input { flex-shrink: 0; margin-top: 2px; }
+
 .empty-state {
   text-align: center; padding: 40px;
   color: rgba(255,255,255,0.25); font-size: 13px;
@@ -339,6 +359,7 @@ body {
     <div class="tab" onclick="showTab('restaurants')">🍽 Restoranlar</div>
     <div class="tab" onclick="showTab('venues')">📍 Konumlar</div>
     <div class="tab" onclick="showTab('cycle')">🔁 14 Gün</div>
+    <div class="tab" onclick="showTab('tvview')">📺 TV Harita / Program</div>
   </div>
 
   <!-- ACTIVITIES TAB -->
@@ -488,6 +509,58 @@ body {
       <button class="btn-add" onclick="saveCycleAnchor()">Kaydet</button>
     </div>
     <div class="cycle-preview" id="cycle-preview"></div>
+  </div>
+
+  <!-- TV MAP / SCHEDULE -->
+  <div id="tab-tvview" class="content" style="display:none">
+    <div class="section-title">TV — Harita ve program görünümü</div>
+    <div class="section-sub">Karşılama ekranında harita ile <strong>4 bölmeli program</strong> görünümü dönüşümlü gösterilir. Süreleri ve listeleri buradan ayarlayın. PocketBase <code class="key-mono">app_config</code> kaydına yazılır (önce <strong>14 Gün</strong> sekmesinden en az bir kez kayıt oluşturun).</div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:20px">
+      <div class="form-group">
+        <span class="form-label">Harita süresi (sn)</span>
+        <input type="number" class="form-input w-sm" id="tv-map-sec" min="10" max="600" value="30">
+      </div>
+      <div class="form-group">
+        <span class="form-label">Program görünümü süresi (sn)</span>
+        <input type="number" class="form-input w-sm" id="tv-sch-sec" min="10" max="600" value="30">
+      </div>
+      <button type="button" class="btn-add" onclick="saveTvViewConfig()">TV ayarlarını kaydet</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;align-items:start">
+      <div>
+        <div class="form-label" style="margin-bottom:8px">1 · Gündüz aktiviteleri (TV’de listelenecek)</div>
+        <div id="tv-pick-daytime" class="tv-pick-scroll">Yükleniyor…</div>
+      </div>
+      <div>
+        <div class="form-label" style="margin-bottom:8px">2 · Çocuk aktiviteleri</div>
+        <div id="tv-pick-kids" class="tv-pick-scroll">Yükleniyor…</div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <div class="form-label" style="margin-bottom:8px">3 · Restoranlar</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px;cursor:pointer">
+        <input type="checkbox" id="tv-resto-all" checked onchange="document.getElementById('tv-resto-wrap').style.display=this.checked?'none':'block'">
+        Bugün açık <strong>tüm</strong> restoranları göster (özel seçim yok)
+      </label>
+      <div id="tv-resto-wrap" style="display:none">
+        <div id="tv-pick-restos" class="tv-pick-scroll"></div>
+      </div>
+    </div>
+    <div class="form-label" style="margin-bottom:10px">4 · Bu akşam (serbest metin)</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:900px">
+      <div class="form-group" style="width:100%">
+        <span class="form-label">Çocuk gösterisi</span>
+        <input type="text" class="form-input" id="tv-ev-kids" style="width:100%" placeholder="örn. 20:30 Mini Disco — Mini Club">
+      </div>
+      <div class="form-group" style="width:100%">
+        <span class="form-label">Akşam gösterisi</span>
+        <input type="text" class="form-input" id="tv-ev-main" style="width:100%" placeholder="örn. 22:00 Ana gösteri — Amfi">
+      </div>
+      <div class="form-group" style="width:100%">
+        <span class="form-label">After show</span>
+        <input type="text" class="form-input" id="tv-ev-after" style="width:100%" placeholder="örn. 23:00 Disko">
+      </div>
+    </div>
   </div>
 </div>
 
@@ -729,7 +802,7 @@ function showApp() {
   loadAll();
 }
 
-const TAB_IDS = ['activities','announcements','restaurants','venues','cycle'];
+const TAB_IDS = ['activities','announcements','restaurants','venues','cycle','tvview'];
 let venuesCache = [];
 let cycleRecordId = null;
 
@@ -744,6 +817,7 @@ function showTab(tab) {
     if (el) el.style.display = t === tab ? 'block' : 'none';
   });
   if (tab === 'cycle') updateCyclePreview();
+  if (tab === 'tvview') loadTvViewTab();
 }
 
 // ── API HELPERS ───────────────────────────────
@@ -852,6 +926,92 @@ async function saveCycleAnchor() {
   } catch (e) {
     showToast('app_config koleksiyonu yok veya yetki hatası — README şemayı kontrol edin');
     console.error(e);
+  }
+}
+
+function parseTvCfgIdArray(v) {
+  if (v == null || v === '') return [];
+  if (Array.isArray(v)) return v.map(String).filter(Boolean);
+  if (typeof v === 'string') {
+    try {
+      const p = JSON.parse(v);
+      return Array.isArray(p) ? p.map(String).filter(Boolean) : [];
+    } catch (_) { return []; }
+  }
+  return [];
+}
+
+async function loadTvViewTab() {
+  await loadCycleTab();
+  let cfg = {};
+  try {
+    const pub = await fetch(`${PB}/api/collections/app_config/records?perPage=1`, {
+      headers: { Authorization: token }
+    }).then(r => r.json());
+    if (pub.items?.[0]) cfg = pub.items[0];
+  } catch (_) {}
+  document.getElementById('tv-map-sec').value = cfg.map_schedule_map_sec != null ? cfg.map_schedule_map_sec : 30;
+  document.getElementById('tv-sch-sec').value = cfg.map_schedule_schedule_sec != null ? cfg.map_schedule_schedule_sec : 30;
+  const dayIds = new Set(parseTvCfgIdArray(cfg.schedule_daytime_activity_ids));
+  const kidIds = new Set(parseTvCfgIdArray(cfg.schedule_kids_activity_ids));
+  const restoIds = new Set(parseTvCfgIdArray(cfg.schedule_resto_ids));
+  const restoAll = cfg.schedule_resto_use_all !== false;
+  document.getElementById('tv-resto-all').checked = restoAll;
+  document.getElementById('tv-resto-wrap').style.display = restoAll ? 'none' : 'block';
+  document.getElementById('tv-ev-kids').value = cfg.schedule_evening_kids_show || '';
+  document.getElementById('tv-ev-main').value = cfg.schedule_evening_main_show || '';
+  document.getElementById('tv-ev-after').value = cfg.schedule_evening_after_show || '';
+  const pad = n => String(n).padStart(2, '0');
+  try {
+    const acts = await pbList('activities', 'hour,minute');
+    const row = (a, name, set) => `<label><input type="checkbox" name="${name}" value="${escapeAttr(a.id)}" ${set.has(a.id) ? 'checked' : ''}>${pad(a.hour)}:${pad(a.minute || 0)} ${escapeHtml(a.name)}</label>`;
+    document.getElementById('tv-pick-daytime').innerHTML = acts.length
+      ? acts.map(a => row(a, 'tv-day', dayIds)).join('')
+      : '<div class="empty-state">Önce aktivite ekleyin</div>';
+    document.getElementById('tv-pick-kids').innerHTML = acts.length
+      ? acts.map(a => row(a, 'tv-kid', kidIds)).join('')
+      : '<div class="empty-state">—</div>';
+    const restos = await pbList('restaurants', 'name');
+    document.getElementById('tv-pick-restos').innerHTML = restos.length
+      ? restos.map(r => `<label><input type="checkbox" name="tv-resto" value="${escapeAttr(r.id)}" ${restoIds.has(r.id) ? 'checked' : ''}>${escapeHtml(r.name)}</label>`).join('')
+      : '<div class="empty-state">Restoran yok</div>';
+  } catch (e) {
+    console.error(e);
+    showToast('Liste yüklenemedi');
+  }
+}
+
+async function saveTvViewConfig() {
+  if (!cycleRecordId) {
+    showToast('Önce 14 Gün sekmesinde tarihi kaydedin (app_config gerekli)');
+    return;
+  }
+  let mapSec = parseInt(document.getElementById('tv-map-sec').value, 10);
+  let schSec = parseInt(document.getElementById('tv-sch-sec').value, 10);
+  if (!Number.isFinite(mapSec) || mapSec < 10) mapSec = 30;
+  if (!Number.isFinite(schSec) || schSec < 10) schSec = 30;
+  mapSec = Math.min(600, mapSec);
+  schSec = Math.min(600, schSec);
+  const daytimeIds = [...document.querySelectorAll('input[name="tv-day"]:checked')].map(i => i.value);
+  const kidsIds = [...document.querySelectorAll('input[name="tv-kid"]:checked')].map(i => i.value);
+  const restoAll = document.getElementById('tv-resto-all').checked;
+  const restoIds = restoAll ? [] : [...document.querySelectorAll('input[name="tv-resto"]:checked')].map(i => i.value);
+  try {
+    await pbPatch('app_config', cycleRecordId, {
+      map_schedule_map_sec: mapSec,
+      map_schedule_schedule_sec: schSec,
+      schedule_daytime_activity_ids: daytimeIds,
+      schedule_kids_activity_ids: kidsIds,
+      schedule_resto_use_all: restoAll,
+      schedule_resto_ids: restoIds,
+      schedule_evening_kids_show: document.getElementById('tv-ev-kids').value.trim(),
+      schedule_evening_main_show: document.getElementById('tv-ev-main').value.trim(),
+      schedule_evening_after_show: document.getElementById('tv-ev-after').value.trim()
+    });
+    showToast('TV ayarları kaydedildi ✓');
+  } catch (e) {
+    console.error(e);
+    showToast('Kayıt hatası — app_config’e yeni alanları ekleyin (README)');
   }
 }
 

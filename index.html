@@ -216,14 +216,92 @@ html, body {
 .map-header {
   display: flex; align-items: center;
 }
-.map-container {
+.map-schedule-rotator {
   flex: 1;
   min-height: 0;
-  margin-bottom: -13px; /* harita ~56px kısa; şerit konumu aynı, altta nefes payı */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-bottom: -13px;
+}
+.rotator-pane {
+  flex: 1;
+  min-height: 0;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--border);
   position: relative;
+}
+.map-container.rotator-pane { display: flex; flex-direction: column; }
+.schedule-view-pane {
+  background: linear-gradient(160deg, rgba(8,13,28,.96), rgba(14,22,45,.98));
+  display: none;
+}
+.schedule-view-pane.active { display: flex; flex-direction: column; }
+.map-container.rotator-pane.hidden-map { display: none !important; }
+.schedule-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.schedule-cell {
+  background: var(--glass);
+  border: 1px solid rgba(201,168,76,.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.schedule-cell-h {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold2);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(201,168,76,.15);
+  padding-bottom: 6px;
+}
+.schedule-cell ul {
+  margin: 0;
+  padding: 0 0 0 16px;
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255,255,255,.88);
+  line-height: 1.35;
+}
+.schedule-cell li {
+  margin-bottom: 6px;
+  position: relative;
+}
+.schedule-cell li::before {
+  content: '·';
+  position: absolute;
+  left: -12px;
+  color: var(--gold);
+  opacity: 0.6;
+}
+.schedule-cell .sq-time { color: var(--gold2); font-weight: 500; margin-right: 6px; font-size: 13px; }
+.schedule-evening-block { font-size: 14px; font-weight: 300; color: rgba(255,255,255,.9); line-height: 1.45; }
+.schedule-evening-block .sq-ev-row { margin-bottom: 10px; }
+.schedule-evening-block .sq-ev-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 3px;
 }
 #resort-map {
   width: 100%; height: 100%;
@@ -745,10 +823,32 @@ html, body {
     <!-- ── RIGHT: MAP + ACTIVITY STRIP ── -->
     <div class="col-right">
       <div class="map-header">
-        <span class="section-label">Resort Map &amp; Today's Programme</span>
+        <span class="section-label" id="col-right-title">Resort Map</span>
       </div>
-      <div class="map-container">
-        <div id="resort-map"></div>
+      <div class="map-schedule-rotator">
+        <div class="map-container rotator-pane" id="map-view-pane">
+          <div id="resort-map"></div>
+        </div>
+        <div class="schedule-view-pane rotator-pane" id="schedule-view-pane">
+          <div class="schedule-grid">
+            <div class="schedule-cell">
+              <div class="schedule-cell-h">Gündüz aktiviteleri</div>
+              <ul id="sq-daytime"></ul>
+            </div>
+            <div class="schedule-cell">
+              <div class="schedule-cell-h">Çocuk aktiviteleri</div>
+              <ul id="sq-kids"></ul>
+            </div>
+            <div class="schedule-cell">
+              <div class="schedule-cell-h">Bugün açık restoranlar</div>
+              <ul id="sq-restos"></ul>
+            </div>
+            <div class="schedule-cell">
+              <div class="schedule-cell-h">Bu akşam</div>
+              <div class="schedule-evening-block" id="sq-evening"></div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="activity-strip" id="activity-strip"></div>
     </div>
@@ -841,6 +941,107 @@ let lastTickerSlidesSig = '';
 let tickerCarouselTimer = null;
 let venueByKey = {};
 let cycleAnchor = '2025-01-01';
+let tvViewConfig = {
+  mapSec: 30, scheduleSec: 30,
+  daytimeIds: [], kidsIds: [], restoIds: [], restoUseAll: true,
+  eveningKids: '', eveningMain: '', eveningAfter: ''
+};
+let tvRotTimer = null;
+let lastTvRotCfgSig = null;
+
+function parseCfgIdArray(v) {
+  if (v == null || v === '') return [];
+  if (Array.isArray(v)) return v.map(String).filter(Boolean);
+  if (typeof v === 'string') {
+    try {
+      const p = JSON.parse(v);
+      return Array.isArray(p) ? p.map(String).filter(Boolean) : [];
+    } catch (_) { return []; }
+  }
+  return [];
+}
+
+function scheduleHtmlEsc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+}
+
+function renderScheduleGrid() {
+  const byId = {};
+  activities.forEach(a => { if (a.id) byId[a.id] = a; });
+  const q1 = tvViewConfig.daytimeIds.map(id => byId[id]).filter(Boolean)
+    .sort((a, b) => a.hour * 60 + a.min - (b.hour * 60 + b.min));
+  const q2 = tvViewConfig.kidsIds.map(id => byId[id]).filter(Boolean)
+    .sort((a, b) => a.hour * 60 + a.min - (b.hour * 60 + b.min));
+  const el1 = document.getElementById('sq-daytime');
+  const el2 = document.getElementById('sq-kids');
+  const el3 = document.getElementById('sq-restos');
+  const el4 = document.getElementById('sq-evening');
+  if (!el1 || !el2 || !el3 || !el4) return;
+  const li = (a) => `<li><span class="sq-time">${pad(a.hour)}:${pad(a.min)}</span>${scheduleHtmlEsc(a.name)}<span style="opacity:.5;font-size:12px"> · ${scheduleHtmlEsc(a.venue || '')}</span></li>`;
+  el1.innerHTML = q1.length ? q1.map(li).join('') : '<li style="opacity:.45;list-style:none;margin-left:0">Gündüz listesi — admin’den aktivite seçin</li>';
+  el2.innerHTML = q2.length ? q2.map(li).join('') : '<li style="opacity:.45;list-style:none;margin-left:0">Çocuk listesi — admin’den seçin</li>';
+  let restos = RESTO_MAP_DATA.filter(r => isRestoOpen(r));
+  if (!tvViewConfig.restoUseAll) {
+    const ids = tvViewConfig.restoIds || [];
+    if (ids.length) {
+      const set = new Set(ids);
+      restos = restos.filter(r => set.has(r.id));
+    } else {
+      restos = [];
+    }
+  }
+  el3.innerHTML = restos.length
+    ? restos.map(r => `<li>${scheduleHtmlEsc(r.name)}${r.cuisine ? ` <span style="opacity:.45">· ${scheduleHtmlEsc(r.cuisine)}</span>` : ''}</li>`).join('')
+    : '<li style="opacity:.45;list-style:none;margin-left:0">Şu an açık restoran yok veya seçim yapın</li>';
+  const ev = [];
+  if (tvViewConfig.eveningKids) ev.push(`<div class="sq-ev-row"><span class="sq-ev-label">Çocuk gösterisi</span>${scheduleHtmlEsc(tvViewConfig.eveningKids)}</div>`);
+  if (tvViewConfig.eveningMain) ev.push(`<div class="sq-ev-row"><span class="sq-ev-label">Akşam gösterisi</span>${scheduleHtmlEsc(tvViewConfig.eveningMain)}</div>`);
+  if (tvViewConfig.eveningAfter) ev.push(`<div class="sq-ev-row"><span class="sq-ev-label">After show</span>${scheduleHtmlEsc(tvViewConfig.eveningAfter)}</div>`);
+  el4.innerHTML = ev.length ? ev.join('') : '<div class="sq-ev-row" style="opacity:.45">Bu akşam metinleri admin’den eklenir</div>';
+}
+
+function stopTvViewRotation() {
+  if (tvRotTimer) {
+    clearTimeout(tvRotTimer);
+    tvRotTimer = null;
+  }
+}
+
+function startTvViewRotation() {
+  stopTvViewRotation();
+  const m = document.getElementById('map-view-pane');
+  const s = document.getElementById('schedule-view-pane');
+  const title = document.getElementById('col-right-title');
+  if (!m || !s) return;
+  const mapSec = Math.max(10, Number(tvViewConfig.mapSec) || 30);
+  const schSec = Math.max(10, Number(tvViewConfig.scheduleSec) || 30);
+  let showingMap = true;
+  function applyView() {
+    if (showingMap) {
+      m.classList.remove('hidden-map');
+      s.classList.remove('active');
+      if (title) title.textContent = 'Resort Map';
+      setTimeout(() => {
+        try {
+          resortMap?.resize();
+          setTimeout(resolveMapMarkerOverlaps, 100);
+        } catch (_) {}
+      }, 150);
+    } else {
+      m.classList.add('hidden-map');
+      s.classList.add('active');
+      renderScheduleGrid();
+      if (title) title.textContent = "Today's Programme";
+    }
+  }
+  applyView();
+  function loop() {
+    showingMap = !showingMap;
+    applyView();
+    tvRotTimer = setTimeout(loop, (showingMap ? mapSec : schSec) * 1000);
+  }
+  tvRotTimer = setTimeout(loop, mapSec * 1000);
+}
 
 function istanbulTodayYMD() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
@@ -867,7 +1068,19 @@ async function fetchFromPB() {
     const cfgR = await fetch(`${PB}/api/collections/app_config/records?perPage=1`);
     if (cfgR.ok) {
       const cfgD = await cfgR.json();
-      if (cfgD.items?.[0]?.cycle_anchor) cycleAnchor = cfgD.items[0].cycle_anchor;
+      const cfg0 = cfgD.items?.[0];
+      if (cfg0) {
+        if (cfg0.cycle_anchor) cycleAnchor = cfg0.cycle_anchor;
+        tvViewConfig.mapSec = Math.max(10, Number(cfg0.map_schedule_map_sec) || 30);
+        tvViewConfig.scheduleSec = Math.max(10, Number(cfg0.map_schedule_schedule_sec) || 30);
+        tvViewConfig.daytimeIds = parseCfgIdArray(cfg0.schedule_daytime_activity_ids);
+        tvViewConfig.kidsIds = parseCfgIdArray(cfg0.schedule_kids_activity_ids);
+        tvViewConfig.restoUseAll = cfg0.schedule_resto_use_all !== false;
+        tvViewConfig.restoIds = parseCfgIdArray(cfg0.schedule_resto_ids);
+        tvViewConfig.eveningKids = String(cfg0.schedule_evening_kids_show || '').trim();
+        tvViewConfig.eveningMain = String(cfg0.schedule_evening_main_show || '').trim();
+        tvViewConfig.eveningAfter = String(cfg0.schedule_evening_after_show || '').trim();
+      }
     }
 
     venueByKey = {};
@@ -883,6 +1096,7 @@ async function fetchFromPB() {
     activities = (ad.items||[])
       .filter(r => activityMatchesCycle(r, dayIdx))
       .map(r => ({
+        id: r.id,
         hour: r.hour, min: r.minute||0, name: r.name,
         venue: r.venue||'', icon: r.icon||guessLucideFromName(r.name),
         venue_key: r.venue_key||''
@@ -900,6 +1114,7 @@ async function fetchFromPB() {
     const rr = await fetch(`${PB}/api/collections/restaurants/records?perPage=200`);
     const rd = await rr.json();
     RESTO_MAP_DATA = (rd.items||[]).map(r => ({
+      id: r.id,
       name: r.name, icon: r.icon||'🍽', cuisine: r.cuisine||'',
       opens: r.opens||'00:00', closes: r.closes||'23:59',
       weekly: r.weekly || null,
@@ -908,6 +1123,17 @@ async function fetchFromPB() {
     }));
 
     renderScreen();
+    const rotSig = JSON.stringify({
+      m: tvViewConfig.mapSec, s: tvViewConfig.scheduleSec,
+      d: tvViewConfig.daytimeIds, k: tvViewConfig.kidsIds,
+      r: tvViewConfig.restoIds, ru: tvViewConfig.restoUseAll,
+      ek: tvViewConfig.eveningKids, em: tvViewConfig.eveningMain, ea: tvViewConfig.eveningAfter
+    });
+    if (rotSig !== lastTvRotCfgSig) {
+      lastTvRotCfgSig = rotSig;
+      stopTvViewRotation();
+      startTvViewRotation();
+    }
     if (resortMap && resortMap.isStyleLoaded()) {
       renderMapActivities();
       renderRestaurantMarkers();
