@@ -55,8 +55,12 @@ HTML dosyalarındaki PocketBase adresi, kendi örneğinizin URL’si ile değiş
 | Alan | Tip | Zorunlu | Not |
 |------|-----|---------|-----|
 | `cycle_anchor` | text | ✓ | Gün 0 tarihi `YYYY-MM-DD` (İstanbul). Bu tarihten itibaren 0→13 döngü. |
-| `map_schedule_map_sec` | number | | Harita süresi (sn); **0** = harita hiç gösterilmez; boş → 30 |
-| `map_schedule_schedule_sec` | number | | Program süresi (sn); **0** = program hiç gösterilmez |
+| `map_schedule_map_sec` | number | | Harita süresi (sn); boş → 30. Dönüşümde **0** = o slotta harita yok |
+| `map_schedule_schedule_sec` | number | | Program süresi (sn); boş → 30. **0** = o slotta program yok |
+| `tv_map_enabled` | bool | | **false** = harita tamamen kapalı. Alan yoksa: `map_schedule_map_sec` &gt; 0 ise açık kabul edilir |
+| `tv_schedule_enabled` | bool | | **false** = program tamamen kapalı. Alan yoksa: süre &gt; 0 ise açık |
+
+İkisi de kapalıysa veya ikisi de açıkken her iki süre **0** ise TV’de harita/program alanı boş mesaj gösterilir. Yönetim: **TV** sekmesindeki aç/kapa kutuları bu alanları yazar; PocketBase’de alan yoksa `./scripts/pb_app_config_tv_fields.sh` ile ekleyin.
 
 Program kutuları **Aktiviteler** → `schedule_slot` (gündüz / çocuk / akşam) ile dolar; restoran kutusu bugün açık olanların tamamıdır.
 

@@ -50,6 +50,8 @@ curl -sS "${PB_URL}/api/collections/${CID}" -H "Authorization: ${TOKEN}" > "$TMP
 NEW_FIELDS='[
   {"name":"map_schedule_map_sec","type":"number","required":false,"presentable":false},
   {"name":"map_schedule_schedule_sec","type":"number","required":false,"presentable":false},
+  {"name":"tv_map_enabled","type":"bool","required":false,"presentable":false},
+  {"name":"tv_schedule_enabled","type":"bool","required":false,"presentable":false},
   {"name":"schedule_daytime_activity_ids","type":"json","required":false,"presentable":false,"options":{"maxSize":2000000}},
   {"name":"schedule_kids_activity_ids","type":"json","required":false,"presentable":false,"options":{"maxSize":2000000}},
   {"name":"schedule_resto_use_all","type":"bool","required":false,"presentable":false},

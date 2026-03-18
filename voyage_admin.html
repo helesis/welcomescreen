@@ -521,18 +521,30 @@ body {
 
   <!-- TV MAP / SCHEDULE -->
   <div id="tab-tvview" class="content" style="display:none">
-    <div class="section-title">TV — Harita / program süreleri</div>
-    <div class="section-sub">Karşılama ekranında <strong>harita</strong> ile <strong>program</strong> görünümü sırayla gösterilir. <strong>0</strong> yazdığınız görünüm hiç gösterilmez (ikisi de 0 ise yalnızca harita). Program listesi <strong>Aktiviteler</strong> → TV program alanından gelir.</div>
-    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
-      <div class="form-group">
-        <span class="form-label">Harita süresi (sn, 0=kapat)</span>
-        <input type="number" class="form-input w-sm" id="tv-map-sec" min="0" max="600" value="30">
+    <div class="section-title">TV — Harita / program</div>
+    <div class="section-sub">Aç/kapa ile görünümleri net kapatın. İkisi de açıksa süreler (sn) sırayla dönüşü belirler; birinin süresi <strong>0</strong> ise o görünüm atlanır. İkisi de kapalı veya her iki süre 0 ise ekranda boş alan gösterilir. (Eski kayıtlar: süre &gt;0 açık sayılır.)</div>
+    <div style="display:flex;flex-direction:column;gap:18px;max-width:520px">
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;padding:14px 16px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.08)">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:#e8e8e8">
+          <input type="checkbox" id="tv-map-on" checked style="width:18px;height:18px;accent-color:#c9a84c">
+          <strong>Harita göster</strong>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:#e8e8e8">
+          <input type="checkbox" id="tv-sch-on" checked style="width:18px;height:18px;accent-color:#c9a84c">
+          <strong>Program göster</strong>
+        </label>
       </div>
-      <div class="form-group">
-        <span class="form-label">Program süresi (sn, 0=kapat)</span>
-        <input type="number" class="form-input w-sm" id="tv-sch-sec" min="0" max="600" value="30">
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+        <div class="form-group">
+          <span class="form-label">Harita süresi (sn)</span>
+          <input type="number" class="form-input w-sm" id="tv-map-sec" min="0" max="600" value="30">
+        </div>
+        <div class="form-group">
+          <span class="form-label">Program süresi (sn)</span>
+          <input type="number" class="form-input w-sm" id="tv-sch-sec" min="0" max="600" value="30">
+        </div>
+        <button type="button" class="btn-add" onclick="saveTvViewConfig()">Kaydet</button>
       </div>
-      <button type="button" class="btn-add" onclick="saveTvViewConfig()">Kaydet</button>
     </div>
   </div>
 </div>
@@ -912,6 +924,13 @@ async function saveCycleAnchor() {
   }
 }
 
+function tvAdminShowFlag(cfg, showKey, secKey) {
+  if (cfg[showKey] === false) return false;
+  if (cfg[showKey] === true) return true;
+  const n = Number(cfg[secKey]);
+  return Number.isFinite(n) && n > 0;
+}
+
 async function loadTvViewTab() {
   await loadCycleTab();
   let cfg = {};
@@ -925,6 +944,10 @@ async function loadTvViewTab() {
     cfg.map_schedule_map_sec != null && cfg.map_schedule_map_sec !== '' ? cfg.map_schedule_map_sec : 30;
   document.getElementById('tv-sch-sec').value =
     cfg.map_schedule_schedule_sec != null && cfg.map_schedule_schedule_sec !== '' ? cfg.map_schedule_schedule_sec : 30;
+  const mOn = document.getElementById('tv-map-on');
+  const sOn = document.getElementById('tv-sch-on');
+  if (mOn) mOn.checked = tvAdminShowFlag(cfg, 'tv_map_enabled', 'map_schedule_map_sec');
+  if (sOn) sOn.checked = tvAdminShowFlag(cfg, 'tv_schedule_enabled', 'map_schedule_schedule_sec');
 }
 
 async function saveTvViewConfig() {
@@ -934,19 +957,23 @@ async function saveTvViewConfig() {
   }
   let mapSec = parseInt(document.getElementById('tv-map-sec').value, 10);
   let schSec = parseInt(document.getElementById('tv-sch-sec').value, 10);
-  if (!Number.isFinite(mapSec) || mapSec < 0) mapSec = 30;
-  if (!Number.isFinite(schSec) || schSec < 0) schSec = 30;
+  if (!Number.isFinite(mapSec) || mapSec < 0) mapSec = 0;
+  if (!Number.isFinite(schSec) || schSec < 0) schSec = 0;
   mapSec = Math.min(600, mapSec);
   schSec = Math.min(600, schSec);
+  const mapOn = document.getElementById('tv-map-on')?.checked !== false;
+  const schOn = document.getElementById('tv-sch-on')?.checked !== false;
   try {
     await pbPatch('app_config', cycleRecordId, {
+      tv_map_enabled: mapOn,
+      tv_schedule_enabled: schOn,
       map_schedule_map_sec: mapSec,
       map_schedule_schedule_sec: schSec
     });
-    showToast('Süreler kaydedildi ✓');
+    showToast('TV görünümü kaydedildi ✓');
   } catch (e) {
     console.error(e);
-    showToast('Kayıt hatası');
+    showToast('Kayıt hatası — app_config’e tv_map_enabled / tv_schedule_enabled alanlarını ekleyin (README)');
   }
 }
 
