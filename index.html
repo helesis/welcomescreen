@@ -844,8 +844,8 @@ html, body {
               <ul id="sq-restos"></ul>
             </div>
             <div class="schedule-cell">
-              <div class="schedule-cell-h">Bu akşam</div>
-              <div class="schedule-evening-block" id="sq-evening"></div>
+              <div class="schedule-cell-h">Akşam aktiviteleri</div>
+              <ul id="sq-evening"></ul>
             </div>
           </div>
         </div>
@@ -941,24 +941,16 @@ let lastTickerSlidesSig = '';
 let tickerCarouselTimer = null;
 let venueByKey = {};
 let cycleAnchor = '2025-01-01';
-let tvViewConfig = {
-  mapSec: 30, scheduleSec: 30,
-  daytimeIds: [], kidsIds: [], restoIds: [], restoUseAll: true,
-  eveningKids: '', eveningMain: '', eveningAfter: ''
-};
+let tvViewConfig = { mapSec: 30, scheduleSec: 30 };
 let tvRotTimer = null;
 let lastTvRotCfgSig = null;
 
-function parseCfgIdArray(v) {
-  if (v == null || v === '') return [];
-  if (Array.isArray(v)) return v.map(String).filter(Boolean);
-  if (typeof v === 'string') {
-    try {
-      const p = JSON.parse(v);
-      return Array.isArray(p) ? p.map(String).filter(Boolean) : [];
-    } catch (_) { return []; }
-  }
-  return [];
+function normalizeScheduleSlot(raw) {
+  const s = String(raw || '').toLowerCase().trim();
+  if (s === 'kids' || s === 'cocuk' || s === 'çocuk') return 'kids';
+  if (s === 'evening' || s === 'akşam' || s === 'aksam') return 'evening';
+  if (s === 'daytime' || s === 'gündüz' || s === 'gunduz' || s === 'day') return 'daytime';
+  return '';
 }
 
 function scheduleHtmlEsc(s) {
@@ -966,38 +958,24 @@ function scheduleHtmlEsc(s) {
 }
 
 function renderScheduleGrid() {
-  const byId = {};
-  activities.forEach(a => { if (a.id) byId[a.id] = a; });
-  const q1 = tvViewConfig.daytimeIds.map(id => byId[id]).filter(Boolean)
-    .sort((a, b) => a.hour * 60 + a.min - (b.hour * 60 + b.min));
-  const q2 = tvViewConfig.kidsIds.map(id => byId[id]).filter(Boolean)
-    .sort((a, b) => a.hour * 60 + a.min - (b.hour * 60 + b.min));
+  const sortT = (a, b) => a.hour * 60 + a.min - (b.hour * 60 + b.min);
+  const q1 = activities.filter(a => a.schedule_slot === 'daytime').sort(sortT);
+  const q2 = activities.filter(a => a.schedule_slot === 'kids').sort(sortT);
+  const q4 = activities.filter(a => a.schedule_slot === 'evening').sort(sortT);
   const el1 = document.getElementById('sq-daytime');
   const el2 = document.getElementById('sq-kids');
   const el3 = document.getElementById('sq-restos');
   const el4 = document.getElementById('sq-evening');
   if (!el1 || !el2 || !el3 || !el4) return;
   const li = (a) => `<li><span class="sq-time">${pad(a.hour)}:${pad(a.min)}</span>${scheduleHtmlEsc(a.name)}<span style="opacity:.5;font-size:12px"> · ${scheduleHtmlEsc(a.venue || '')}</span></li>`;
-  el1.innerHTML = q1.length ? q1.map(li).join('') : '<li style="opacity:.45;list-style:none;margin-left:0">Gündüz listesi — admin’den aktivite seçin</li>';
-  el2.innerHTML = q2.length ? q2.map(li).join('') : '<li style="opacity:.45;list-style:none;margin-left:0">Çocuk listesi — admin’den seçin</li>';
-  let restos = RESTO_MAP_DATA.filter(r => isRestoOpen(r));
-  if (!tvViewConfig.restoUseAll) {
-    const ids = tvViewConfig.restoIds || [];
-    if (ids.length) {
-      const set = new Set(ids);
-      restos = restos.filter(r => set.has(r.id));
-    } else {
-      restos = [];
-    }
-  }
+  const empty = (msg) => `<li style="opacity:.45;list-style:none;margin-left:0">${msg}</li>`;
+  el1.innerHTML = q1.length ? q1.map(li).join('') : empty('Gündüz — aktiviteye “Gündüz” seçin');
+  el2.innerHTML = q2.length ? q2.map(li).join('') : empty('Çocuk — aktiviteye “Çocuk” seçin');
+  const restos = RESTO_MAP_DATA.filter(r => isRestoOpen(r));
   el3.innerHTML = restos.length
     ? restos.map(r => `<li>${scheduleHtmlEsc(r.name)}${r.cuisine ? ` <span style="opacity:.45">· ${scheduleHtmlEsc(r.cuisine)}</span>` : ''}</li>`).join('')
-    : '<li style="opacity:.45;list-style:none;margin-left:0">Şu an açık restoran yok veya seçim yapın</li>';
-  const ev = [];
-  if (tvViewConfig.eveningKids) ev.push(`<div class="sq-ev-row"><span class="sq-ev-label">Çocuk gösterisi</span>${scheduleHtmlEsc(tvViewConfig.eveningKids)}</div>`);
-  if (tvViewConfig.eveningMain) ev.push(`<div class="sq-ev-row"><span class="sq-ev-label">Akşam gösterisi</span>${scheduleHtmlEsc(tvViewConfig.eveningMain)}</div>`);
-  if (tvViewConfig.eveningAfter) ev.push(`<div class="sq-ev-row"><span class="sq-ev-label">After show</span>${scheduleHtmlEsc(tvViewConfig.eveningAfter)}</div>`);
-  el4.innerHTML = ev.length ? ev.join('') : '<div class="sq-ev-row" style="opacity:.45">Bu akşam metinleri admin’den eklenir</div>';
+    : empty('Bugün açık restoran yok');
+  el4.innerHTML = q4.length ? q4.map(li).join('') : empty('Akşam — aktiviteye “Akşam” seçin');
 }
 
 function stopTvViewRotation() {
@@ -1073,13 +1051,6 @@ async function fetchFromPB() {
         if (cfg0.cycle_anchor) cycleAnchor = cfg0.cycle_anchor;
         tvViewConfig.mapSec = Math.max(10, Number(cfg0.map_schedule_map_sec) || 30);
         tvViewConfig.scheduleSec = Math.max(10, Number(cfg0.map_schedule_schedule_sec) || 30);
-        tvViewConfig.daytimeIds = parseCfgIdArray(cfg0.schedule_daytime_activity_ids);
-        tvViewConfig.kidsIds = parseCfgIdArray(cfg0.schedule_kids_activity_ids);
-        tvViewConfig.restoUseAll = cfg0.schedule_resto_use_all !== false;
-        tvViewConfig.restoIds = parseCfgIdArray(cfg0.schedule_resto_ids);
-        tvViewConfig.eveningKids = String(cfg0.schedule_evening_kids_show || '').trim();
-        tvViewConfig.eveningMain = String(cfg0.schedule_evening_main_show || '').trim();
-        tvViewConfig.eveningAfter = String(cfg0.schedule_evening_after_show || '').trim();
       }
     }
 
@@ -1099,7 +1070,8 @@ async function fetchFromPB() {
         id: r.id,
         hour: r.hour, min: r.minute||0, name: r.name,
         venue: r.venue||'', icon: r.icon||guessLucideFromName(r.name),
-        venue_key: r.venue_key||''
+        venue_key: r.venue_key||'',
+        schedule_slot: normalizeScheduleSlot(r.schedule_slot)
       }))
       .sort((a,b) => a.hour*60+a.min - (b.hour*60+b.min));
 
@@ -1123,12 +1095,7 @@ async function fetchFromPB() {
     }));
 
     renderScreen();
-    const rotSig = JSON.stringify({
-      m: tvViewConfig.mapSec, s: tvViewConfig.scheduleSec,
-      d: tvViewConfig.daytimeIds, k: tvViewConfig.kidsIds,
-      r: tvViewConfig.restoIds, ru: tvViewConfig.restoUseAll,
-      ek: tvViewConfig.eveningKids, em: tvViewConfig.eveningMain, ea: tvViewConfig.eveningAfter
-    });
+    const rotSig = JSON.stringify({ m: tvViewConfig.mapSec, s: tvViewConfig.scheduleSec });
     if (rotSig !== lastTvRotCfgSig) {
       lastTvRotCfgSig = rotSig;
       stopTvViewRotation();

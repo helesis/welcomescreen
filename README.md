@@ -13,16 +13,16 @@
 | `index.html` | TV ekranı (GitHub Pages vb.) |
 | `version.json` | Deploy sonrası ekranların yenilenmesi için sürüm (`v` değişince otomatik reload) |
 | `voyage_admin.html` | İçerik yönetim paneli |
-| `scripts/pb_app_config_tv_fields.sh` | PocketBase `app_config` içine TV harita/program alanlarını terminalden ekler (`curl`, `jq` gerekir) |
+| `scripts/pb_app_config_tv_fields.sh` | `app_config` TV süre alanları + (eski) json alanları |
+| `scripts/pb_activities_schedule_slot.sh` | `activities.schedule_slot` text alanı ekler |
 
-### PocketBase: TV alanlarını script ile eklemek
+### PocketBase: script ile alan eklemek
 
 ```bash
-export PB_URL="https://senin-pb-adresin.com"   # isteğe bağlı; yoksa README’deki varsayılan
-./scripts/pb_app_config_tv_fields.sh
+export PB_URL="https://senin-pb-adresin.com"   # isteğe bağlı
+./scripts/pb_activities_schedule_slot.sh   # önce bunu (aktivite TV programı)
+./scripts/pb_app_config_tv_fields.sh       # app_config süreleri (json alanları isteğe bağlı)
 ```
-
-Admin e-posta/şifre sorulur. Alanlar zaten varsa script çıkar, tekrar eklemez.
 
 ### GitHub Pages — TV otomatik güncelleme
 
@@ -55,17 +55,10 @@ HTML dosyalarındaki PocketBase adresi, kendi örneğinizin URL’si ile değiş
 | Alan | Tip | Zorunlu | Not |
 |------|-----|---------|-----|
 | `cycle_anchor` | text | ✓ | Gün 0 tarihi `YYYY-MM-DD` (İstanbul). Bu tarihten itibaren 0→13 döngü. |
-| `map_schedule_map_sec` | number | | Harita görünüm süresi (sn), varsayılan 30 |
-| `map_schedule_schedule_sec` | number | | 4 bölmeli program görünümü süresi (sn), varsayılan 30 |
-| `schedule_daytime_activity_ids` | json | | `activities` kayıt id’leri — gündüz kutusu |
-| `schedule_kids_activity_ids` | json | | Çocuk aktiviteleri kutusu |
-| `schedule_resto_use_all` | bool | | `true`: bugün açık tüm restoranlar; `false`: yalnızca `schedule_resto_ids` |
-| `schedule_resto_ids` | json | | Seçili restoran id’leri (`schedule_resto_use_all` false iken) |
-| `schedule_evening_kids_show` | text | | Bu akşam — çocuk gösterisi |
-| `schedule_evening_main_show` | text | | Akşam gösterisi |
-| `schedule_evening_after_show` | text | | After show |
+| `map_schedule_map_sec` | number | | Harita süresi (sn), varsayılan 30 |
+| `map_schedule_schedule_sec` | number | | Program görünümü süresi (sn), varsayılan 30 |
 
-TV’de harita ile program görünümü **dönüşümlü** gösterilir; içerik **Admin → TV Harita / Program** sekmesinden yönetilir.
+Program kutuları **Aktiviteler** → `schedule_slot` (gündüz / çocuk / akşam) ile dolar; restoran kutusu bugün açık olanların tamamıdır.
 
 ### `venues`
 
@@ -79,10 +72,11 @@ TV’de harita ile program görünümü **dönüşümlü** gösterilir; içerik 
 
 | Alan | Tip | Not |
 |------|-----|-----|
-| `hour`, `minute` | number | Başlangıç saati (**`min` değil, `minute`** — PocketBase uyumu) |
-| `name`, `venue`, `icon` | text | Ad, mekan metni, emoji |
+| `hour`, `minute` | number | Başlangıç saati (**`min` değil, `minute`**) |
+| `name`, `venue`, `icon` | text | Ad, mekan, ikon |
 | `cycle_day` | number | 0–13; boş = her gün |
-| Mekan eşlemesi | text | Doluysa koordinat `venues` tablosundan |
+| `schedule_slot` | text | TV program: `daytime` (gündüz), `kids` (çocuk), `evening` (akşam) |
+| `venue_key` | text | Doluysa harita koordinatı `venues` tablosundan |
 
 ### `announcements`
 
