@@ -178,6 +178,36 @@ body {
 }
 .btn-add:hover { opacity: 0.88; }
 
+/* Activity filter bar */
+.act-filter-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+.act-filter-label {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.2em; color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+}
+.act-filter-btn {
+  padding: 6px 14px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: rgba(255,255,255,.7);
+  font-size: 12px; font-family: 'Montserrat', sans-serif;
+  cursor: pointer; transition: all 0.2s;
+}
+.act-filter-btn:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(201,168,76,.25);
+  color: var(--white);
+}
+.act-filter-btn.active {
+  background: rgba(201,168,76,.15);
+  border-color: rgba(201,168,76,.4);
+  color: var(--gold2);
+}
+
 /* Records list */
 .record-list { display: flex; flex-direction: column; gap: 8px; }
 .record-row {
@@ -406,6 +436,13 @@ body {
         </select>
       </div>
       <button class="btn-add" onclick="addActivity()">+ Ekle</button>
+    </div>
+    <div class="act-filter-bar">
+      <span class="act-filter-label">Filtre:</span>
+      <button type="button" class="act-filter-btn active" data-slot="" onclick="setActFilter('')">Tümü</button>
+      <button type="button" class="act-filter-btn" data-slot="daytime" onclick="setActFilter('daytime')">Gündüz</button>
+      <button type="button" class="act-filter-btn" data-slot="kids" onclick="setActFilter('kids')">Çocuk</button>
+      <button type="button" class="act-filter-btn" data-slot="evening" onclick="setActFilter('evening')">Akşam</button>
     </div>
     <div class="record-list" id="act-list"><div class="loading">Yükleniyor...</div></div>
   </div>
@@ -1303,12 +1340,31 @@ async function saveActivityEdit() {
 }
 
 // ── ACTIVITIES ────────────────────────────────
+let actFilterSlot = '';
+
+function setActFilter(slot) {
+  actFilterSlot = slot;
+  document.querySelectorAll('.act-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.slot === slot);
+  });
+  renderActList();
+}
+
 async function loadActivities() {
   let items = [];
   try {
     items = await pbList('activities', 'cycle_day,start');
   } catch {
     try { items = await pbList('activities', 'cycle_day,hour,minute'); } catch { items = []; }
+  }
+  window._allActivities = items;
+  renderActList();
+}
+
+function renderActList() {
+  let items = window._allActivities || [];
+  if (actFilterSlot) {
+    items = items.filter(a => String(a.schedule_slot || 'daytime').toLowerCase() === actFilterSlot);
   }
   items.sort((a, b) => {
     const cdA = a.cycle_day == null || a.cycle_day === '' ? -1 : Number(a.cycle_day);
@@ -1319,7 +1375,11 @@ async function loadActivities() {
     return sa.hour * 60 + sa.min - (sb.hour * 60 + sb.min);
   });
   const list = document.getElementById('act-list');
-  if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz aktivite yok</div>'; return; }
+  if (!items.length) {
+    const msg = actFilterSlot ? 'Bu kategoride aktivite yok' : 'Henüz aktivite yok';
+    list.innerHTML = '<div class="empty-state">' + msg + '</div>';
+    return;
+  }
   list.innerHTML = items.map(a => {
     const cd = a.cycle_day;
     const dayLabel = (cd === null || cd === undefined || cd === '' || Number(cd) === -1) ? 'Her gün' : `Gün ${Number(cd) + 1}`;
