@@ -1311,6 +1311,9 @@ async function loadActivities() {
     try { items = await pbList('activities', 'cycle_day,hour,minute'); } catch { items = []; }
   }
   items.sort((a, b) => {
+    const cdA = a.cycle_day == null || a.cycle_day === '' ? -1 : Number(a.cycle_day);
+    const cdB = b.cycle_day == null || b.cycle_day === '' ? -1 : Number(b.cycle_day);
+    if (cdA !== cdB) return cdA - cdB;
     const sa = a.start ? parseTimeStr(a.start) : { hour: Number(a.hour)||0, min: Number(a.minute)||0 };
     const sb = b.start ? parseTimeStr(b.start) : { hour: Number(b.hour)||0, min: Number(b.minute)||0 };
     return sa.hour * 60 + sa.min - (sb.hour * 60 + sb.min);

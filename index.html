@@ -1320,7 +1320,8 @@ function updateScheduleTimelineScroll() {
     const px = parseFloat(track.dataset.px);
     if (Number.isNaN(minT) || Number.isNaN(px) || vp.clientHeight < 20) return;
     const cx = vp.clientHeight / 2;
-    const yNow = (nowMin - minT) * px;
+    const scrollCenterMin = Math.max(minT, nowMin - 240);
+    const yNow = (scrollCenterMin - minT) * px;
     track.style.transform = 'translateY(' + (cx - yNow) + 'px)';
   });
   refreshLucide(pane);
@@ -1523,7 +1524,7 @@ async function fetchFromPB() {
     }
 
     const dayIdx = getCurrentCycleDay();
-    const ar = await fetch(`${PB}/api/collections/activities/records?perPage=200&sort=start`, pbFetchOpts);
+    const ar = await fetch(`${PB}/api/collections/activities/records?perPage=200`, pbFetchOpts);
     const ad = await ar.json();
     function parseActivityStart(r) {
       if (r.start && typeof r.start === 'string') {
