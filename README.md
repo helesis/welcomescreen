@@ -123,11 +123,10 @@ TV’de duyurular **kayan yazı değil**: sırayla tam ekran şeridinde gösteri
 - 1920×1080, viewport’a göre ölçekleme
 - Saat/tarih, günün saatine göre selamlama
 - Hava ve deniz: Open-Meteo (ücretsiz, harici hesap gerekmez)
-- Harita: **MapLibre GL** + CARTO Voyager (raster); eğim (pitch) ile 3D hissi; zoom/pan kilitli
-- Haritada **aktif aktivite** ve **açık restoran**: yatay kart — solda **emoji ikon**, sağda okunaklı başlık ve saat bilgisi (fotoğraf kullanılmaz)
+- Program drum picker’ları: Daytime, Kids, Restaurants, Evening
 - Aktivite şeridi, duyuru ticker’ı
 
-**Notlar:** Sayfa `file://` ile açılabilir; Realtime için mümkünse aynı ağda HTTPS üzerinden servis etmek daha öngörülebilirdir. Koordinat önceliği: PocketBase `venues` + kayıttaki mekan eşlemesi; yoksa HTML içindeki yedek eşleme.
+**Notlar:** Sayfa `file://` ile açılabilir; Realtime için mümkünse aynı ağda HTTPS üzerinden servis etmek daha öngörülebilirdir.
 
 ---
 
@@ -145,8 +144,6 @@ TV’de duyurular **kayan yazı değil**: sırayla tam ekran şeridinde gösteri
 |--------|----------|
 | Open-Meteo | Hava |
 | Open-Meteo Marine | Dalga |
-| CARTO (Voyager) | Harita karosu |
-| MapLibre GL | Harita (WebGL, pitch) |
 | PocketBase | Veri + Realtime |
 
 Bu listedeki hava/harita servisleri için ayrı bir API anahtarı tanımlamanız gerekmez.
