@@ -1,0 +1,2 @@
+Admin e-posta: Admin şifre: 
+start / end zaten tanımlı.

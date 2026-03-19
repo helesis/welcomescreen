@@ -15,12 +15,16 @@
 | `voyage_admin.html` | İçerik yönetim paneli |
 | `scripts/pb_app_config_tv_fields.sh` | `app_config` TV süre alanları + (eski) json alanları |
 | `scripts/pb_activities_schedule_slot.sh` | `activities.schedule_slot` text alanı ekler |
+| `scripts/pb_activities_start_end.sh` | `activities.start`, `activities.end` (text, örn. "09:00") |
+| `scripts/migrate_activities_to_start_end.sh` | Mevcut hour/minute → start/end dönüşümü |
 
 ### PocketBase: script ile alan eklemek
 
 ```bash
 export PB_URL="https://senin-pb-adresin.com"   # isteğe bağlı
 ./scripts/pb_activities_schedule_slot.sh   # önce bunu (aktivite TV programı)
+./scripts/pb_activities_end_fields.sh      # bitiş saati alanları
+./scripts/migrate_activities_end_plus60.sh # mevcut kayıtlara bitiş = başlangıç + 60 dk
 ./scripts/pb_app_config_tv_fields.sh       # app_config süreleri (json alanları isteğe bağlı)
 ```
 
@@ -76,7 +80,8 @@ Program kutuları **Aktiviteler** → `schedule_slot` (gündüz / çocuk / akşa
 
 | Alan | Tip | Not |
 |------|-----|-----|
-| `hour`, `minute` | number | Başlangıç saati (**`min` değil, `minute`**) |
+| `hour`, `minute` | number | Başlangıç saati — alan adı **`minute`** olmalı (`min` değil). `hour` zorunlu ve sayı olmalı; aksi halde PATCH’te “hour required” hatası alırsınız. |
+| `end_hour`, `end_minute` | number | Bitiş saati (ertesi güne sarkabilir: bitiş &lt; başlangıç) |
 | `name`, `venue`, `icon` | text | Ad, mekan, ikon |
 | `cycle_day` | number | 0–13; boş = her gün |
 | `schedule_slot` | text | TV program: `daytime` (gündüz), `kids` (çocuk), `evening` (akşam) |

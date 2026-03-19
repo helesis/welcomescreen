@@ -365,7 +365,7 @@ body {
   <!-- ACTIVITIES TAB -->
   <div id="tab-activities" class="content">
     <div class="section-title">Aktivite programı (14 günlük döngü)</div>
-    <div class="section-sub">Her kayıt, <strong>14 Gün</strong> sekmesindeki başlangıca göre yalnızca seçilen döngü gününde gösterilir. <strong>TV program kutusu:</strong> Gündüz / Çocuk / Akşam — TV’de ilgili bölümde, saate göre listelenir. PocketBase’de <code class="key-mono">schedule_slot</code> alanı gerekir.</div>
+    <div class="section-sub">Her kayıt, <strong>14 Gün</strong> sekmesindeki başlangıca göre yalnızca seçilen döngü gününde gösterilir. <strong>Başlangıç–bitiş</strong> TV’de zaman aralığı olarak gösterilir (bitiş ertesi güne sarkabilir, örn. 23:00→01:00). PocketBase: <code class="key-mono">start</code>, <code class="key-mono">end</code> (text, örn. "09:00", "11:00").</div>
     <div class="add-form" style="align-items:flex-end">
       <div class="form-group">
         <span class="form-label">Döngü günü</span>
@@ -374,12 +374,12 @@ body {
         </select>
       </div>
       <div class="form-group">
-        <span class="form-label">Saat</span>
-        <input class="form-input w-sm" type="number" id="a-hour" min="0" max="23" placeholder="09">
+        <span class="form-label">Başlangıç (saat)</span>
+        <input class="form-input w-sm" type="text" id="a-start" placeholder="09:00" pattern="[0-2]?[0-9]:[0-5][0-9]">
       </div>
       <div class="form-group">
-        <span class="form-label">Dakika</span>
-        <input class="form-input w-sm" type="number" id="a-min" min="0" max="59" placeholder="00">
+        <span class="form-label">Bitiş (saat)</span>
+        <input class="form-input w-sm" type="text" id="a-end" placeholder="11:00" pattern="[0-2]?[0-9]:[0-5][0-9]">
       </div>
       <div class="form-group">
         <span class="form-label">Aktivite</span>
@@ -594,12 +594,12 @@ body {
         <select class="form-input w-md" id="act-edit-cycle-day"><option value="">Her gün</option></select>
       </div>
       <div class="form-group">
-        <span class="form-label">Saat</span>
-        <input class="form-input w-sm" type="number" id="act-edit-hour" min="0" max="23">
+        <span class="form-label">Başlangıç</span>
+        <input class="form-input w-sm" type="text" id="act-edit-start" placeholder="09:00" maxlength="5">
       </div>
       <div class="form-group">
-        <span class="form-label">Dakika</span>
-        <input class="form-input w-sm" type="number" id="act-edit-min" min="0" max="59">
+        <span class="form-label">Bitiş</span>
+        <input class="form-input w-sm" type="text" id="act-edit-end" placeholder="10:00" maxlength="5">
       </div>
     </div>
     <div class="form-group" style="margin-top:14px">
@@ -834,10 +834,14 @@ async function pbPost(collection, data) {
 }
 
 async function pbPatch(collection, id, data) {
+  const clean = {};
+  for (const k of Object.keys(data || {})) {
+    if (data[k] !== undefined) clean[k] = data[k];
+  }
   const r = await fetch(`${PB}/api/collections/${collection}/records/${id}`, {
     method: 'PATCH',
     headers: {'Content-Type':'application/json','Authorization': token},
-    body: JSON.stringify(data)
+    body: JSON.stringify(clean)
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
@@ -1181,6 +1185,30 @@ async function loadAll() {
 
 let editingActId = null;
 
+/** "09:00" / "9:30" → { hour, min } */
+function parseTimeStr(s) {
+  if (!s || typeof s !== 'string') return { hour: 0, min: 0 };
+  const m = String(s).trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return { hour: 0, min: 0 };
+  const h = Math.max(0, Math.min(23, parseInt(m[1], 10) || 0));
+  const mn = Math.max(0, Math.min(59, parseInt(m[2], 10) || 0));
+  return { hour: h, min: mn };
+}
+/** { hour, min } → "09:00" */
+function formatTimeStr(h, m) {
+  return pad(h || 0) + ':' + pad(m ?? 0);
+}
+function activityTimeRangeLabel(a) {
+  const st = a.start ? parseTimeStr(a.start) : { hour: Number(a.hour) || 0, min: Number(a.minute) || 0 };
+  let et = a.end ? parseTimeStr(a.end) : null;
+  if (!et || (et.hour === 0 && et.min === 0 && !a.end)) {
+    const t = st.hour * 60 + st.min + 60;
+    const x = ((t % 1440) + 1440) % 1440;
+    et = { hour: Math.floor(x / 60), min: x % 60 };
+  }
+  return `${formatTimeStr(st.hour, st.min)}–${formatTimeStr(et.hour, et.min)}`;
+}
+
 function fillActEditCycleSelect() {
   const sel = document.getElementById('act-edit-cycle-day');
   sel.innerHTML = '<option value="">Her gün göster</option>';
@@ -1207,8 +1235,11 @@ async function openActivityEditModal(id) {
     const r = await fetch(`${PB}/api/collections/activities/records/${id}`, { headers: { Authorization: token } });
     if (!r.ok) throw new Error(await r.text());
     const rec = await r.json();
-    document.getElementById('act-edit-hour').value = rec.hour ?? 0;
-    document.getElementById('act-edit-min').value = rec.minute ?? 0;
+    const st = rec.start || (rec.hour != null ? formatTimeStr(rec.hour, rec.minute) : '09:00');
+    const defEnd = rec.end || (rec.end_hour != null ? formatTimeStr(rec.end_hour, rec.end_minute) : '');
+    const endVal = defEnd || (rec.start ? (() => { const p = parseTimeStr(rec.start); const t = p.hour*60+p.min+60; const x = ((t%1440)+1440)%1440; return formatTimeStr(Math.floor(x/60), x%60); })() : '10:00');
+    document.getElementById('act-edit-start').value = st;
+    document.getElementById('act-edit-end').value = endVal;
     document.getElementById('act-edit-name').value = rec.name || '';
     document.getElementById('act-edit-venue').value = rec.venue || '';
     document.getElementById('act-edit-icon').value = rec.icon || '';
@@ -1236,22 +1267,30 @@ function closeActModal() {
 
 async function saveActivityEdit() {
   if (!editingActId) return;
-  let h = parseInt(document.getElementById('act-edit-hour').value, 10);
-  let m = parseInt(document.getElementById('act-edit-min').value, 10);
-  if (isNaN(m) || m < 0) m = 0;
-  if (m > 59) m = 59;
+  const startVal = String(document.getElementById('act-edit-start').value || '').trim();
+  const endVal = String(document.getElementById('act-edit-end').value || '').trim();
   const name = document.getElementById('act-edit-name').value.trim();
   const venue = document.getElementById('act-edit-venue').value.trim();
   const icon = document.getElementById('act-edit-icon').value.trim();
   const venue_key = document.getElementById('act-edit-venue-key').value.trim();
   const cyc = document.getElementById('act-edit-cycle-day').value;
-  if (isNaN(h) || h < 0 || h > 23 || !name) { showToast('Saat (0–23) ve isim zorunlu'); return; }
-  const payload = { hour: h, minute: m, name, venue, icon };
-  if (venue_key) payload.venue_key = venue_key;
-  else payload.venue_key = null;
-  if (cyc !== '') payload.cycle_day = parseInt(cyc, 10);
-  else payload.cycle_day = null;
-  payload.schedule_slot = document.getElementById('act-edit-schedule-slot').value || 'daytime';
+  if (!name) { showToast('İsim zorunlu'); return; }
+  if (!startVal) { showToast('Başlangıç saati zorunlu (örn. 09:00)'); return; }
+  const ps = parseTimeStr(startVal), pe = parseTimeStr(endVal);
+  if (!endVal) { showToast('Bitiş saati zorunlu (örn. 11:00)'); return; }
+  const st = ps.hour * 60 + ps.min, et = pe.hour * 60 + pe.min;
+  if (st === et) { showToast('Bitiş başlangıçtan farklı olmalı'); return; }
+
+  const payload = {
+    start: formatTimeStr(ps.hour, ps.min),
+    end: formatTimeStr(pe.hour, pe.min),
+    name,
+    venue,
+    icon,
+    venue_key: venue_key ? venue_key : null,
+    cycle_day: cyc !== '' ? parseInt(cyc, 10) : null,
+    schedule_slot: document.getElementById('act-edit-schedule-slot').value || 'daytime'
+  };
   try {
     await pbPatch('activities', editingActId, payload);
     closeActModal();
@@ -1259,7 +1298,7 @@ async function saveActivityEdit() {
     showToast('Aktivite güncellendi ✓');
   } catch (e) {
     console.error(e);
-    showToast('Kaydedilemedi');
+    showToast('Kaydedilemedi — activities şemasında start, end (text) alanları gerekli.');
   }
 }
 
@@ -1267,8 +1306,15 @@ async function saveActivityEdit() {
 async function loadActivities() {
   let items = [];
   try {
-    items = await pbList('activities', 'cycle_day,hour,minute');
-  } catch { items = []; }
+    items = await pbList('activities', 'cycle_day,start');
+  } catch {
+    try { items = await pbList('activities', 'cycle_day,hour,minute'); } catch { items = []; }
+  }
+  items.sort((a, b) => {
+    const sa = a.start ? parseTimeStr(a.start) : { hour: Number(a.hour)||0, min: Number(a.minute)||0 };
+    const sb = b.start ? parseTimeStr(b.start) : { hour: Number(b.hour)||0, min: Number(b.minute)||0 };
+    return sa.hour * 60 + sa.min - (sb.hour * 60 + sb.min);
+  });
   const list = document.getElementById('act-list');
   if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz aktivite yok</div>'; return; }
   list.innerHTML = items.map(a => {
@@ -1276,10 +1322,11 @@ async function loadActivities() {
     const dayLabel = (cd === null || cd === undefined || cd === '') ? 'Her gün' : `Gün ${Number(cd) + 1}`;
     const slot = String(a.schedule_slot || 'daytime').toLowerCase();
     const slotTr = slot === 'kids' ? 'Çocuk' : slot === 'evening' ? 'Akşam' : 'Gündüz';
+    const range = activityTimeRangeLabel(a);
     return `
       <div class="record-row" style="align-items:center">
         <div class="record-icon">${a.icon||'⭐'}</div>
-        <div class="record-time">${pad(a.hour)}:${pad(a.minute||0)}</div>
+        <div class="record-time" style="min-width:100px;font-size:11px">${range}</div>
         <div class="record-info">
           <div class="record-name">${escapeHtml(a.name)} <span class="record-meta">${dayLabel}</span> <span class="record-meta" style="opacity:.85">· TV: ${slotTr}</span></div>
           <div class="record-venue">${escapeHtml(a.venue||'—')} ${a.venue_key ? '· <span class="key-mono">' + escapeHtml(a.venue_key) + '</span>' : ''}</div>
@@ -1300,27 +1347,38 @@ function escapeHtml(s) {
 }
 
 async function addActivity() {
-  const h = parseInt(document.getElementById('a-hour').value);
-  const m = parseInt(document.getElementById('a-min').value) || 0;
+  const startVal = String(document.getElementById('a-start').value || '').trim();
+  const endVal = String(document.getElementById('a-end').value || '').trim();
   const name = document.getElementById('a-name').value.trim();
   const venue = document.getElementById('a-venue').value.trim();
   const icon = document.getElementById('a-icon').value.trim();
   const venue_key = document.getElementById('a-venue-key').value.trim() || '';
   const cyc = document.getElementById('a-cycle-day').value;
-  if (isNaN(h) || !name) { showToast('Saat ve isim zorunlu'); return; }
+  if (!startVal || !name) { showToast('Başlangıç saati (09:00) ve isim zorunlu'); return; }
+  const ps = parseTimeStr(startVal);
+  let endStr = endVal;
+  if (!endStr) {
+    const t = ps.hour * 60 + ps.min + 60;
+    const x = ((t % 1440) + 1440) % 1440;
+    endStr = formatTimeStr(Math.floor(x / 60), x % 60);
+  }
+  const pe = parseTimeStr(endStr);
+  if (ps.hour * 60 + ps.min === pe.hour * 60 + pe.min) { showToast('Bitiş başlangıçtan farklı olmalı'); return; }
   const schedule_slot = document.getElementById('a-schedule-slot').value || 'daytime';
-  const payload = { hour: h, minute: m, name, venue, icon, schedule_slot };
+  const payload = { start: formatTimeStr(ps.hour, ps.min), end: formatTimeStr(pe.hour, pe.min), name, venue, icon, schedule_slot };
   if (venue_key) payload.venue_key = venue_key;
   if (cyc !== '') payload.cycle_day = parseInt(cyc, 10);
   try {
     await pbPost('activities', payload);
-    ['a-hour','a-min','a-name','a-venue','a-icon'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('a-start').value = '';
+    document.getElementById('a-end').value = '';
+    ['a-name','a-venue','a-icon'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('a-venue-key').value = '';
     document.getElementById('a-cycle-day').value = '';
     document.getElementById('a-schedule-slot').value = 'daytime';
     loadActivities();
     showToast('Aktivite eklendi ✓');
-  } catch (e) { showToast('Hata — schedule_slot / cycle_day / venue_key PB’de tanımlı mı?'); console.error(e); }
+  } catch (e) { showToast('Hata — activities’te start, end (text) alanları gerekli.'); console.error(e); }
 }
 
 async function delActivity(id) {
