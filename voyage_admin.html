@@ -1249,7 +1249,7 @@ async function openActivityEditModal(id) {
       ['kids', 'evening'].includes(slot) ? slot : 'daytime';
     const cd = rec.cycle_day;
     document.getElementById('act-edit-cycle-day').value =
-      (cd === null || cd === undefined || cd === '') ? '' : String(Number(cd));
+      (cd === null || cd === undefined || cd === '' || Number(cd) === -1) ? '' : String(Number(cd));
     document.getElementById('act-modal-overlay').style.display = 'flex';
     document.body.style.overflow = 'hidden';
   } catch (e) {
@@ -1288,7 +1288,7 @@ async function saveActivityEdit() {
     venue,
     icon,
     venue_key: venue_key ? venue_key : null,
-    cycle_day: cyc !== '' ? parseInt(cyc, 10) : null,
+    cycle_day: cyc !== '' ? parseInt(cyc, 10) : -1,
     schedule_slot: document.getElementById('act-edit-schedule-slot').value || 'daytime'
   };
   try {
@@ -1322,7 +1322,7 @@ async function loadActivities() {
   if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz aktivite yok</div>'; return; }
   list.innerHTML = items.map(a => {
     const cd = a.cycle_day;
-    const dayLabel = (cd === null || cd === undefined || cd === '') ? 'Her gün' : `Gün ${Number(cd) + 1}`;
+    const dayLabel = (cd === null || cd === undefined || cd === '' || Number(cd) === -1) ? 'Her gün' : `Gün ${Number(cd) + 1}`;
     const slot = String(a.schedule_slot || 'daytime').toLowerCase();
     const slotTr = slot === 'kids' ? 'Çocuk' : slot === 'evening' ? 'Akşam' : 'Gündüz';
     const range = activityTimeRangeLabel(a);
@@ -1370,7 +1370,7 @@ async function addActivity() {
   const schedule_slot = document.getElementById('a-schedule-slot').value || 'daytime';
   const payload = { start: formatTimeStr(ps.hour, ps.min), end: formatTimeStr(pe.hour, pe.min), name, venue, icon, schedule_slot };
   if (venue_key) payload.venue_key = venue_key;
-  if (cyc !== '') payload.cycle_day = parseInt(cyc, 10);
+  payload.cycle_day = cyc !== '' ? parseInt(cyc, 10) : -1;
   try {
     await pbPost('activities', payload);
     document.getElementById('a-start').value = '';

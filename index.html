@@ -1,2370 +1,2575 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Voyage Sorgun – Welcome Screen</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-<style>
-/* ═══════════════════════════════════════════════
-   WRAPPER: Scale 1920×1080 into viewport
-═══════════════════════════════════════════════ */
-html, body {
-  margin: 0; padding: 0;
-  width: 100vw; height: 100vh;
-  overflow: hidden;
-  background: #000;
-  display: flex; align-items: center; justify-content: center;
-}
-.scale-wrapper {
-  width: 1920px; height: 1080px;
-  transform-origin: top left;
-  position: absolute; top: 0; left: 0;
-  overflow: hidden;
-}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>Voyage Sorgun – Welcome Screen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+    <style>
+    /* ═══════════════════════════════════════════════
+      WRAPPER: Scale 1920×1080 into viewport
+    ═══════════════════════════════════════════════ */
+    html, body {
+      margin: 0; padding: 0;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .scale-wrapper {
+      width: 1920px; height: 1080px;
+      transform-origin: top left;
+      position: absolute; top: 0; left: 0;
+      overflow: hidden;
+    }
 
-/* ═══════════════════════════════════════════════
-   DESIGN TOKENS
-═══════════════════════════════════════════════ */
-:root {
-  --navy:   #080d1c;
-  --navy2:  #0b1229;
-  --blue1:  #0e2050;
-  --gold:   #c9a84c;
-  --gold2:  #e8c97a;
-  --gold3:  #f5dfa0;
-  --cream:  #f5efe6;
-  --white:  #ffffff;
-  --glass:  rgba(255,255,255,0.055);
-  --glass2: rgba(255,255,255,0.025);
-  --border: rgba(201,168,76,0.18);
-  --border2:rgba(255,255,255,0.07);
-  --ticker-h: 104px;
-}
+    /* ═══════════════════════════════════════════════
+      DESIGN TOKENS
+    ═══════════════════════════════════════════════ */
+    :root {
+      --navy:   #080d1c;
+      --navy2:  #0b1229;
+      --blue1:  #0e2050;
+      --gold:   #c9a84c;
+      --gold2:  #e8c97a;
+      --gold3:  #f5dfa0;
+      --cream:  #f5efe6;
+      --white:  #ffffff;
+      --glass:  rgba(255,255,255,0.055);
+      --glass2: rgba(255,255,255,0.025);
+      --border: rgba(201,168,76,0.18);
+      --border2:rgba(255,255,255,0.07);
+      --ticker-h: 104px;
+    }
 
-/* ═══════════════════════════════════════════════
-   BACKGROUND
-═══════════════════════════════════════════════ */
-.bg {
-  position: absolute; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse 70% 55% at 10% 85%, rgba(26,50,110,0.55) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 70% at 88% 15%, rgba(12,32,75,0.65) 0%, transparent 55%),
-    radial-gradient(ellipse 90% 40% at 50% 102%, rgba(201,168,76,0.07) 0%, transparent 48%),
-    linear-gradient(160deg, #08101f 0%, #0b1630 45%, #060e20 100%);
-}
+    /* ═══════════════════════════════════════════════
+      BACKGROUND
+    ═══════════════════════════════════════════════ */
+    .bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 10% 85%, rgba(26,50,110,0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 70% at 88% 15%, rgba(12,32,75,0.65) 0%, transparent 55%),
+        radial-gradient(ellipse 90% 40% at 50% 102%, rgba(201,168,76,0.07) 0%, transparent 48%),
+        linear-gradient(160deg, #08101f 0%, #0b1630 45%, #060e20 100%);
+    }
 
-/* Subtle grid overlay */
-.bg-grid {
-  position: absolute; inset: 0; z-index: 0;
-  background-image:
-    linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
-  background-size: 80px 80px;
-}
+    /* Subtle grid overlay */
+    .bg-grid {
+      position: absolute; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
 
-/* ═══════════════════════════════════════════════
-   PARTICLES
-═══════════════════════════════════════════════ */
-.particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0;
-  animation: float-p var(--d,15s) var(--dl,0s) ease-in-out infinite;
-}
-@keyframes float-p {
-  0%   { opacity: 0; transform: translateY(0) scale(0.4); }
-  15%  { opacity: 0.7; }
-  85%  { opacity: 0.2; }
-  100% { opacity: 0; transform: translateY(-500px) scale(1.8); }
-}
-
-
-
-/* ═══════════════════════════════════════════════
-   SCREEN LAYOUT
-═══════════════════════════════════════════════ */
-.screen {
-  position: relative; z-index: 2;
-  width: 1920px; height: 1080px;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.main-content {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 460px 1fr;
-  grid-template-rows: auto 1px 1fr;
-  /* Alt: ticker yüksekliği kadar yukarı taşındı + ticker bandı — içerik üst üste binmesin */
-  padding: 44px 56px calc(16px + var(--ticker-h) + var(--ticker-h));
-  gap: 0;
-}
-
-/* ── TOP BAR ── */
-.top-bar {
-  grid-column: 1/-1;
-  display: flex; align-items: center; justify-content: space-between;
-  padding-bottom: 22px;
-  animation: fadeUp 0.9s ease both;
-}
-.logo-area { display: flex; align-items: center; gap: 20px; }
-.logo-text {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 36px; font-weight: 300;
-  letter-spacing: 0.26em; color: var(--gold2);
-  text-transform: uppercase;
-}
-.logo-sep { width: 1px; height: 48px; background: var(--gold); opacity: 0.35; }
-.logo-sub {
-  font-size: 14px; font-weight: 400;
-  letter-spacing: 0.28em; color: rgba(255,255,255,0.5);
-  text-transform: uppercase; line-height: 1.45;
-}
-.top-right { display: flex; align-items: flex-end; flex-direction: column; gap: 8px; }
-.clock-time {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 84px; font-weight: 300;
-  letter-spacing: 0.03em; color: var(--white); line-height: 1;
-}
-.clock-date {
-  font-size: 15px; font-weight: 400;
-  letter-spacing: 0.18em; color: rgba(255,255,255,0.52);
-  text-transform: uppercase;
-}
-
-/* Gold divider */
-.divider-row { grid-column: 1/-1; }
-.gold-line {
-  width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold) 70%, transparent 100%);
-  opacity: 0.3;
-}
-
-/* ════ LEFT COLUMN ════ */
-.col-left {
-  padding: 32px 44px 0 0;
-  display: flex; flex-direction: column; gap: 28px;
-  animation: fadeUp 0.9s 0.15s ease both;
-}
-.greeting-text {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 108px; font-weight: 300;
-  line-height: 1.02; color: var(--white);
-}
-.greeting-text em { font-style: italic; color: var(--gold2); }
-.welcome-tagline {
-  font-size: 13px; font-weight: 200;
-  letter-spacing: 0.14em; color: rgba(255,255,255,0.38);
-  line-height: 1.7; max-width: 380px;
-}
-
-/* Weather card (kısaltıldı — announcement ribbon ile çakışmayı azaltır) */
-.weather-card {
-  background: var(--glass);
-  border: 1px solid var(--border);
-  border-radius: 14px; padding: 16px 22px;
-  backdrop-filter: blur(10px);
-  display: flex; flex-direction: column; gap: 10px;
-  min-height: 300px;
-  justify-content: space-between;
-}
-.weather-top { display: flex; align-items: flex-start; justify-content: space-between; }
-.weather-temp {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 92px; font-weight: 300; line-height: 1;
-  color: #fff;
-}
-.weather-temp sup {
-  font-size: 34px;
-  vertical-align: super;
-  color: #fff;
-  opacity: 0.92;
-  font-weight: 300;
-}
-.weather-desc {
-  font-size: 12px; font-weight: 300;
-  letter-spacing: 0.18em; color: rgba(255,255,255,0.5);
-  text-transform: uppercase;
-}
-.weather-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.weather-meta-item { display: flex; flex-direction: column; gap: 2px; }
-.meta-label { font-size: 9px; font-weight: 400; letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase; }
-.meta-value { font-size: 15px; font-weight: 300; color: var(--white); }
-.wave-badge {
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(201,168,76,0.07);
-  border: 1px solid rgba(201,168,76,0.18);
-  border-radius: 8px; padding: 10px 14px;
-}
-.wave-icon { font-size: 22px; }
-.wave-label { font-size: 9px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
-.wave-value { font-size: 17px; font-weight: 300; color: var(--white); }
-
-/* ════ RIGHT COLUMN ════ */
-
-/* ── MAP COLUMN ── */
-.col-right {
-  padding: 28px 0 0 36px;
-  display: flex; flex-direction: column; gap: 12px;
-  animation: fadeUp 0.9s 0.35s ease both;
-}
-.map-header {
-  display: flex; align-items: center;
-}
-.map-schedule-rotator {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  margin-bottom: -13px;
-}
-.rotator-pane {
-  flex: 1;
-  min-height: 0;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  position: relative;
-}
-.map-container.rotator-pane { display: flex; flex-direction: column; }
-.schedule-view-pane {
-  background: linear-gradient(160deg, rgba(8,13,28,.96), rgba(14,22,45,.98));
-  display: none;
-}
-.schedule-view-pane.active { display: flex; flex-direction: column; }
-.map-container.rotator-pane.hidden-map { display: none !important; }
-.map-sch-empty-pane {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, rgba(8,13,28,.92), rgba(14,22,45,.95));
-  color: rgba(255,255,255,.45);
-  font-size: 15px;
-  font-weight: 300;
-  letter-spacing: 0.06em;
-  text-align: center;
-  padding: 24px;
-}
-.map-sch-empty-pane.active { display: flex; }
-.map-sch-empty-pane .map-sch-empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.5; }
-.map-sch-empty-pane .map-sch-empty-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
-  font-style: italic;
-  color: var(--gold2);
-  margin-bottom: 8px;
-}
-.schedule-grid {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: 1fr;
-  gap: 8px;
-  padding: 10px;
-  box-sizing: border-box;
-  align-items: stretch;
-}
-.schedule-cell {
-  background: var(--glass);
-  border: 1px solid rgba(201,168,76,.22);
-  border-radius: 10px;
-  padding: 8px 8px;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-.schedule-cell-h {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gold2);
-  margin-bottom: 8px;
-  flex-shrink: 0;
-  border-bottom: 1px solid rgba(201,168,76,.15);
-  padding-bottom: 6px;
-  line-height: 1.3;
-}
-#col-right-title.schedule-programme-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(20px, 2.4vw, 28px);
-  font-weight: 400;
-  font-style: italic;
-  letter-spacing: 0.06em;
-  color: var(--gold2);
-  text-transform: none;
-}
-.schedule-timeline-viewport {
-  flex: 1;
-  min-height: 0;
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-  background: rgba(0,0,0,.12);
-}
-.schedule-now-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 0;
-  z-index: 2;
-  pointer-events: none;
-  border-top: 2px solid rgba(201,168,76,.75);
-  box-shadow: 0 0 14px rgba(201,168,76,.35);
-}
-.schedule-now-label {
-  position: absolute;
-  right: 6px;
-  top: -11px;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  background: rgba(8,13,28,.92);
-  padding: 1px 6px;
-  border-radius: 4px;
-  border: 1px solid rgba(201,168,76,.35);
-}
-.schedule-timeline-track {
-  position: relative;
-  width: 100%;
-  will-change: transform;
-  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.sch-act-card-wrap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 70px;
-  z-index: 1;
-  box-sizing: border-box;
-}
-.sch-act-card-wrap[data-past="true"] { opacity: 0.42; filter: saturate(0.65); }
-.sch-act-card {
-  position: relative;
-  height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  background: linear-gradient(145deg, rgba(8,13,28,.97), rgba(18,26,52,.97));
-  border: 1px solid rgba(217,48,48,.5);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0,0,0,.65), 0 0 8px rgba(217,48,48,.12);
-}
-.sch-act-card .sch-act-icon {
-  flex: 0 0 44px;
-  min-height: 0;
-  background: linear-gradient(160deg, #120828, #1c0d3a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-right: 1px solid rgba(217,48,48,.22);
-}
-.sch-act-card .sch-act-icon .map-card-lucide {
-  animation: dancer-sway 1.2s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 4px rgba(255,200,80,.3));
-}
-.sch-act-card .sch-act-body {
-  flex: 1;
-  min-width: 0;
-  padding: 5px 8px 5px 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1px;
-}
-.sch-act-card .sch-act-time-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.sch-act-card .sch-act-time {
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: 0.04em;
-}
-.sch-act-card .sch-act-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
-  font-weight: 500;
-  color: #fff;
-  line-height: 1.15;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sch-act-card .sch-act-venue {
-  font-size: 10px;
-  font-weight: 500;
-  color: rgba(255,255,255,.82);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sch-act-card .sch-act-bar {
-  position: absolute;
-  bottom: 0;
-  left: 44px;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #d93030, transparent);
-  animation: bar-pulse 2s ease-in-out infinite alternate;
-}
-.sch-empty-hint {
-  height: auto !important;
-  min-height: 56px;
-}
-.sch-empty-hint .sch-act-card {
-  border-color: rgba(201,168,76,.25);
-  justify-content: center;
-  align-items: center;
-  padding: 12px;
-  font-size: 11px;
-  color: rgba(255,255,255,.5);
-  text-align: center;
-  line-height: 1.35;
-}
-.schedule-resto-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 2px 0 4px 0;
-}
-.sch-resto-card {
-  flex-shrink: 0;
-  min-height: 64px;
-  display: flex;
-  flex-direction: row;
-  background: linear-gradient(145deg, rgba(8,13,28,.97), rgba(18,26,52,.97));
-  border: 1px solid rgba(201,168,76,.38);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 3px 14px rgba(0,0,0,.55);
-}
-.sch-resto-card .sch-resto-icon {
-  flex: 0 0 44px;
-  background: linear-gradient(135deg, rgba(232,168,124,.18), rgba(14,22,45,.95));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-right: 1px solid rgba(201,168,76,.18);
-}
-.sch-resto-card .sch-resto-body {
-  flex: 1;
-  min-width: 0;
-  padding: 6px 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.sch-resto-card .sch-resto-hrs {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--gold2);
-  letter-spacing: 0.03em;
-}
-.sch-resto-card .sch-resto-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
-  font-weight: 500;
-  color: #fff;
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#resort-map {
-  width: 100%; height: 100%;
-}
-
-/* MapLibre GL */
-.maplibregl-map { background: #e8e0d8 !important; }
-.maplibregl-ctrl-attribution { display: none !important; }
-.map-card-marker { pointer-events: none; }
-
-/* ── LIVE CALLOUT popup (pin üstünde) ── */
-.live-callout {
-  width: 200px;
-  background: linear-gradient(150deg, rgba(8,13,28,0.97), rgba(18,26,52,0.97));
-  border: 1px solid rgba(217,48,48,0.55);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 28px rgba(0,0,0,0.7), 0 0 20px rgba(217,48,48,0.2);
-  font-family: 'Montserrat', sans-serif;
-}
-/* Sahne alanı — küçük */
-.lc-stage {
-  height: 90px;
-  background: linear-gradient(150deg, #120828 0%, #1c0d3a 50%, #0a1220 100%);
-  position: relative; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-}
-.lc-stage::before {
-  content: '';
-  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-  width: 80px; height: 120px;
-  background: radial-gradient(ellipse, rgba(255,200,80,0.22) 0%, transparent 70%);
-  animation: spotlight 4s ease-in-out infinite alternate;
-}
-.lc-dancer {
-  position: relative; z-index: 2;
-  animation: dancer-sway 1.2s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 6px rgba(255,200,80,0.5));
-}
-.lc-dancer svg { width: 36px; height: 50px; }
-.lc-notes { position: absolute; inset: 0; pointer-events: none; }
-.lc-note {
-  position: absolute; font-size: 11px; opacity: 0;
-  animation: note-float 3s ease-in-out infinite;
-  color: rgba(255,220,100,0.8);
-}
-.lc-note:nth-child(1) { left:18%; top:50%; animation-delay:0s; }
-.lc-note:nth-child(2) { left:68%; top:35%; animation-delay:1.1s; }
-.lc-note:nth-child(3) { left:42%; top:25%; animation-delay:2.1s; }
-/* Seyirci */
-.lc-audience {
-  position: absolute; bottom: 5px; left: 0; right: 0;
-  display: flex; justify-content: center; gap: 4px;
-}
-.lc-aud {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: rgba(255,255,255,0.22);
-  animation: aud-bob 1s ease-in-out infinite alternate;
-}
-.lc-aud:nth-child(2){animation-delay:.15s}
-.lc-aud:nth-child(3){animation-delay:.30s}
-.lc-aud:nth-child(4){animation-delay:.45s}
-.lc-aud:nth-child(5){animation-delay:.20s}
-/* Info */
-.lc-info { padding: 10px 12px 12px; }
-.lc-badge-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
-.lc-badge {
-  display:flex; align-items:center; gap:4px;
-  background:#d93030; color:#fff;
-  font-size:7px; font-weight:700; letter-spacing:0.18em;
-  padding:2px 6px; border-radius:3px;
-  box-shadow:0 0 7px rgba(217,48,48,0.5);
-}
-.lc-badge::before {
-  content:''; width:4px; height:4px; border-radius:50%;
-  background:#fff; flex-shrink:0;
-  animation: live-dot 1.2s ease-in-out infinite;
-}
-.lc-time {
-  font-size:11px; font-weight:300;
-  color:rgba(255,255,255,0.4); letter-spacing:0.1em;
-}
-.lc-name {
-  font-family:'Cormorant Garamond',serif;
-  font-size:16px; font-weight:400; color:#fff;
-  line-height:1.15; margin-bottom:2px;
-}
-.lc-venue {
-  font-size:9px; font-weight:300;
-  color:rgba(255,255,255,0.35); letter-spacing:0.1em;
-}
-.rp-header { padding: 12px 14px 8px; }
-.rp-name {
-  font-family:'Cormorant Garamond',serif;
-  font-size:17px; font-weight:400; color:var(--gold2);
-  margin-bottom:2px;
-}
-.rp-meta {
-  display:flex; align-items:center; gap:8px;
-  font-size:10px; font-weight:300; color:rgba(255,255,255,0.4);
-  letter-spacing:0.08em;
-}
-.rp-open { color:#5dbb8a; font-weight:500; }
-.rp-closed { color:#e07070; font-weight:500; }
-.rp-thumbs {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
-  padding: 0 2px 2px;
-}
-.rp-thumb {
-  aspect-ratio:1; overflow:hidden; border-radius:4px;
-  background: rgba(255,255,255,0.06);
-  position: relative;
-}
-.rp-thumb img {
-  width:100%; height:100%; object-fit:cover;
-  transition: transform 0.3s;
-}
-.rp-thumb:hover img { transform: scale(1.08); }
-.rp-thumb-placeholder {
-  width:100%; height:100%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:22px; background: rgba(255,255,255,0.04);
-  animation: pulse 2s ease-in-out infinite;
-}
-/* Edit button */
-.edit-btn {
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(201,168,76,0.08);
-  border: 1px solid rgba(201,168,76,0.25);
-  border-radius: 8px; padding: 9px 16px;
-  color: var(--gold2); font-size: 10px; font-weight: 400;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  cursor: pointer; transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
-  flex-shrink: 0;
-}
-.edit-btn:hover { background: rgba(201,168,76,0.16); border-color: rgba(201,168,76,0.45); }
-.edit-btn svg { width: 13px; height: 13px; }
-
-/* ── ACTIVITY STRIP (below map) ── */
-.activity-strip {
-  display: flex; gap: 8px;
-  flex-shrink: 0;
-}
-.strip-item {
-  flex: 1; display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px;
-  background: var(--glass2);
-  border: 1px solid var(--border2);
-  border-radius: 9px; transition: all 0.4s; min-width: 0;
-  position: relative; overflow: hidden;
-}
-
-/* NOW — canlı etkinlik */
-.strip-item.now {
-  background: linear-gradient(135deg, rgba(201,168,76,0.13) 0%, rgba(201,168,76,0.05) 100%);
-  border-color: rgba(201,168,76,0.45);
-  box-shadow: 0 0 18px rgba(201,168,76,0.12), inset 0 0 20px rgba(201,168,76,0.04);
-}
-/* Kayan shimmer efekti */
-.strip-item.now::before {
-  content: '';
-  position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-  animation: shimmer 3s ease-in-out infinite;
-}
-@keyframes shimmer {
-  0%   { left: -60%; }
-  100% { left: 160%; }
-}
-.strip-item.now .si-time { color: var(--gold2); }
-.strip-item.now .si-name { color: var(--white); font-weight: 500; }
-
-.si-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 40px; color: #fff; }
-.si-icon svg { width: 26px; height: 26px; stroke-width: 2; }
-.strip-item.now .si-icon { animation: icon-bounce 2s ease-in-out infinite; }
-.weather-icon-big { display: flex; align-items: center; justify-content: center; color: #fff; }
-.weather-icon-big svg { width: 56px; height: 56px; stroke-width: 1.6; }
-.wave-icon { display: flex; align-items: center; justify-content: center; color: var(--gold2); flex-shrink: 0; }
-.wave-icon svg { width: 28px; height: 28px; stroke-width: 2; }
-.map-card-lucide { display: flex; align-items: center; justify-content: center; color: #fff; }
-.map-card-lucide svg { width: 22px; height: 22px; stroke-width: 2.2; }
-.map-card-lucide-gold { color: rgba(232,201,122,.95); }
-@keyframes icon-bounce {
-  0%,100% { transform: scale(1); }
-  50%      { transform: scale(1.15); }
-}
-
-.si-time {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 20px; font-weight: 300;
-  color: rgba(255,255,255,0.8); white-space: nowrap; flex-shrink: 0;
-}
-.si-info { flex: 1; min-width: 0; }
-.si-name {
-  font-size: 11px; font-weight: 400; color: var(--white);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.si-venue {
-  font-size: 9px; font-weight: 300;
-  color: rgba(255,255,255,0.35); letter-spacing: 0.08em;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-/* LIVE badge — kırmızı, yanıp sönen */
-.si-now {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 8px; font-weight: 700; letter-spacing: 0.18em;
-  color: #fff;
-  background: linear-gradient(135deg, #e03a3a, #c0202020);
-  background: #d93030;
-  padding: 3px 8px 3px 6px; border-radius: 4px;
-  text-transform: uppercase; flex-shrink: 0;
-  box-shadow: 0 0 10px rgba(217,48,48,0.5);
-}
-.si-now::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: #fff;
-  border-radius: 50%;
-  flex-shrink: 0;
-  animation: live-dot 1.2s ease-in-out infinite;
-}
-@keyframes live-dot {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.3; transform: scale(0.6); }
-}
-
-/* ═══════════════════════════════════════════════
-   TICKER
-═══════════════════════════════════════════════ */
-.ticker-wrap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--ticker-h) - 100px);
-  height: var(--ticker-h);
-  background: rgba(8,13,28,0.92);
-  border-top: 1px solid rgba(201,168,76,0.25);
-  display: flex; align-items: center;
-  overflow: hidden;
-  z-index: 20;
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.35);
-}
-.ticker-badge {
-  flex-shrink: 0;
-  height: 100%; padding: 0 28px 0 32px;
-  background: rgba(8,13,28,0.95);
-  border-right: 1px solid rgba(201,168,76,0.25);
-  display: flex; align-items: center; gap: 10px;
-  white-space: nowrap; cursor: pointer;
-  transition: background 0.2s;
-  position: relative;
-}
-.ticker-badge:hover { background: rgba(201,168,76,0.08); }
-.ticker-badge-icon {
-  font-size: 36px; opacity: 0.85; line-height: 1;
-}
-.ticker-badge-text {
-  font-size: 22px; font-weight: 600;
-  letter-spacing: 0.2em; color: var(--gold2);
-  text-transform: uppercase;
-  line-height: 1.1;
-}
-.ticker-badge-edit {
-  font-size: 8px; font-weight: 300;
-  letter-spacing: 0.15em; color: rgba(255,255,255,0.25);
-  text-transform: uppercase;
-  border: 1px solid rgba(201,168,76,0.2);
-  border-radius: 3px; padding: 1px 6px;
-}
-.ticker-track-wrap { overflow: hidden; flex: 1; display: flex; align-items: center; min-width: 0; }
-.ticker-track {
-  display: flex; align-items: center; justify-content: center;
-  flex: 1; min-width: 0; min-height: 100%; padding: 0 24px 0 8px;
-}
-.ticker-item {
-  font-size: 48px; font-weight: 400;
-  letter-spacing: 0.04em; color: rgba(255,255,255,0.95);
-  line-height: 1.2;
-  text-align: center;
-  max-width: 100%;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-/* ═══════════════════════════════════════════════
-   ADMIN PANEL (Activity Editor)
-═══════════════════════════════════════════════ */
-.panel-overlay {
-  position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s;
-}
-.panel-overlay.open { opacity: 1; pointer-events: all; }
-.panel {
-  width: 820px; max-height: 85vh;
-  background: linear-gradient(145deg, #0c1428, #09101e);
-  border: 1px solid rgba(201,168,76,0.3);
-  border-radius: 20px;
-  overflow: hidden;
-  display: flex; flex-direction: column;
-  box-shadow: 0 30px 100px rgba(0,0,0,0.8);
-  transform: translateY(20px);
-  transition: transform 0.3s;
-}
-.panel-overlay.open .panel { transform: translateY(0); }
-
-.panel-head {
-  padding: 24px 28px 20px;
-  border-bottom: 1px solid rgba(201,168,76,0.15);
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.panel-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 24px; font-weight: 300;
-  color: var(--gold2); letter-spacing: 0.08em;
-}
-.panel-sub {
-  font-size: 11px; font-weight: 300;
-  color: rgba(255,255,255,0.35); letter-spacing: 0.12em; margin-top: 4px;
-}
-.panel-close {
-  width: 36px; height: 36px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(255,255,255,0.5); font-size: 18px;
-  transition: all 0.2s;
-}
-.panel-close:hover { background: rgba(255,0,0,0.12); border-color: rgba(255,0,0,0.25); color: #ff6b6b; }
-
-.panel-body {
-  flex: 1; overflow-y: auto; padding: 20px 28px;
-  scrollbar-width: thin; scrollbar-color: rgba(201,168,76,0.3) transparent;
-}
-.panel-body::-webkit-scrollbar { width: 4px; }
-.panel-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
-
-/* Add form */
-.add-form {
-  display: grid; grid-template-columns: 90px 90px 1fr 120px 50px;
-  gap: 10px; align-items: center;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(201,168,76,0.15);
-  border-radius: 10px; padding: 14px 16px;
-  margin-bottom: 20px;
-}
-.form-label {
-  font-size: 9px; letter-spacing: 0.2em;
-  color: var(--gold); text-transform: uppercase;
-  margin-bottom: 5px;
-}
-.form-field { display: flex; flex-direction: column; }
-.form-input {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 7px; padding: 8px 11px;
-  color: var(--white); font-size: 13px;
-  font-family: 'Montserrat', sans-serif;
-  outline: none; transition: border-color 0.2s;
-  width: 100%;
-}
-.form-input:focus { border-color: rgba(201,168,76,0.4); }
-.form-input::placeholder { color: rgba(255,255,255,0.2); }
-.add-btn {
-  background: linear-gradient(135deg, var(--gold), #a8852e);
-  border: none; border-radius: 7px;
-  width: 40px; height: 40px; margin-top: 14px;
-  cursor: pointer; font-size: 20px; color: var(--navy);
-  display: flex; align-items: center; justify-content: center;
-  transition: opacity 0.2s; font-weight: 700;
-}
-.add-btn:hover { opacity: 0.85; }
-
-/* Activity rows */
-.act-row {
-  display: grid; grid-template-columns: 70px 70px 1fr 110px 40px;
-  gap: 10px; align-items: center;
-  padding: 11px 14px;
-  background: var(--glass2);
-  border: 1px solid var(--border2);
-  border-radius: 9px; margin-bottom: 8px;
-  transition: border-color 0.2s;
-}
-.act-row:hover { border-color: rgba(201,168,76,0.2); }
-.act-row-time {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22px; font-weight: 300; color: var(--gold2);
-}
-.act-row-icon { font-size: 22px; text-align: center; }
-.act-row-name { font-size: 13px; font-weight: 400; color: var(--white); margin-bottom: 2px; }
-.act-row-venue { font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 0.08em; }
-.del-btn {
-  background: rgba(255,60,60,0.08);
-  border: 1px solid rgba(255,60,60,0.15);
-  border-radius: 6px; width: 32px; height: 32px;
-  cursor: pointer; color: rgba(255,100,100,0.7);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; transition: all 0.2s;
-}
-.del-btn:hover { background: rgba(255,60,60,0.2); color: #ff6b6b; }
-
-.panel-foot {
-  padding: 16px 28px;
-  border-top: 1px solid rgba(201,168,76,0.12);
-  display: flex; gap: 12px; justify-content: flex-end;
-  flex-shrink: 0;
-}
-.btn-reset {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 8px; padding: 10px 20px;
-  color: rgba(255,255,255,0.45); font-size: 11px;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  cursor: pointer; font-family: 'Montserrat', sans-serif;
-  transition: all 0.2s;
-}
-.btn-reset:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
-.btn-save {
-  background: linear-gradient(135deg, var(--gold), #a8852e);
-  border: none; border-radius: 8px; padding: 10px 28px;
-  color: var(--navy); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  cursor: pointer; font-family: 'Montserrat', sans-serif;
-  transition: opacity 0.2s;
-}
-.btn-save:hover { opacity: 0.88; }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 80px; right: 40px; z-index: 200;
-  background: rgba(201,168,76,0.15);
-  border: 1px solid rgba(201,168,76,0.35);
-  border-radius: 10px; padding: 12px 20px;
-  font-size: 12px; font-weight: 400;
-  letter-spacing: 0.1em; color: var(--gold2);
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s;
-}
-.toast.show { opacity: 1; }
-
-/* Animations */
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(18px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.loading-pulse { animation: pulse 1.8s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:0.85} }
-</style>
-</head>
-<body>
-
-<div class="bg"></div>
-<div class="bg-grid"></div>
-<div class="particles" id="particles"></div>
+    /* ═══════════════════════════════════════════════
+      PARTICLES
+    ═══════════════════════════════════════════════ */
+    .particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: float-p var(--d,15s) var(--dl,0s) ease-in-out infinite;
+    }
+    @keyframes float-p {
+      0%   { opacity: 0; transform: translateY(0) scale(0.4); }
+      15%  { opacity: 0.7; }
+      85%  { opacity: 0.2; }
+      100% { opacity: 0; transform: translateY(-500px) scale(1.8); }
+    }
 
 
-<div class="scale-wrapper" id="scaleWrapper">
-<div class="screen">
-  <div class="main-content">
 
-    <!-- TOP BAR -->
-    <div class="top-bar">
-      <div class="logo-area">
-        <div class="logo-text">Voyage Sorgun</div>
-        <div class="logo-sep"></div>
-        <div class="logo-sub">MANAVGAT · SIDE<br>TÜRKIYE</div>
-      </div>
-      <div class="top-right">
-        <div class="clock-time" id="clock">00:00</div>
-        <div class="clock-date" id="clock-date">—</div>
-      </div>
-    </div>
+    /* ═══════════════════════════════════════════════
+      SCREEN LAYOUT
+    ═══════════════════════════════════════════════ */
+    .screen {
+      position: relative; z-index: 2;
+      width: 1920px; height: 1080px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .main-content {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      grid-template-rows: auto 1px 1fr;
+      /* Alt: ticker yüksekliği kadar yukarı taşındı + ticker bandı — içerik üst üste binmesin */
+      padding: 44px 56px calc(16px + var(--ticker-h) + var(--ticker-h));
+      gap: 0;
+    }
 
-    <!-- DIVIDER -->
-    <div class="divider-row"><div class="gold-line"></div></div>
+    /* ── TOP BAR ── */
+    .top-bar {
+      grid-column: 1/-1;
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 22px;
+      animation: fadeUp 0.9s ease both;
+    }
+    .logo-area { display: flex; align-items: center; gap: 20px; }
+    .logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px; font-weight: 300;
+      letter-spacing: 0.26em; color: var(--gold2);
+      text-transform: uppercase;
+    }
+    .logo-sep { width: 1px; height: 48px; background: var(--gold); opacity: 0.35; }
+    .logo-sub {
+      font-size: 14px; font-weight: 400;
+      letter-spacing: 0.28em; color: rgba(255,255,255,0.5);
+      text-transform: uppercase; line-height: 1.45;
+    }
+    .top-right { display: flex; align-items: flex-end; flex-direction: column; gap: 8px; }
+    .clock-time {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 84px; font-weight: 300;
+      letter-spacing: 0.03em; color: var(--white); line-height: 1;
+    }
+    .clock-date {
+      font-size: 15px; font-weight: 400;
+      letter-spacing: 0.18em; color: rgba(255,255,255,0.52);
+      text-transform: uppercase;
+    }
 
-    <!-- ── LEFT ── -->
-    <div class="col-left">
-      <div>
-        <div class="greeting-text" id="greeting">Good<br><em>Morning</em></div>
-      </div>
-      <div class="welcome-tagline">
-        We hope you enjoy your stay at Voyage Sorgun.<br>The Mediterranean is waiting for you.
-      </div>
-      <div class="weather-card">
-        <div class="weather-top">
+    /* Gold divider */
+    .divider-row { grid-column: 1/-1; }
+    .gold-line {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold) 70%, transparent 100%);
+      opacity: 0.3;
+    }
+
+    /* ════ LEFT COLUMN ════ */
+    .col-left {
+      padding: 32px 44px 0 0;
+      display: flex; flex-direction: column; gap: 28px;
+      animation: fadeUp 0.9s 0.15s ease both;
+    }
+    .greeting-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 108px; font-weight: 300;
+      line-height: 1.02; color: var(--white);
+    }
+    .greeting-text em { font-style: italic; color: var(--gold2); }
+    .welcome-tagline {
+      font-size: 13px; font-weight: 200;
+      letter-spacing: 0.14em; color: rgba(255,255,255,0.38);
+      line-height: 1.7; max-width: 380px;
+    }
+
+    /* Weather card (kısaltıldı — announcement ribbon ile çakışmayı azaltır) */
+    .weather-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 22px;
+      backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; gap: 10px;
+      min-height: 300px;
+      justify-content: space-between;
+    }
+    .weather-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .weather-temp {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 92px; font-weight: 300; line-height: 1;
+      color: #fff;
+    }
+    .weather-temp sup {
+      font-size: 34px;
+      vertical-align: super;
+      color: #fff;
+      opacity: 0.92;
+      font-weight: 300;
+    }
+    .weather-desc {
+      font-size: 12px; font-weight: 300;
+      letter-spacing: 0.18em; color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+    }
+    .weather-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .weather-meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label { font-size: 9px; font-weight: 400; letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase; }
+    .meta-value { font-size: 15px; font-weight: 300; color: var(--white); }
+    .wave-badge {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(201,168,76,0.07);
+      border: 1px solid rgba(201,168,76,0.18);
+      border-radius: 8px; padding: 10px 14px;
+    }
+    .wave-icon { font-size: 22px; }
+    .wave-label { font-size: 9px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
+    .wave-value { font-size: 17px; font-weight: 300; color: var(--white); }
+
+    /* Activity drum roll picker */
+    .activity-drum {
+      width: 320px; height: 560px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .activity-drum-fade {
+      position: absolute; left: 0; right: 0; height: 72px;
+      pointer-events: none; z-index: 2;
+    }
+    .activity-drum-fade-top {
+      top: 0;
+      background: linear-gradient(180deg, rgba(8,13,28,.92) 0%, transparent 100%);
+    }
+    .activity-drum-fade-bottom {
+      bottom: 0;
+      background: linear-gradient(0deg, rgba(8,13,28,.92) 0%, transparent 100%);
+    }
+    .activity-drum-highlight {
+      position: absolute; left: 0; right: 0; top: 50%;
+      transform: translateY(-56px);
+      height: 112px; margin-top: -1px;
+      border-top: 1px solid rgba(201,168,76,.35);
+      border-bottom: 1px solid rgba(201,168,76,.35);
+      pointer-events: none; z-index: 1;
+    }
+    .activity-drum-viewport {
+      position: absolute; inset: 0;
+      overflow: hidden;
+      cursor: grab;
+    }
+    .activity-drum-viewport:active { cursor: grabbing; }
+    .activity-drum-track {
+      will-change: transform;
+      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .activity-drum-slot {
+      height: 112px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+    .activity-drum-slot-icon {
+      width: 40px; height: 40px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--glass2);
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold2);
+    }
+    .activity-drum-slot-icon i { width: 22px; height: 22px; }
+    .activity-drum-slot.active .activity-drum-slot-icon i { width: 26px; height: 26px; }
+    .activity-drum-slot-content {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .activity-drum-slot-time {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,.45);
+    }
+    .activity-drum-slot-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-weight: 300;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .activity-drum-slot.active .activity-drum-slot-name {
+      font-size: 20px;
+      font-weight: 300;
+      opacity: 1;
+    }
+    .activity-drum-slot.adjacent .activity-drum-slot-name { font-size: 16px; opacity: .55; }
+    .activity-drum-slot.distant .activity-drum-slot-name { font-size: 14px; opacity: .25; }
+
+    /* ════ RIGHT COLUMN ════ */
+
+    /* ── MAP COLUMN ── */
+    .col-right {
+      padding: 28px 0 0 36px;
+      margin-left: -50px;
+      display: flex; flex-direction: column; gap: 12px;
+      animation: fadeUp 0.9s 0.35s ease both;
+    }
+    .map-header {
+      display: flex; align-items: center;
+    }
+    .map-schedule-rotator {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-bottom: -13px;
+    }
+    .rotator-pane {
+      flex: 1;
+      min-height: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .map-container.rotator-pane { display: flex; flex-direction: column; }
+    .schedule-view-pane {
+      background: linear-gradient(160deg, rgba(8,13,28,.96), rgba(14,22,45,.98));
+      display: none;
+    }
+    .schedule-view-pane.active { display: flex; flex-direction: column; }
+    .map-container.rotator-pane.hidden-map { display: none !important; }
+    .map-sch-empty-pane {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, rgba(8,13,28,.92), rgba(14,22,45,.95));
+      color: rgba(255,255,255,.45);
+      font-size: 15px;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      text-align: center;
+      padding: 24px;
+    }
+    .map-sch-empty-pane.active { display: flex; }
+    .map-sch-empty-pane .map-sch-empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.5; }
+    .map-sch-empty-pane .map-sch-empty-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      color: var(--gold2);
+      margin-bottom: 8px;
+    }
+    .schedule-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: 1fr;
+      gap: 8px;
+      padding: 10px;
+      box-sizing: border-box;
+      align-items: stretch;
+    }
+    .schedule-cell {
+      background: var(--glass);
+      border: 1px solid rgba(201,168,76,.22);
+      border-radius: 10px;
+      padding: 8px 8px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .schedule-cell-h {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold2);
+      margin-bottom: 8px;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(201,168,76,.15);
+      padding-bottom: 6px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #col-right-title.schedule-programme-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(20px, 2.4vw, 28px);
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.06em;
+      color: var(--gold2);
+      text-transform: none;
+    }
+    .schedule-drum-wrap {
+      flex: 1;
+      min-height: 0;
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    .sdrum {
+      width: 100%; height: 100%;
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0,0,0,0.12);
+      border-radius: 8px;
+      cursor: grab;
+    }
+    .sdrum:active { cursor: grabbing; }
+    .sdrum-fade-top {
+      position: absolute; top: 0; left: 0; right: 0; height: 56px;
+      background: linear-gradient(180deg, rgba(8,13,28,.92) 0%, transparent 100%);
+      pointer-events: none; z-index: 2;
+    }
+    .sdrum-fade-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
+      background: linear-gradient(0deg, rgba(8,13,28,.92) 0%, transparent 100%);
+      pointer-events: none; z-index: 2;
+    }
+    .sdrum-highlight {
+      position: absolute; left: 0; right: 0;
+      pointer-events: none; z-index: 1;
+      border-top: 1px solid rgba(201,168,76,.35);
+      border-bottom: 1px solid rgba(201,168,76,.35);
+    }
+    .sdrum-track {
+      position: absolute; left: 0; right: 0; top: 0;
+      will-change: transform;
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sdrum-slot {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      box-sizing: border-box;
+      transition: opacity 0.25s, font-size 0.25s;
+    }
+    .sdrum-slot-icon {
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--glass2);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold2);
+      transition: all 0.25s;
+    }
+    .sdrum-slot-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .sdrum-slot-time {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; letter-spacing: 0.1em;
+      color: rgba(255,255,255,.45);
+      white-space: nowrap;
+    }
+    .sdrum-slot-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: all 0.25s;
+    }
+    .sdrum-slot.s-active .sdrum-slot-name { font-size: 17px; opacity: 1; }
+    .sdrum-slot.s-active .sdrum-slot-icon { width: 34px; height: 34px; }
+    .sdrum-slot.s-active .sdrum-slot-icon i { width: 18px; height: 18px; }
+    .sdrum-slot.s-adj .sdrum-slot-name { font-size: 14px; opacity: 0.55; }
+    .sdrum-slot.s-adj .sdrum-slot-icon { width: 28px; height: 28px; opacity: 0.55; }
+    .sdrum-slot.s-adj .sdrum-slot-icon i { width: 14px; height: 14px; }
+    .sdrum-slot.s-far .sdrum-slot-name { font-size: 12px; opacity: 0.22; }
+    .sdrum-slot.s-far .sdrum-slot-icon { width: 24px; height: 24px; opacity: 0.22; }
+    .sdrum-slot.s-far .sdrum-slot-icon i { width: 12px; height: 12px; }
+    .sdrum-empty {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: rgba(255,255,255,.3);
+      letter-spacing: 0.06em;
+    }
+    #resort-map {
+      width: 100%; height: 100%;
+    }
+
+    /* MapLibre GL */
+    .maplibregl-map { background: #e8e0d8 !important; }
+    .maplibregl-ctrl-attribution { display: none !important; }
+    .map-card-marker { pointer-events: none; }
+
+    /* ── LIVE CALLOUT popup (pin üstünde) ── */
+    .live-callout {
+      width: 200px;
+      background: linear-gradient(150deg, rgba(8,13,28,0.97), rgba(18,26,52,0.97));
+      border: 1px solid rgba(217,48,48,0.55);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.7), 0 0 20px rgba(217,48,48,0.2);
+      font-family: 'Montserrat', sans-serif;
+    }
+    /* Sahne alanı — küçük */
+    .lc-stage {
+      height: 90px;
+      background: linear-gradient(150deg, #120828 0%, #1c0d3a 50%, #0a1220 100%);
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lc-stage::before {
+      content: '';
+      position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+      width: 80px; height: 120px;
+      background: radial-gradient(ellipse, rgba(255,200,80,0.22) 0%, transparent 70%);
+      animation: spotlight 4s ease-in-out infinite alternate;
+    }
+    .lc-dancer {
+      position: relative; z-index: 2;
+      animation: dancer-sway 1.2s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 6px rgba(255,200,80,0.5));
+    }
+    .lc-dancer svg { width: 36px; height: 50px; }
+    .lc-notes { position: absolute; inset: 0; pointer-events: none; }
+    .lc-note {
+      position: absolute; font-size: 11px; opacity: 0;
+      animation: note-float 3s ease-in-out infinite;
+      color: rgba(255,220,100,0.8);
+    }
+    .lc-note:nth-child(1) { left:18%; top:50%; animation-delay:0s; }
+    .lc-note:nth-child(2) { left:68%; top:35%; animation-delay:1.1s; }
+    .lc-note:nth-child(3) { left:42%; top:25%; animation-delay:2.1s; }
+    /* Seyirci */
+    .lc-audience {
+      position: absolute; bottom: 5px; left: 0; right: 0;
+      display: flex; justify-content: center; gap: 4px;
+    }
+    .lc-aud {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      animation: aud-bob 1s ease-in-out infinite alternate;
+    }
+    .lc-aud:nth-child(2){animation-delay:.15s}
+    .lc-aud:nth-child(3){animation-delay:.30s}
+    .lc-aud:nth-child(4){animation-delay:.45s}
+    .lc-aud:nth-child(5){animation-delay:.20s}
+    /* Info */
+    .lc-info { padding: 10px 12px 12px; }
+    .lc-badge-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+    .lc-badge {
+      display:flex; align-items:center; gap:4px;
+      background:#d93030; color:#fff;
+      font-size:7px; font-weight:700; letter-spacing:0.18em;
+      padding:2px 6px; border-radius:3px;
+      box-shadow:0 0 7px rgba(217,48,48,0.5);
+    }
+    .lc-badge::before {
+      content:''; width:4px; height:4px; border-radius:50%;
+      background:#fff; flex-shrink:0;
+      animation: live-dot 1.2s ease-in-out infinite;
+    }
+    .lc-time {
+      font-size:11px; font-weight:300;
+      color:rgba(255,255,255,0.4); letter-spacing:0.1em;
+    }
+    .lc-name {
+      font-family:'Cormorant Garamond',serif;
+      font-size:16px; font-weight:400; color:#fff;
+      line-height:1.15; margin-bottom:2px;
+    }
+    .lc-venue {
+      font-size:9px; font-weight:300;
+      color:rgba(255,255,255,0.35); letter-spacing:0.1em;
+    }
+    .rp-header { padding: 12px 14px 8px; }
+    .rp-name {
+      font-family:'Cormorant Garamond',serif;
+      font-size:17px; font-weight:400; color:var(--gold2);
+      margin-bottom:2px;
+    }
+    .rp-meta {
+      display:flex; align-items:center; gap:8px;
+      font-size:10px; font-weight:300; color:rgba(255,255,255,0.4);
+      letter-spacing:0.08em;
+    }
+    .rp-open { color:#5dbb8a; font-weight:500; }
+    .rp-closed { color:#e07070; font-weight:500; }
+    .rp-thumbs {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+      padding: 0 2px 2px;
+    }
+    .rp-thumb {
+      aspect-ratio:1; overflow:hidden; border-radius:4px;
+      background: rgba(255,255,255,0.06);
+      position: relative;
+    }
+    .rp-thumb img {
+      width:100%; height:100%; object-fit:cover;
+      transition: transform 0.3s;
+    }
+    .rp-thumb:hover img { transform: scale(1.08); }
+    .rp-thumb-placeholder {
+      width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; background: rgba(255,255,255,0.04);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    /* Edit button */
+    .edit-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 8px; padding: 9px 16px;
+      color: var(--gold2); font-size: 10px; font-weight: 400;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s;
+      font-family: 'Montserrat', sans-serif;
+      flex-shrink: 0;
+    }
+    .edit-btn:hover { background: rgba(201,168,76,0.16); border-color: rgba(201,168,76,0.45); }
+    .edit-btn svg { width: 13px; height: 13px; }
+
+    /* ── ACTIVITY STRIP (below map) ── */
+    .activity-strip {
+      display: flex; gap: 8px;
+      flex-shrink: 0;
+    }
+    .strip-item {
+      flex: 1; display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--glass2);
+      border: 1px solid var(--border2);
+      border-radius: 9px; transition: all 0.4s; min-width: 0;
+      position: relative; overflow: hidden;
+    }
+
+    /* NOW — canlı etkinlik */
+    .strip-item.now {
+      background: linear-gradient(135deg, rgba(201,168,76,0.13) 0%, rgba(201,168,76,0.05) 100%);
+      border-color: rgba(201,168,76,0.45);
+      box-shadow: 0 0 18px rgba(201,168,76,0.12), inset 0 0 20px rgba(201,168,76,0.04);
+    }
+    /* Kayan shimmer efekti */
+    .strip-item.now::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%   { left: -60%; }
+      100% { left: 160%; }
+    }
+    .strip-item.now .si-time { color: var(--gold2); }
+    .strip-item.now .si-name { color: var(--white); font-weight: 500; }
+
+    .si-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 40px; color: #fff; }
+    .si-icon svg { width: 26px; height: 26px; stroke-width: 2; }
+    .strip-item.now .si-icon { animation: icon-bounce 2s ease-in-out infinite; }
+    .weather-icon-big { display: flex; align-items: center; justify-content: center; color: #fff; }
+    .weather-icon-big svg { width: 56px; height: 56px; stroke-width: 1.6; }
+    .wave-icon { display: flex; align-items: center; justify-content: center; color: var(--gold2); flex-shrink: 0; }
+    .wave-icon svg { width: 28px; height: 28px; stroke-width: 2; }
+    .map-card-lucide { display: flex; align-items: center; justify-content: center; color: #fff; }
+    .map-card-lucide svg { width: 22px; height: 22px; stroke-width: 2.2; }
+    .map-card-lucide-gold { color: rgba(232,201,122,.95); }
+    @keyframes icon-bounce {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.15); }
+    }
+
+    .si-time {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 300;
+      color: rgba(255,255,255,0.8); white-space: nowrap; flex-shrink: 0;
+    }
+    .si-info { flex: 1; min-width: 0; }
+    .si-name {
+      font-size: 11px; font-weight: 400; color: var(--white);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .si-venue {
+      font-size: 9px; font-weight: 300;
+      color: rgba(255,255,255,0.35); letter-spacing: 0.08em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* LIVE badge — kırmızı, yanıp sönen */
+    .si-now {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 8px; font-weight: 700; letter-spacing: 0.18em;
+      color: #fff;
+      background: linear-gradient(135deg, #e03a3a, #c0202020);
+      background: #d93030;
+      padding: 3px 8px 3px 6px; border-radius: 4px;
+      text-transform: uppercase; flex-shrink: 0;
+      box-shadow: 0 0 10px rgba(217,48,48,0.5);
+    }
+    .si-now::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: live-dot 1.2s ease-in-out infinite;
+    }
+    @keyframes live-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.3; transform: scale(0.6); }
+    }
+
+    /* ═══════════════════════════════════════════════
+      TICKER
+    ═══════════════════════════════════════════════ */
+    .ticker-wrap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: calc(var(--ticker-h) - 100px);
+      height: var(--ticker-h);
+      background: rgba(8,13,28,0.92);
+      border-top: 1px solid rgba(201,168,76,0.25);
+      display: flex; align-items: center;
+      overflow: hidden;
+      z-index: 20;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.35);
+    }
+    .ticker-badge {
+      flex-shrink: 0;
+      height: 100%; padding: 0 28px 0 32px;
+      background: rgba(8,13,28,0.95);
+      border-right: 1px solid rgba(201,168,76,0.25);
+      display: flex; align-items: center; gap: 10px;
+      white-space: nowrap; cursor: pointer;
+      transition: background 0.2s;
+      position: relative;
+    }
+    .ticker-badge:hover { background: rgba(201,168,76,0.08); }
+    .ticker-badge-icon {
+      font-size: 36px; opacity: 0.85; line-height: 1;
+    }
+    .ticker-badge-text {
+      font-size: 22px; font-weight: 600;
+      letter-spacing: 0.2em; color: var(--gold2);
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+    .ticker-badge-edit {
+      font-size: 8px; font-weight: 300;
+      letter-spacing: 0.15em; color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 3px; padding: 1px 6px;
+    }
+    .ticker-track-wrap { overflow: hidden; flex: 1; display: flex; align-items: center; min-width: 0; }
+    .ticker-track {
+      display: flex; align-items: center; justify-content: center;
+      flex: 1; min-width: 0; min-height: 100%; padding: 0 24px 0 8px;
+    }
+    .ticker-item {
+      font-size: 48px; font-weight: 400;
+      letter-spacing: 0.04em; color: rgba(255,255,255,0.95);
+      line-height: 1.2;
+      text-align: center;
+      max-width: 100%;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+
+    /* ═══════════════════════════════════════════════
+      ADMIN PANEL (Activity Editor)
+    ═══════════════════════════════════════════════ */
+    .panel-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .panel-overlay.open { opacity: 1; pointer-events: all; }
+    .panel {
+      width: 820px; max-height: 85vh;
+      background: linear-gradient(145deg, #0c1428, #09101e);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 30px 100px rgba(0,0,0,0.8);
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+    .panel-overlay.open .panel { transform: translateY(0); }
+
+    .panel-head {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 300;
+      color: var(--gold2); letter-spacing: 0.08em;
+    }
+    .panel-sub {
+      font-size: 11px; font-weight: 300;
+      color: rgba(255,255,255,0.35); letter-spacing: 0.12em; margin-top: 4px;
+    }
+    .panel-close {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.5); font-size: 18px;
+      transition: all 0.2s;
+    }
+    .panel-close:hover { background: rgba(255,0,0,0.12); border-color: rgba(255,0,0,0.25); color: #ff6b6b; }
+
+    .panel-body {
+      flex: 1; overflow-y: auto; padding: 20px 28px;
+      scrollbar-width: thin; scrollbar-color: rgba(201,168,76,0.3) transparent;
+    }
+    .panel-body::-webkit-scrollbar { width: 4px; }
+    .panel-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
+    /* Add form */
+    .add-form {
+      display: grid; grid-template-columns: 90px 90px 1fr 120px 50px;
+      gap: 10px; align-items: center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .form-label {
+      font-size: 9px; letter-spacing: 0.2em;
+      color: var(--gold); text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .form-field { display: flex; flex-direction: column; }
+    .form-input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 7px; padding: 8px 11px;
+      color: var(--white); font-size: 13px;
+      font-family: 'Montserrat', sans-serif;
+      outline: none; transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-input:focus { border-color: rgba(201,168,76,0.4); }
+    .form-input::placeholder { color: rgba(255,255,255,0.2); }
+    .add-btn {
+      background: linear-gradient(135deg, var(--gold), #a8852e);
+      border: none; border-radius: 7px;
+      width: 40px; height: 40px; margin-top: 14px;
+      cursor: pointer; font-size: 20px; color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.2s; font-weight: 700;
+    }
+    .add-btn:hover { opacity: 0.85; }
+
+    /* Activity rows */
+    .act-row {
+      display: grid; grid-template-columns: 70px 70px 1fr 110px 40px;
+      gap: 10px; align-items: center;
+      padding: 11px 14px;
+      background: var(--glass2);
+      border: 1px solid var(--border2);
+      border-radius: 9px; margin-bottom: 8px;
+      transition: border-color 0.2s;
+    }
+    .act-row:hover { border-color: rgba(201,168,76,0.2); }
+    .act-row-time {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 300; color: var(--gold2);
+    }
+    .act-row-icon { font-size: 22px; text-align: center; }
+    .act-row-name { font-size: 13px; font-weight: 400; color: var(--white); margin-bottom: 2px; }
+    .act-row-venue { font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 0.08em; }
+    .del-btn {
+      background: rgba(255,60,60,0.08);
+      border: 1px solid rgba(255,60,60,0.15);
+      border-radius: 6px; width: 32px; height: 32px;
+      cursor: pointer; color: rgba(255,100,100,0.7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; transition: all 0.2s;
+    }
+    .del-btn:hover { background: rgba(255,60,60,0.2); color: #ff6b6b; }
+
+    .panel-foot {
+      padding: 16px 28px;
+      border-top: 1px solid rgba(201,168,76,0.12);
+      display: flex; gap: 12px; justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .btn-reset {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 10px 20px;
+      color: rgba(255,255,255,0.45); font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s;
+    }
+    .btn-reset:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.7); }
+    .btn-save {
+      background: linear-gradient(135deg, var(--gold), #a8852e);
+      border: none; border-radius: 8px; padding: 10px 28px;
+      color: var(--navy); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer; font-family: 'Montserrat', sans-serif;
+      transition: opacity 0.2s;
+    }
+    .btn-save:hover { opacity: 0.88; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 80px; right: 40px; z-index: 200;
+      background: rgba(201,168,76,0.15);
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 10px; padding: 12px 20px;
+      font-size: 12px; font-weight: 400;
+      letter-spacing: 0.1em; color: var(--gold2);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .toast.show { opacity: 1; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .loading-pulse { animation: pulse 1.8s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:0.85} }
+    </style>
+    </head>
+    <body>
+
+    <div class="bg"></div>
+    <div class="bg-grid"></div>
+    <div class="particles" id="particles"></div>
+
+
+    <div class="scale-wrapper" id="scaleWrapper">
+    <div class="screen">
+      <div class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+          <div class="logo-area">
+            <div class="logo-text">Voyage Sorgun</div>
+            <div class="logo-sep"></div>
+            <div class="logo-sub">MANAVGAT · SIDE<br>TÜRKIYE</div>
+          </div>
+          <div class="top-right">
+            <div class="clock-time" id="clock">00:00</div>
+            <div class="clock-date" id="clock-date">—</div>
+          </div>
+        </div>
+
+        <!-- DIVIDER -->
+        <div class="divider-row"><div class="gold-line"></div></div>
+
+        <!-- ── LEFT ── -->
+        <div class="col-left">
           <div>
-            <div class="weather-temp" id="temp"><span class="loading-pulse">—</span><sup>°C</sup></div>
-            <div class="weather-desc" id="w-desc">Fetching...</div>
+            <div class="greeting-text" id="greeting">Good<br><em>Morning</em></div>
           </div>
-          <div class="weather-icon-big" id="w-icon"><i data-lucide="cloud-sun"></i></div>
-        </div>
-        <div class="weather-meta">
-          <div class="weather-meta-item"><span class="meta-label">Humidity</span><span class="meta-value" id="w-hum">—</span></div>
-          <div class="weather-meta-item"><span class="meta-label">Wind</span><span class="meta-value" id="w-wind">—</span></div>
-          <div class="weather-meta-item"><span class="meta-label">Feels like</span><span class="meta-value" id="w-feels">—</span></div>
-          <div class="weather-meta-item"><span class="meta-label">UV Index</span><span class="meta-value" id="w-uv">—</span></div>
-        </div>
-        <div class="wave-badge">
-          <div class="wave-icon"><i data-lucide="waves"></i></div>
-          <div>
-            <div class="wave-label">Wave height · Swell period</div>
-            <div class="wave-value" id="wave-data">Loading...</div>
-            <div class="wave-meta" style="display:flex;gap:12px;margin-top:4px;font-size:12px;color:rgba(255,255,255,0.7);">
-              <span>Direction: <span id="wave-dir">—</span></span>
-              <span>Sea: <span id="sea-temp">—</span></span>
-            </div>
+          <div class="welcome-tagline">
+            We hope you enjoy your stay at Voyage Sorgun.<br>The Mediterranean is waiting for you.
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── RIGHT: MAP + ACTIVITY STRIP ── -->
-    <div class="col-right">
-      <div class="map-header">
-        <span class="section-label schedule-programme-title" id="col-right-title">Today's Programme</span>
-      </div>
-      <div class="map-schedule-rotator">
-        <!-- Haritayı tekrar açarken: bu div'den hidden-map, schedule-view-pane'den active kaldırın + TV_MAP_SCREEN_OFF = false -->
-        <div class="map-container rotator-pane hidden-map" id="map-view-pane">
-          <div id="resort-map"></div>
-        </div>
-        <div class="map-sch-empty-pane rotator-pane" id="map-sch-empty-pane" aria-hidden="true">
-          <div class="map-sch-empty-icon">◇</div>
-          <div class="map-sch-empty-title">Harita &amp; program</div>
-          <div>Şu an kapalı — yönetim panelinden açabilirsiniz.</div>
-        </div>
-        <div class="schedule-view-pane rotator-pane active" id="schedule-view-pane">
-          <div class="schedule-grid">
-            <div class="schedule-cell schedule-timeline-cell">
-              <div class="schedule-cell-h">Daytime activities</div>
-              <div class="schedule-timeline-viewport">
-                <div class="schedule-now-line" aria-hidden="true"><span class="schedule-now-label">now</span></div>
-                <div class="schedule-timeline-track" id="sq-daytime-track"></div>
+          <div class="weather-card">
+            <div class="weather-top">
+              <div>
+                <div class="weather-temp" id="temp"><span class="loading-pulse">—</span><sup>°C</sup></div>
+                <div class="weather-desc" id="w-desc">Fetching...</div>
               </div>
+              <div class="weather-icon-big" id="w-icon"><i data-lucide="cloud-sun"></i></div>
             </div>
-            <div class="schedule-cell schedule-timeline-cell">
-              <div class="schedule-cell-h">Kids' activities</div>
-              <div class="schedule-timeline-viewport">
-                <div class="schedule-now-line" aria-hidden="true"></div>
-                <div class="schedule-timeline-track" id="sq-kids-track"></div>
-              </div>
+            <div class="weather-meta">
+              <div class="weather-meta-item"><span class="meta-label">Humidity</span><span class="meta-value" id="w-hum">—</span></div>
+              <div class="weather-meta-item"><span class="meta-label">Wind</span><span class="meta-value" id="w-wind">—</span></div>
+              <div class="weather-meta-item"><span class="meta-label">Feels like</span><span class="meta-value" id="w-feels">—</span></div>
+              <div class="weather-meta-item"><span class="meta-label">UV Index</span><span class="meta-value" id="w-uv">—</span></div>
             </div>
-            <div class="schedule-cell schedule-resto-cell">
-              <div class="schedule-cell-h">Restaurants open today</div>
-              <div class="schedule-resto-scroll" id="sq-restos"></div>
-            </div>
-            <div class="schedule-cell schedule-timeline-cell">
-              <div class="schedule-cell-h">Evening activities</div>
-              <div class="schedule-timeline-viewport">
-                <div class="schedule-now-line" aria-hidden="true"></div>
-                <div class="schedule-timeline-track" id="sq-evening-track"></div>
+            <div class="wave-badge">
+              <div class="wave-icon"><i data-lucide="waves"></i></div>
+              <div>
+                <div class="wave-label">Wave height · Swell period</div>
+                <div class="wave-value" id="wave-data">Loading...</div>
+                <div class="wave-meta" style="display:flex;gap:12px;margin-top:4px;font-size:12px;color:rgba(255,255,255,0.7);">
+                  <span>Direction: <span id="wave-dir">—</span></span>
+                  <span>Sea: <span id="sea-temp">—</span></span>
+                </div>
               </div>
             </div>
           </div>
+          <div id="activity-drum-wrap" style="position:relative;"></div>
+        </div>
+
+        <!-- ── RIGHT: MAP + ACTIVITY STRIP ── -->
+        <div class="col-right">
+          <div class="map-header">
+            <span class="section-label schedule-programme-title" id="col-right-title">Today's Programme</span>
+          </div>
+          <div class="map-schedule-rotator">
+            <!-- Haritayı tekrar açarken: bu div'den hidden-map, schedule-view-pane'den active kaldırın + TV_MAP_SCREEN_OFF = false -->
+            <div class="map-container rotator-pane hidden-map" id="map-view-pane">
+              <div id="resort-map"></div>
+            </div>
+            <div class="map-sch-empty-pane rotator-pane" id="map-sch-empty-pane" aria-hidden="true">
+              <div class="map-sch-empty-icon">◇</div>
+              <div class="map-sch-empty-title">Harita &amp; program</div>
+              <div>Şu an kapalı — yönetim panelinden açabilirsiniz.</div>
+            </div>
+            <div class="schedule-view-pane rotator-pane active" id="schedule-view-pane">
+            <div class="schedule-grid">
+              <div class="schedule-cell">
+                <div class="schedule-cell-h">Daytime activities</div>
+                <div class="schedule-drum-wrap" id="drum-daytime"></div>
+              </div>
+              <div class="schedule-cell">
+                <div class="schedule-cell-h">Kids' activities</div>
+                <div class="schedule-drum-wrap" id="drum-kids"></div>
+              </div>
+              <div class="schedule-cell">
+                <div class="schedule-cell-h">Restaurants open today</div>
+                <div class="schedule-drum-wrap" id="drum-restos"></div>
+              </div>
+              <div class="schedule-cell">
+                <div class="schedule-cell-h">Evening activities</div>
+                <div class="schedule-drum-wrap" id="drum-evening"></div>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="activity-strip" id="activity-strip"></div>
+        </div>
+
+      </div><!-- main-content -->
+
+      <!-- TICKER -->
+      <div class="ticker-wrap">
+        <div class="ticker-badge">
+          <span class="ticker-badge-icon">◆</span>
+          <span class="ticker-badge-text">Announcements</span>
+        </div>
+        <div class="ticker-track-wrap">
+          <div class="ticker-track" id="ticker-track">
+            <span class="ticker-item loading-pulse" id="ticker-current">Loading…</span>
+          </div>
         </div>
       </div>
-      <div class="activity-strip" id="activity-strip"></div>
-    </div>
+    </div><!-- screen -->
+    </div><!-- scale-wrapper -->
 
-  </div><!-- main-content -->
+    <!-- ═══════════════════════════════════════════
+        ACTIVITY EDITOR PANEL
+    ═══════════════════════════════════════════ -->
+    <div class="toast" id="toast"></div>
 
-  <!-- TICKER -->
-  <div class="ticker-wrap">
-    <div class="ticker-badge">
-      <span class="ticker-badge-icon">◆</span>
-      <span class="ticker-badge-text">Announcements</span>
-    </div>
-    <div class="ticker-track-wrap">
-      <div class="ticker-track" id="ticker-track">
-        <span class="ticker-item loading-pulse" id="ticker-current">Loading…</span>
-      </div>
-    </div>
-  </div>
-</div><!-- screen -->
-</div><!-- scale-wrapper -->
+    <script>
+    // ═══════════════════════════════════════════════
+    //  POCKETBASE
+    // ═══════════════════════════════════════════════
+    const PB = 'https://hotel-data.voyagestars.com';
+    /** 403 alırsanız: PocketBase Admin → Users → yeni "viewer" kullanıcı oluşturun → API'den auth alıp token'ı buraya yapıştırın. Boş bırakırsanız public kurallar kullanılır. */
+    const PB_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzUwODMxOTUsImlkIjoiZHZiOGx2czJkYm03MGx6IiwidHlwZSI6ImFkbWluIn0.Eyi5AVS7dVGZClOkKm3uJcsdO5y9XFnoyrh7lmI6_j0';
+    const pbFetchOpts = PB_TOKEN ? { headers: { 'Authorization': `Bearer ${PB_TOKEN}` } } : {};
 
-<!-- ═══════════════════════════════════════════
-     ACTIVITY EDITOR PANEL
-═══════════════════════════════════════════ -->
-<div class="toast" id="toast"></div>
-
-<script>
-// ═══════════════════════════════════════════════
-//  POCKETBASE
-// ═══════════════════════════════════════════════
-const PB = 'https://hotel-data.voyagestars.com';
-/** 403 alırsanız: PocketBase Admin → Users → yeni "viewer" kullanıcı oluşturun → API'den auth alıp token'ı buraya yapıştırın. Boş bırakırsanız public kurallar kullanılır. */
-const PB_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzUwODMxOTUsImlkIjoiZHZiOGx2czJkYm03MGx6IiwidHlwZSI6ImFkbWluIn0.Eyi5AVS7dVGZClOkKm3uJcsdO5y9XFnoyrh7lmI6_j0';
-const pbFetchOpts = PB_TOKEN ? { headers: { 'Authorization': `Bearer ${PB_TOKEN}` } } : {};
-
-const ICON_MAP = {
-  yoga:'flower2', aqua:'droplets', water:'droplets', swim:'waves',
-  tennis:'activity', volleyball:'volleyball', football:'football', basketball:'basketball',
-  billiard:'circle-dot', darts:'target', archery:'target', table:'table-2',
-  kids:'baby', mini:'palette', dance:'music-2', animation:'clapperboard', show:'sparkles',
-  music:'music', live:'mic-2', dj:'disc-3', disco:'disc-3',
-  foam:'waves', aquapark:'waves',
-  lunch:'utensils-crossed', dinner:'wine', breakfast:'egg-fried', buffet:'utensils-crossed',
-  cocktail:'glass-water', happy:'party-popper', bar:'beer',
-  sunset:'sunset', morning:'sunrise', night:'moon',
-};
-const EMOJI_TO_LUCIDE = {
-  '🧘':'flower2','⭐':'star','💧':'droplets','🏊':'waves','🫧':'waves',
-  '🍽':'utensils-crossed','🥂':'wine','🍳':'egg-fried','🍹':'glass-water',
-  '🌅':'sunrise','🌙':'moon','🎾':'activity','🏐':'volleyball','⚽':'football','🏀':'basketball',
-  '🎱':'circle-dot','🎯':'target','🏓':'table-2','🎨':'palette','💃':'music-2','🎭':'clapperboard',
-  '✨':'sparkles','🎵':'music','🎧':'headphones','🍱':'utensils','🕐':'clock','🫒':'salad',
-  '🥩':'drumstick','🍝':'soup','💆':'sparkles','🏖':'umbrella','🏨':'building-2','🌊':'waves',
-};
-function guessLucideFromName(name) {
-  const l = (name||'').toLowerCase();
-  for (const [k, v] of Object.entries(ICON_MAP)) { if (l.includes(k)) return v; }
-  return 'star';
-}
-/** PocketBase ikon alanı: emoji, Lucide adı veya boş */
-function resolveActivityLucide(act) {
-  const raw = act && act.icon != null ? String(act.icon).trim() : '';
-  if (raw && /^[a-z][a-z0-9-]*$/i.test(raw) && raw.length < 48) return raw.toLowerCase();
-  if (EMOJI_TO_LUCIDE[raw]) return EMOJI_TO_LUCIDE[raw];
-  return guessLucideFromName(act && act.name);
-}
-function resolveRestoLucide(r) {
-  const raw = r && r.icon != null ? String(r.icon).trim() : '';
-  if (raw && /^[a-z][a-z0-9-]*$/i.test(raw) && raw.length < 48) return raw.toLowerCase();
-  if (EMOJI_TO_LUCIDE[raw]) return EMOJI_TO_LUCIDE[raw];
-  const n = (r && r.name) || '';
-  const l = n.toLowerCase();
-  if (l.includes('bar') || l.includes('wine')) return 'glass-water';
-  if (l.includes('steak') || l.includes('grill')) return 'drumstick';
-  if (l.includes('italian') || l.includes('pasta')) return 'soup';
-  if (l.includes('greek')) return 'salad';
-  if (l.includes('teppan') || l.includes('japan')) return 'utensils';
-  if (l.includes('24') || l.includes('cuisine')) return 'clock';
-  return 'utensils-crossed';
-}
-function refreshLucide(root) {
-  try {
-    if (!window.lucide || typeof lucide.createIcons !== 'function') return;
-    if (root) lucide.createIcons({ root }); else lucide.createIcons();
-  } catch (e) { console.warn('lucide', e); }
-}
-
-let activities = [];
-let RESTO_MAP_DATA = [];
-let announcementRecords = [];
-/** Duyuru slayt listesi değişmediyse carousel’i yeniden başlatma */
-let lastTickerSlidesSig = '';
-let tickerCarouselTimer = null;
-let venueByKey = {};
-let cycleAnchor = '2025-01-01';
-let tvViewConfig = { mapSec: 30, scheduleSec: 30, mapEnabled: true, scheduleEnabled: true };
-/**
- * Geçici: true → yalnızca program. Haritayı açmak için: false + HTML'de map-view-pane'den hidden-map,
- * schedule-view-pane'den active kaldırın (yorum satırına bakın).
- */
-const TV_MAP_SCREEN_OFF = true;
-let tvRotTimer = null;
-let lastTvRotCfgSig = null;
-let scheduleTimelineTimer = null;
-const SCH_CARD_H = 70;
-const SCH_PX_PER_MIN = 2.35;
-
-/** "09:00" → { hour, min } */
-function parseActivityTime(s) {
-  if (!s || typeof s !== 'string') return { hour: 0, min: 0 };
-  const m = String(s).trim().match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return { hour: 0, min: 0 };
-  return { hour: Math.max(0, Math.min(23, parseInt(m[1], 10) || 0)), min: Math.max(0, Math.min(59, parseInt(m[2], 10) || 0)) };
-}
-
-function activityResolvedEndParts(a) {
-  const sh = Number(a.hour) || 0, sm = Number(a.min) || 0;
-  let eh = a.endHour, em = a.endMin;
-  if (eh == null || em == null || !Number.isFinite(Number(eh)) || !Number.isFinite(Number(em))) {
-    const t = sh * 60 + sm + 60;
-    const x = ((t % 1440) + 1440) % 1440;
-    eh = Math.floor(x / 60);
-    em = x % 60;
-  } else {
-    eh = Math.max(0, Math.min(23, Number(eh)));
-    em = Math.max(0, Math.min(59, Number(em)));
-  }
-  return { eh, em };
-}
-function activityDurationMinutes(a) {
-  const s = a.hour * 60 + a.min;
-  const e = activityResolvedEndParts(a);
-  const et = e.eh * 60 + e.em;
-  return et > s ? et - s : 1440 - s + et;
-}
-function activityFullyPast(a, nowMin) {
-  const s = a.hour * 60 + a.min;
-  const e = activityResolvedEndParts(a);
-  const et = e.eh * 60 + e.em;
-  if (et > s) return nowMin >= et;
-  return nowMin >= et && nowMin < s;
-}
-function activityTimeRangeLabelTv(a) {
-  const e = activityResolvedEndParts(a);
-  const overnight = e.eh * 60 + e.em <= a.hour * 60 + a.min;
-  return pad(a.hour) + ':' + pad(a.min) + '–' + pad(e.eh) + ':' + pad(e.em) + (overnight ? ' <span style="font-size:9px;opacity:.75">(+1)</span>' : '');
-}
-
-function normalizeScheduleSlot(raw) {
-  const s = String(raw || '').toLowerCase().trim();
-  if (s === 'kids' || s === 'cocuk' || s === 'çocuk') return 'kids';
-  if (s === 'evening' || s === 'akşam' || s === 'aksam') return 'evening';
-  if (s === 'daytime' || s === 'gündüz' || s === 'gunduz' || s === 'day') return 'daytime';
-  return '';
-}
-
-function scheduleHtmlEsc(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-}
-
-function scheduleActCardInnerHTML(a) {
-  const timeStr = activityTimeRangeLabelTv(a);
-  const lucideName = resolveActivityLucide(a);
-  const esc = scheduleHtmlEsc;
-  return `
-    <div class="sch-act-card">
-      <div class="sch-act-icon"><div class="map-card-lucide"><i data-lucide="${lucideName}"></i></div></div>
-      <div class="sch-act-body">
-        <div class="sch-act-time-row"><span class="sch-act-time">${timeStr}</span></div>
-        <div class="sch-act-name">${esc(a.name)}</div>
-        <div class="sch-act-venue">${esc(a.venue || '')}</div>
-      </div>
-      <div class="sch-act-bar"></div>
-    </div>`;
-}
-
-function scheduleRestoCardHTML(r) {
-  const slot = restoTodaySlot(r);
-  const hrs = slot ? `${slot.opens}–${slot.closes}` : `${r.opens || '—'}–${r.closes || '—'}`;
-  const nameLine = r.cuisine ? `${scheduleHtmlEsc(r.name)} — ${scheduleHtmlEsc(r.cuisine)}` : scheduleHtmlEsc(r.name);
-  return `
-    <div class="sch-resto-card">
-      <div class="sch-resto-icon"><div class="map-card-lucide map-card-lucide-gold"><i data-lucide="${resolveRestoLucide(r)}"></i></div></div>
-      <div class="sch-resto-body">
-        <div class="sch-resto-hrs">${scheduleHtmlEsc(hrs)}</div>
-        <div class="sch-resto-name">${nameLine}</div>
-      </div>
-    </div>`;
-}
-
-function buildActivityTimelineTrack(trackEl, items, emptyMsg) {
-  const nowMin = getIstanbulMinutes();
-  const half = SCH_CARD_H / 2;
-  if (!items.length) {
-    const minT = Math.max(0, nowMin - 90);
-    const maxT = Math.min(24 * 60, nowMin + 90);
-    const px = 2;
-    const h = Math.max(160, (maxT - minT) * px + SCH_CARD_H);
-    trackEl.style.height = h + 'px';
-    trackEl.dataset.minT = String(minT);
-    trackEl.dataset.maxT = String(maxT);
-    trackEl.dataset.px = String(px);
-    const top = (nowMin - minT) * px - half;
-    trackEl.innerHTML = `<div class="sch-act-card-wrap sch-empty-hint" style="top:${top}px"><div class="sch-act-card" style="border-style:dashed">${scheduleHtmlEsc(emptyMsg)}</div></div>`;
-    return;
-  }
-  const times = items.map(a => a.hour * 60 + a.min);
-  const endTotals = items.map(a => {
-    const s = a.hour * 60 + a.min;
-    const e = activityResolvedEndParts(a);
-    const et = e.eh * 60 + e.em;
-    return et >= s ? et : 1440 + et;
-  });
-  let minT = Math.min(...times, nowMin - 150);
-  let maxT = Math.max(...times, ...endTotals, nowMin + 180);
-  minT = Math.max(0, minT - 40);
-  maxT = Math.min(28 * 60, maxT + 40);
-  if (maxT <= minT) maxT = minT + 120;
-  const px = SCH_PX_PER_MIN;
-  const trackH = (maxT - minT) * px + SCH_CARD_H * 2;
-  trackEl.style.height = trackH + 'px';
-  trackEl.dataset.minT = String(minT);
-  trackEl.dataset.maxT = String(maxT);
-  trackEl.dataset.px = String(px);
-  let lastMin = -99999;
-  let stack = 0;
-  const parts = [];
-  for (const a of items) {
-    const t = a.hour * 60 + a.min;
-    if (t - lastMin < 3) stack++;
-    else stack = 0;
-    lastMin = t;
-    const dur = Math.min(240, Math.max(15, activityDurationMinutes(a)));
-    const cardH = Math.min(200, Math.max(SCH_CARD_H, Math.round(dur * px * 0.82)));
-    const top = (t - minT) * px - Math.round(cardH / 2) + stack * 12;
-    const past = activityFullyPast(a, nowMin);
-    parts.push(`<div class="sch-act-card-wrap" style="top:${top}px;height:${cardH}px" data-past="${past}">${scheduleActCardInnerHTML(a)}</div>`);
-  }
-  trackEl.innerHTML = parts.join('');
-}
-
-function ensureScheduleResizeObserver() {
-  if (window._schRoAttached) return;
-  const pane = document.getElementById('schedule-view-pane');
-  if (!pane || typeof ResizeObserver === 'undefined') return;
-  window._schRoAttached = true;
-  new ResizeObserver(() => {
-    if (pane.classList.contains('active')) updateScheduleTimelineScroll();
-  }).observe(pane);
-}
-
-function updateScheduleTimelineScroll() {
-  const pane = document.getElementById('schedule-view-pane');
-  if (!pane || !pane.classList.contains('active')) return;
-  const nowMin = getIstanbulMinutes();
-  pane.querySelectorAll('.schedule-timeline-viewport').forEach(vp => {
-    const track = vp.querySelector('.schedule-timeline-track');
-    if (!track) return;
-    const minT = parseFloat(track.dataset.minT);
-    const px = parseFloat(track.dataset.px);
-    if (Number.isNaN(minT) || Number.isNaN(px) || vp.clientHeight < 20) return;
-    const cx = vp.clientHeight / 2;
-    const scrollCenterMin = Math.max(minT, nowMin - 240);
-    const yNow = (scrollCenterMin - minT) * px;
-    track.style.transform = 'translateY(' + (cx - yNow) + 'px)';
-  });
-  refreshLucide(pane);
-}
-
-function renderScheduleGrid() {
-  const sortT = (a, b) => a.hour * 60 + a.min - (b.hour * 60 + b.min);
-  const q1 = activities.filter(a => a.schedule_slot === 'daytime').sort(sortT);
-  const q2 = activities.filter(a => a.schedule_slot === 'kids').sort(sortT);
-  const q4 = activities.filter(a => a.schedule_slot === 'evening').sort(sortT);
-  const t1 = document.getElementById('sq-daytime-track');
-  const t2 = document.getElementById('sq-kids-track');
-  const el3 = document.getElementById('sq-restos');
-  const t4 = document.getElementById('sq-evening-track');
-  if (!t1 || !t2 || !el3 || !t4) return;
-  buildActivityTimelineTrack(t1, q1, 'Daytime — assign “Daytime” slot to activities in admin');
-  buildActivityTimelineTrack(t2, q2, 'Kids — assign “Kids” slot to activities in admin');
-  buildActivityTimelineTrack(t4, q4, 'Evening — assign “Evening” slot to activities in admin');
-  const restos = RESTO_MAP_DATA.filter(r => isRestoOpen(r)).slice().sort((a, b) => String(a.name).localeCompare(String(b.name), 'tr'));
-  el3.innerHTML = restos.length
-    ? restos.map(scheduleRestoCardHTML).join('')
-    : '<div class="sch-resto-card sch-empty-hint" style="min-height:56px;align-items:center;justify-content:center;padding:12px;font-size:11px;color:rgba(255,255,255,.45)">No restaurants open today</div>';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => updateScheduleTimelineScroll());
-  });
-}
-
-function stopTvViewRotation() {
-  if (tvRotTimer) {
-    clearTimeout(tvRotTimer);
-    tvRotTimer = null;
-  }
-  if (scheduleTimelineTimer) {
-    clearInterval(scheduleTimelineTimer);
-    scheduleTimelineTimer = null;
-  }
-}
-
-function startTvViewRotation() {
-  stopTvViewRotation();
-  const m = document.getElementById('map-view-pane');
-  const s = document.getElementById('schedule-view-pane');
-  const empty = document.getElementById('map-sch-empty-pane');
-  const title = document.getElementById('col-right-title');
-  if (!m || !s) return;
-  let mapEn = tvViewConfig.mapEnabled !== false;
-  let schEn = tvViewConfig.scheduleEnabled !== false;
-  let mapT = Math.min(600, Math.max(0, Number(tvViewConfig.mapSec) || 0));
-  let schT = Math.min(600, Math.max(0, Number(tvViewConfig.scheduleSec) || 0));
-  if (!mapEn) mapT = 0;
-  if (!schEn) schT = 0;
-  if (TV_MAP_SCREEN_OFF) {
-    mapEn = false;
-    mapT = 0;
-    schEn = true;
-    schT = Math.max(1, Number(tvViewConfig.scheduleSec) || 30);
-    schT = Math.min(600, schT);
-  }
-  const showMap = mapT > 0;
-  const showSch = schT > 0;
-  function hideEmpty() {
-    if (empty) empty.classList.remove('active');
-  }
-  function showEmptyOnly() {
-    m.classList.add('hidden-map');
-    s.classList.remove('active');
-    if (empty) empty.classList.add('active');
-    if (title) {
-      title.textContent = 'Voyage Sorgun';
-      title.classList.remove('schedule-programme-title');
+    const ICON_MAP = {
+      yoga:'flower2', aqua:'droplets', water:'droplets', swim:'waves',
+      tennis:'activity', volleyball:'volleyball', football:'football', basketball:'basketball',
+      billiard:'circle-dot', darts:'target', archery:'target', table:'table-2',
+      kids:'baby', mini:'palette', dance:'music-2', animation:'clapperboard', show:'sparkles',
+      music:'music', live:'mic-2', dj:'disc-3', disco:'disc-3',
+      foam:'waves', aquapark:'waves',
+      lunch:'utensils-crossed', dinner:'wine', breakfast:'egg-fried', buffet:'utensils-crossed',
+      cocktail:'glass-water', happy:'party-popper', bar:'beer',
+      sunset:'sunset', morning:'sunrise', night:'moon',
+    };
+    const EMOJI_TO_LUCIDE = {
+      '🧘':'flower2','⭐':'star','💧':'droplets','🏊':'waves','🫧':'waves',
+      '🍽':'utensils-crossed','🥂':'wine','🍳':'egg-fried','🍹':'glass-water',
+      '🌅':'sunrise','🌙':'moon','🎾':'activity','🏐':'volleyball','⚽':'football','🏀':'basketball',
+      '🎱':'circle-dot','🎯':'target','🏓':'table-2','🎨':'palette','💃':'music-2','🎭':'clapperboard',
+      '✨':'sparkles','🎵':'music','🎧':'headphones','🍱':'utensils','🕐':'clock','🫒':'salad',
+      '🥩':'drumstick','🍝':'soup','💆':'sparkles','🏖':'umbrella','🏨':'building-2','🌊':'waves',
+    };
+    function guessLucideFromName(name) {
+      const l = (name||'').toLowerCase();
+      for (const [k, v] of Object.entries(ICON_MAP)) { if (l.includes(k)) return v; }
+      return 'star';
     }
-    if (scheduleTimelineTimer) {
-      clearInterval(scheduleTimelineTimer);
-      scheduleTimelineTimer = null;
+    /** PocketBase ikon alanı: emoji, Lucide adı veya boş */
+    function resolveActivityLucide(act) {
+      const raw = act && act.icon != null ? String(act.icon).trim() : '';
+      if (raw && /^[a-z][a-z0-9-]*$/i.test(raw) && raw.length < 48) return raw.toLowerCase();
+      if (EMOJI_TO_LUCIDE[raw]) return EMOJI_TO_LUCIDE[raw];
+      return guessLucideFromName(act && act.name);
     }
-  }
-  function showMapOnly() {
-    hideEmpty();
-    m.classList.remove('hidden-map');
-    s.classList.remove('active');
-    if (title) {
-      title.textContent = 'Resort Map';
-      title.classList.remove('schedule-programme-title');
+    function resolveRestoLucide(r) {
+      const raw = r && r.icon != null ? String(r.icon).trim() : '';
+      if (raw && /^[a-z][a-z0-9-]*$/i.test(raw) && raw.length < 48) return raw.toLowerCase();
+      if (EMOJI_TO_LUCIDE[raw]) return EMOJI_TO_LUCIDE[raw];
+      const n = (r && r.name) || '';
+      const l = n.toLowerCase();
+      if (l.includes('bar') || l.includes('wine')) return 'glass-water';
+      if (l.includes('steak') || l.includes('grill')) return 'drumstick';
+      if (l.includes('italian') || l.includes('pasta')) return 'soup';
+      if (l.includes('greek')) return 'salad';
+      if (l.includes('teppan') || l.includes('japan')) return 'utensils';
+      if (l.includes('24') || l.includes('cuisine')) return 'clock';
+      return 'utensils-crossed';
     }
-    setTimeout(() => {
+    function refreshLucide(root) {
       try {
-        resortMap?.resize();
-        setTimeout(resolveMapMarkerOverlaps, 100);
-      } catch (_) {}
-    }, 150);
-  }
-  function showSchOnly() {
-    hideEmpty();
-    m.classList.add('hidden-map');
-    s.classList.add('active');
-    renderScheduleGrid();
-    if (title) {
-      title.textContent = "Today's Programme";
-      title.classList.add('schedule-programme-title');
+        if (!window.lucide || typeof lucide.createIcons !== 'function') return;
+        if (root) lucide.createIcons({ root }); else lucide.createIcons();
+      } catch (e) { console.warn('lucide', e); }
     }
-    if (scheduleTimelineTimer) clearInterval(scheduleTimelineTimer);
-    scheduleTimelineTimer = setInterval(() => {
-      if (s.classList.contains('active')) updateScheduleTimelineScroll();
-    }, 30000);
-    ensureScheduleResizeObserver();
-  }
-  /* Kapalı: ikisi de kapalı veya süreleri 0 */
-  if (!mapEn && !schEn) {
-    showEmptyOnly();
-    return;
-  }
-  if (mapEn && !schEn) {
-    showMapOnly();
-    return;
-  }
-  if (!mapEn && schEn) {
-    if (showSch) showSchOnly();
-    else showEmptyOnly();
-    return;
-  }
-  /* İkisi de açık (mapEn && schEn) */
-  if (!showMap && !showSch) {
-    showEmptyOnly();
-    return;
-  }
-  if (showMap && !showSch) {
-    showMapOnly();
-    return;
-  }
-  if (!showMap && showSch) {
-    showSchOnly();
-    return;
-  }
-  let showingMap = true;
-  function applyView() {
-    if (showingMap) showMapOnly();
-    else showSchOnly();
-  }
-  applyView();
-  function loop() {
-    showingMap = !showingMap;
-    applyView();
-    tvRotTimer = setTimeout(loop, (showingMap ? mapT : schT) * 1000);
-  }
-  tvRotTimer = setTimeout(loop, mapT * 1000);
-}
 
-function istanbulTodayYMD() {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
-}
+    let activities = [];
+    let RESTO_MAP_DATA = [];
+    let announcementRecords = [];
+    /** Duyuru slayt listesi değişmediyse carousel’i yeniden başlatma */
+    let lastTickerSlidesSig = '';
+    let tickerCarouselTimer = null;
+    let venueByKey = {};
+    let cycleAnchor = '2025-01-01';
+    let tvViewConfig = { mapSec: 30, scheduleSec: 30, mapEnabled: true, scheduleEnabled: true };
+    /**
+     * Geçici: true → yalnızca program. Haritayı açmak için: false + HTML'de map-view-pane'den hidden-map,
+     * schedule-view-pane'den active kaldırın (yorum satırına bakın).
+     */
+    const TV_MAP_SCREEN_OFF = true;
+    let tvRotTimer = null;
+    let lastTvRotCfgSig = null;
+    const SCH_CARD_H = 40;
+    const SCH_PX_PER_MIN = 2.35;
 
-function getCurrentCycleDay() {
-  const anchor = cycleAnchor || '2025-01-01';
-  const [y1, m1, d1] = anchor.split('-').map(Number);
-  const [y2, m2, d2] = istanbulTodayYMD().split('-').map(Number);
-  const t0 = Date.UTC(y1, m1 - 1, d1);
-  const t1 = Date.UTC(y2, m2 - 1, d2);
-  const diff = Math.round((t1 - t0) / 86400000);
-  return ((diff % 14) + 14) % 14;
-}
+    /** "09:00" → { hour, min } */
+    function parseActivityTime(s) {
+      if (!s || typeof s !== 'string') return { hour: 0, min: 0 };
+      const m = String(s).trim().match(/^(\d{1,2}):(\d{2})$/);
+      if (!m) return { hour: 0, min: 0 };
+      return { hour: Math.max(0, Math.min(23, parseInt(m[1], 10) || 0)), min: Math.max(0, Math.min(59, parseInt(m[2], 10) || 0)) };
+    }
 
-function activityMatchesCycle(r, dayIdx) {
-  const cd = r.cycle_day;
-  if (cd === null || cd === undefined || cd === '') return true;
-  return Number(cd) === dayIdx;
-}
-
-async function fetchFromPB() {
-  try {
-    const cfgR = await fetch(`${PB}/api/collections/app_config/records?perPage=1`, pbFetchOpts);
-    if (cfgR.ok) {
-      const cfgD = await cfgR.json();
-      const cfg0 = cfgD.items?.[0];
-      if (cfg0) {
-        if (cfg0.cycle_anchor) cycleAnchor = cfg0.cycle_anchor;
-        function parseTvDur(v, def) {
-          if (v === null || v === undefined || v === '') return def;
-          const n = Number(v);
-          if (!Number.isFinite(n) || n < 0) return def;
-          return Math.min(600, Math.floor(n));
-        }
-        tvViewConfig.mapSec = parseTvDur(cfg0.map_schedule_map_sec, 30);
-        tvViewConfig.scheduleSec = parseTvDur(cfg0.map_schedule_schedule_sec, 30);
-        function tvFlagEnabled(showField, secField) {
-          if (cfg0[showField] === false) return false;
-          if (cfg0[showField] === true) return true;
-          const sec = Number(cfg0[secField]);
-          return Number.isFinite(sec) && sec > 0;
-        }
-        tvViewConfig.mapEnabled = tvFlagEnabled('tv_map_enabled', 'map_schedule_map_sec');
-        tvViewConfig.scheduleEnabled = tvFlagEnabled('tv_schedule_enabled', 'map_schedule_schedule_sec');
+    function activityResolvedEndParts(a) {
+      const sh = Number(a.hour) || 0, sm = Number(a.min) || 0;
+      let eh = a.endHour, em = a.endMin;
+      if (eh == null || em == null || !Number.isFinite(Number(eh)) || !Number.isFinite(Number(em))) {
+        const t = sh * 60 + sm + 60;
+        const x = ((t % 1440) + 1440) % 1440;
+        eh = Math.floor(x / 60);
+        em = x % 60;
+      } else {
+        eh = Math.max(0, Math.min(23, Number(eh)));
+        em = Math.max(0, Math.min(59, Number(em)));
       }
+      return { eh, em };
+    }
+    function activityDurationMinutes(a) {
+      const s = a.hour * 60 + a.min;
+      const e = activityResolvedEndParts(a);
+      const et = e.eh * 60 + e.em;
+      return et > s ? et - s : 1440 - s + et;
+    }
+    function activityFullyPast(a, nowMin) {
+      const s = a.hour * 60 + a.min;
+      const e = activityResolvedEndParts(a);
+      const et = e.eh * 60 + e.em;
+      if (et > s) return nowMin >= et;
+      return nowMin >= et && nowMin < s;
+    }
+    function activityTimeRangeLabelTv(a) {
+      const e = activityResolvedEndParts(a);
+      const overnight = e.eh * 60 + e.em <= a.hour * 60 + a.min;
+      return pad(a.hour) + ':' + pad(a.min) + '–' + pad(e.eh) + ':' + pad(e.em) + (overnight ? ' <span style="font-size:9px;opacity:.75">(+1)</span>' : '');
     }
 
-    venueByKey = {};
-    const vR = await fetch(`${PB}/api/collections/venues/records?perPage=200`, pbFetchOpts);
-    if (vR.ok) {
-      const vD = await vR.json();
-      (vD.items || []).forEach(v => { if (v.key) venueByKey[v.key] = [Number(v.lat), Number(v.lng)]; });
+    function normalizeScheduleSlot(raw) {
+      const s = String(raw || '').toLowerCase().trim();
+      if (s === 'kids' || s === 'cocuk' || s === 'çocuk') return 'kids';
+      if (s === 'evening' || s === 'akşam' || s === 'aksam') return 'evening';
+      if (s === 'daytime' || s === 'gündüz' || s === 'gunduz' || s === 'day') return 'daytime';
+      return '';
     }
 
-    const dayIdx = getCurrentCycleDay();
-    const ar = await fetch(`${PB}/api/collections/activities/records?perPage=200`, pbFetchOpts);
-    const ad = await ar.json();
-    function parseActivityStart(r) {
-      if (r.start && typeof r.start === 'string') {
-        const m = String(r.start).trim().match(/^(\d{1,2}):(\d{2})$/);
-        if (m) return { hour: Math.min(23, Math.max(0, parseInt(m[1],10)||0)), min: Math.min(59, Math.max(0, parseInt(m[2],10)||0)) };
+    function scheduleHtmlEsc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    // ── SCHEDULE DRUMS ──────────────────────────────
+
+    const SDRUM_SLOT_H = 52;
+    let sDrumStates = {};
+    let sDrumHourTimer = null;
+
+    function sDrumEsc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    }
+
+    function sDrumFindIndex(items, nowMin) {
+      if (!items.length) return 0;
+      let best = 0, bestDist = Infinity;
+      for (let i = 0; i < items.length; i++) {
+        const t = items[i]._sortMin;
+        const dist = Math.abs(t - nowMin);
+        if (dist < bestDist) { bestDist = dist; best = i; }
       }
-      return { hour: Number(r.hour)||0, min: Number(r.minute)||0 };
+      return best;
     }
-    function parseActivityEnd(r, startP) {
-      if (r.end && typeof r.end === 'string') {
-        const m = String(r.end).trim().match(/^(\d{1,2}):(\d{2})$/);
-        if (m) return { hour: Math.min(23, Math.max(0, parseInt(m[1],10)||0)), min: Math.min(59, Math.max(0, parseInt(m[2],10)||0)) };
-      }
-      if (r.end_hour != null && Number.isFinite(Number(r.end_hour)) && r.end_minute != null) return { hour: Number(r.end_hour), min: Number(r.end_minute) };
-      const t = startP.hour*60+startP.min+60;
-      const x = ((t%1440)+1440)%1440;
-      return { hour: Math.floor(x/60), min: x%60 };
+
+    function sDrumCalcTy(index, drumEl) {
+      const vpH = drumEl ? drumEl.clientHeight : 200;
+      return Math.round(vpH / 2 - SDRUM_SLOT_H / 2) - index * SDRUM_SLOT_H;
     }
-    activities = (ad.items||[])
-      .filter(r => activityMatchesCycle(r, dayIdx))
-      .map(r => {
-        const sp = parseActivityStart(r);
-        const ep = parseActivityEnd(r, sp);
-        return {
-          id: r.id,
-          hour: sp.hour, min: sp.min,
-          endHour: ep.hour, endMin: ep.min,
-          name: r.name,
-          venue: r.venue||'', icon: r.icon||guessLucideFromName(r.name),
-          venue_key: r.venue_key||'',
-          schedule_slot: normalizeScheduleSlot(r.schedule_slot)
-        };
-      })
-      .sort((a,b) => a.hour*60+a.min - (b.hour*60+b.min));
 
-    const nr = await fetch(`${PB}/api/collections/announcements/records?perPage=200`, pbFetchOpts);
-    const nd = await nr.json();
-    announcementRecords = (nd.items || []).map(rec => ({
-      ...rec,
-      windows: parseAnnouncementWindows(rec.windows) ?? rec.windows
-    }));
-    refreshTickerFromAnnouncements();
-
-    const rr = await fetch(`${PB}/api/collections/restaurants/records?perPage=200`, pbFetchOpts);
-    const rd = await rr.json();
-    RESTO_MAP_DATA = (rd.items||[]).map(r => ({
-      id: r.id,
-      name: r.name, icon: r.icon||'🍽', cuisine: r.cuisine||'',
-      opens: r.opens||'00:00', closes: r.closes||'23:59',
-      weekly: r.weekly || null,
-      lat: r.lat, lng: r.lng, query: r.query||r.name,
-      venue_key: r.venue_key||''
-    }));
-
-    renderScreen();
-    const rotSig = JSON.stringify({
-      m: tvViewConfig.mapSec,
-      s: tvViewConfig.scheduleSec,
-      me: tvViewConfig.mapEnabled,
-      se: tvViewConfig.scheduleEnabled,
-      mo: TV_MAP_SCREEN_OFF ? 1 : 0
-    });
-    if (rotSig !== lastTvRotCfgSig) {
-      lastTvRotCfgSig = rotSig;
-      stopTvViewRotation();
-      startTvViewRotation();
-    }
-    if (resortMap && resortMap.isStyleLoaded()) {
-      renderMapActivities();
-      renderRestaurantMarkers();
-      requestAnimationFrame(() => refreshLucide());
-    }
-  } catch(e) {
-    console.error('PocketBase fetch error:', e);
-    if (TV_MAP_SCREEN_OFF) startTvViewRotation();
-  }
-}
-
-// PocketBase Realtime — admin değişiklik yapınca anında güncelle
-function connectRealtime() {
-  const es = new EventSource(`${PB}/api/realtime`);
-  let clientId = null;
-
-  es.addEventListener('PB_CONNECT', e => {
-    clientId = JSON.parse(e.data).clientId;
-    // 3 koleksiyona subscribe ol
-    ['activities','announcements','restaurants','venues','app_config'].forEach(col => {
-      fetch(`${PB}/api/realtime`, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({clientId, subscriptions:[`${col}/*`]})
+    function sDrumApplyClasses(trackEl, activeIdx) {
+      trackEl.querySelectorAll('.sdrum-slot').forEach((el, i) => {
+        el.classList.remove('s-active','s-adj','s-far');
+        const d = Math.abs(i - activeIdx);
+        if (d === 0) el.classList.add('s-active');
+        else if (d === 1) el.classList.add('s-adj');
+        else el.classList.add('s-far');
       });
-    });
-  });
-
-  es.addEventListener('message', () => {
-    fetchFromPB(); // herhangi bir değişiklikte yeniden çek
-  });
-
-  es.onerror = () => {
-    setTimeout(connectRealtime, 5000); // bağlantı kopunca yeniden bağlan
-  };
-}
-
-function getIstanbulDowMon0() {
-  const wd = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Istanbul', weekday: 'long' }).format(new Date());
-  const map = {
-    Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6
-  };
-  return map[wd] ?? 0;
-}
-
-function getIstanbulMinutes() {
-  const d = new Date();
-  try {
-    const parts = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Europe/Istanbul', hour: 'numeric', minute: 'numeric', hour12: false
-    }).formatToParts(d);
-    const hp = parts.find(p => p.type === 'hour');
-    const mp = parts.find(p => p.type === 'minute');
-    if (hp && mp) {
-      let h = parseInt(hp.value, 10), m = parseInt(mp.value, 10);
-      if (!Number.isNaN(h) && !Number.isNaN(m)) return h * 60 + m;
     }
-  } catch (_) {}
-  const s = d.toLocaleString('en-GB', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', hour12: false });
-  const match = s.match(/(\d{1,2})[.:](\d{2})/);
-  if (match) return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
-  return d.getHours() * 60 + d.getMinutes();
-}
 
-function timeRangeContains(nowMin, openStr, closeStr) {
-  const po = String(openStr).trim().split(':').map(Number);
-  const pc = String(closeStr).trim().split(':').map(Number);
-  const o = (po[0] || 0) * 60 + (po[1] || 0);
-  const c = (pc[0] || 0) * 60 + (pc[1] || 0);
-  if (c < o) return nowMin >= o || nowMin <= c;
-  return nowMin >= o && nowMin <= c;
-}
+    function sDrumSetIndex(drumId, idx, animate) {
+      const state = sDrumStates[drumId];
+      if (!state) return;
+      const wrap = document.getElementById(drumId);
+      const drumEl = wrap?.querySelector('.sdrum');
+      const trackEl = wrap?.querySelector('.sdrum-track');
+      const highlightEl = wrap?.querySelector('.sdrum-highlight');
+      if (!drumEl || !trackEl) return;
 
-function parseAnnouncementWindows(raw) {
-  if (raw == null || raw === '') return null;
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === 'string') {
-    try {
-      const p = JSON.parse(raw);
-      return Array.isArray(p) ? p : null;
-    } catch (_) { return null; }
-  }
-  return null;
-}
+      state.index = Math.max(0, Math.min(state.items.length - 1, idx));
 
-/** windows: [{d:[0..6], o, c}] veya boş → her zaman */
-function announcementActiveNow(windows) {
-  const arr = parseAnnouncementWindows(windows);
-  if (!arr || arr.length === 0) return true;
-  const dow = getIstanbulDowMon0();
-  const nowMin = getIstanbulMinutes();
-  for (const w of arr) {
-    const rawDays = w.d ?? w.days ?? [];
-    const dayList = (Array.isArray(rawDays) ? rawDays : []).map(n => Number(n));
-    if (!dayList.length || !dayList.includes(dow)) continue;
-    const o = w.o ?? w.open, c = w.c ?? w.close;
-    if (o == null || c == null || String(o).trim() === '' || String(c).trim() === '') continue;
-    if (timeRangeContains(nowMin, o, c)) return true;
-  }
-  return false;
-}
-
-function isAnnouncementEnabled(r) {
-  return r.active !== false;
-}
-
-function refreshTickerFromAnnouncements() {
-  const slides = announcementRecords
-    .filter(r => isAnnouncementEnabled(r) && announcementActiveNow(r.windows))
-    .sort((a, b) => String(b.created || '').localeCompare(String(a.created || '')))
-    .map(r => ({ text: r.text, duration_sec: r.duration_sec }));
-  buildTicker(slides);
-}
-
-function stopTickerCarousel() {
-  if (tickerCarouselTimer) {
-    clearTimeout(tickerCarouselTimer);
-    tickerCarouselTimer = null;
-  }
-}
-
-function toTickerSlides(raw) {
-  if (!raw || !raw.length)
-    return [{ text: 'Welcome to Voyage Sorgun', durationSec: 10 }];
-  const out = [];
-  if (typeof raw[0] === 'string') {
-    for (const t of raw) {
-      const tx = String(t).trim();
-      if (tx) out.push({ text: tx, durationSec: 8 });
-    }
-  } else {
-    for (const r of raw) {
-      const text = (r && r.text != null) ? String(r.text).trim() : '';
-      if (!text) continue;
-      let d = Number(r.duration_sec ?? r.durationSec);
-      if (!Number.isFinite(d) || d < 1) d = 10;
-      d = Math.min(600, Math.max(3, Math.round(d)));
-      out.push({ text, durationSec: d });
-    }
-  }
-  return out.length ? out : [{ text: 'Welcome to Voyage Sorgun', durationSec: 10 }];
-}
-
-/** PocketBase: { text, duration_sec } dizisi; yerel panel: string[] */
-function buildTicker(rawSlides) {
-  const slides = toTickerSlides(rawSlides);
-  const sig = JSON.stringify(slides.map(s => ({ t: s.text, d: s.durationSec })));
-  if (sig === lastTickerSlidesSig) return;
-  lastTickerSlidesSig = sig;
-  stopTickerCarousel();
-  const el = document.getElementById('ticker-current');
-  if (!el) return;
-  el.classList.remove('loading-pulse');
-  let idx = 0;
-  function showNext() {
-    const s = slides[idx];
-    el.textContent = s.text;
-    idx = (idx + 1) % slides.length;
-    tickerCarouselTimer = setTimeout(showNext, Math.max(2000, s.durationSec * 1000));
-  }
-  showNext();
-}
-
-// ═══════════════════════════════════════════════
-//  UPCOMING 5
-// ═══════════════════════════════════════════════
-function getUpcoming() {
-  const now = new Date();
-  const nowMin = now.getHours()*60 + now.getMinutes();
-  const windowMin = 5*60;
-  let result = [];
-  for (let i = 0; i < activities.length; i++) {
-    const a = activities[i];
-    const aMin = a.hour*60+a.min;
-    const nextMin = i < activities.length-1
-      ? activities[i+1].hour*60+activities[i+1].min
-      : aMin + 90;
-    const isNow = aMin <= nowMin && nowMin < nextMin;
-    const upcoming = aMin > nowMin && aMin <= nowMin+windowMin;
-    if (isNow || upcoming) result.push({...a, isNow});
-    if (result.length >= 5) break;
-  }
-  if (result.length < 5) {
-    for (let i = 0; i < activities.length && result.length < 5; i++) {
-      result.push({...activities[i], isNow:false});
-    }
-  }
-  return result.slice(0,5);
-}
-
-function renderScreen() {
-  const upcoming = getUpcoming();
-  const strip = document.getElementById('activity-strip');
-  if (!strip) return;
-  if (!upcoming.length) {
-    strip.innerHTML = '';
-    return;
-  }
-  strip.innerHTML = upcoming.map(a => `
-    <div class="strip-item${a.isNow?' now':''}">
-      <div class="si-icon"><i data-lucide="${resolveActivityLucide(a)}"></i></div>
-      <div class="si-time">${(function(){const e=activityResolvedEndParts(a);return pad(a.hour)+':'+pad(a.min)+'–'+pad(e.eh)+':'+pad(e.em);})()}</div>
-      <div class="si-info">
-        <div class="si-name">${a.name}</div>
-        <div class="si-venue">${a.venue||''}</div>
-      </div>
-      ${a.isNow ? '' : ''}
-    </div>
-  `).join('');
-  refreshLucide(strip);
-}
-
-// ═══════════════════════════════════════════════
-//  CLOCK
-// ═══════════════════════════════════════════════
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-function updateClock() {
-  const now = new Date();
-  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
-  document.getElementById('clock').textContent = pad(h)+':'+pad(m);
-  document.getElementById('clock-date').textContent =
-    DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
-
-  const g = document.getElementById('greeting');
-  const txt = h>=5&&h<12 ? 'Good<br><em>Morning</em>'
-    : h>=12&&h<17 ? 'Good<br><em>Afternoon</em>'
-    : h>=17&&h<21 ? 'Good<br><em>Evening</em>'
-    : 'Good<br><em>Night</em>';
-  if (g.innerHTML !== txt) g.innerHTML = txt;
-  if (s === 0) { renderScreen(); refreshTickerFromAnnouncements(); }
-}
-function pad(n) { return String(n).padStart(2,'0'); }
-
-// ═══════════════════════════════════════════════
-//  WEATHER — Open-Meteo
-// ═══════════════════════════════════════════════
-const LAT = 36.772, LON = 31.394;
-const WMO_LUCIDE = {
-  0:'sun', 1:'cloud-sun', 2:'cloud', 3:'cloud',
-  45:'cloud-fog', 48:'cloud-fog', 51:'cloud-drizzle', 53:'cloud-drizzle', 55:'cloud-rain',
-  61:'cloud-rain', 63:'cloud-rain', 65:'cloud-rain', 71:'cloud-snow', 73:'cloud-snow', 75:'snowflake',
-  80:'cloud-rain', 81:'cloud-rain', 82:'cloud-lightning', 95:'cloud-lightning', 96:'cloud-lightning', 99:'cloud-lightning'
-};
-const WMO_DESC = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Rain showers',81:'Heavy showers',82:'Violent showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Thunderstorm + hail'};
-
-function setWeatherLucide(code) {
-  const name = WMO_LUCIDE[code] || 'sun';
-  const el = document.getElementById('w-icon');
-  if (!el) return;
-  el.innerHTML = '';
-  const i = document.createElement('i');
-  i.setAttribute('data-lucide', name);
-  el.appendChild(i);
-  refreshLucide(el);
-}
-
-async function fetchWeather() {
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index&wind_speed_unit=kmh&timezone=Europe%2FIstanbul`;
-    const d = await (await fetch(url)).json();
-    const c = d.current;
-    document.getElementById('temp').innerHTML = Math.round(c.temperature_2m)+'<sup>°C</sup>';
-    document.getElementById('w-desc').textContent = WMO_DESC[c.weather_code]||'Clear';
-    setWeatherLucide(c.weather_code);
-    document.getElementById('w-hum').textContent = c.relative_humidity_2m+'%';
-    document.getElementById('w-wind').textContent = Math.round(c.wind_speed_10m)+' km/h';
-    document.getElementById('w-feels').textContent = Math.round(c.apparent_temperature)+'°C';
-    document.getElementById('w-uv').textContent = c.uv_index??'—';
-  } catch {
-    document.getElementById('temp').innerHTML = '28<sup>°C</sup>';
-    document.getElementById('w-desc').textContent = 'Clear sky';
-    setWeatherLucide(0);
-    document.getElementById('w-hum').textContent = '65%';
-    document.getElementById('w-wind').textContent = '14 km/h';
-    document.getElementById('w-feels').textContent = '30°C';
-    document.getElementById('w-uv').textContent = '7';
-  }
-}
-
-async function fetchMarine() {
-  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  try {
-    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=wave_height,wave_period,wave_direction,sea_surface_temperature&timezone=Europe%2FIstanbul`;
-    const d = await (await fetch(url)).json();
-    const c = d.current;
-    setText('wave-data', (c.wave_height?.toFixed(1)??'—')+'m  ·  '+(c.wave_period?Math.round(c.wave_period)+'s':'—'));
-    const dirs=['N','NE','E','SE','S','SW','W','NW'];
-    setText('wave-dir', c.wave_direction!=null ? dirs[Math.round(c.wave_direction/45)%8] : '—');
-    setText('sea-temp', c.sea_surface_temperature!=null ? Math.round(c.sea_surface_temperature)+'°C' : '—');
-  } catch {
-    setText('wave-data', '0.4m  ·  8s');
-    setText('wave-dir', 'SW');
-    setText('sea-temp', '26°C');
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  DUYURULAR (Ticker)
-// ═══════════════════════════════════════════════
-const DEFAULT_ANNOUNCEMENTS = [
-  "🌊 Aquapark today 10:00–18:00 — slides, wave pool & kids zone open",
-  "🍽 Gala Dinner tonight at 19:00 — Main Restaurant, smart casual dress code",
-  "💆 Sense Spa: 20% off all treatments booked before 14:00 today",
-  "🎭 Evening Show at 22:00 — Amphitheatre · Doors open at 21:30",
-  "🏖 Beach towels available at Reception — please return by 18:00",
-  "🍹 Cocktail Hour 17:00–18:00 at Sunset Bar — complimentary welcome drink",
-  "🧘 Morning Yoga on the Beach Stage — tomorrow at 07:00, all levels welcome",
-  "🚌 Airport transfer service available 24h — contact Reception for booking",
-];
-
-let announcements = [];
-
-function loadAnnouncements() {
-  try {
-    const s = localStorage.getItem('voyage_announcements');
-    announcements = s ? JSON.parse(s) : [...DEFAULT_ANNOUNCEMENTS];
-  } catch { announcements = [...DEFAULT_ANNOUNCEMENTS]; }
-}
-
-function saveAnnouncements() {
-  localStorage.setItem('voyage_announcements', JSON.stringify(announcements));
-  buildTicker(announcements.length ? announcements : ['Welcome to Voyage Sorgun']);
-  closeAnnouncementPanel();
-  showToast('Announcements saved ✓');
-}
-
-// Duyuru paneli (yerel önizleme; ana ticker PocketBase)
-function openAnnouncementPanel() {
-  document.getElementById('ann-overlay').classList.add('open');
-  renderAnnouncementPanel();
-}
-function closeAnnouncementPanel() {
-  document.getElementById('ann-overlay').classList.remove('open');
-}
-function renderAnnouncementPanel() {
-  document.getElementById('ann-list').innerHTML = announcements.map((a, i) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;margin-bottom:8px;">
-      <div style="flex:1;font-size:13px;font-weight:300;color:rgba(255,255,255,0.8);letter-spacing:0.04em;">${a}</div>
-      <button class="del-btn" onclick="deleteAnnouncement(${i})">✕</button>
-    </div>
-  `).join('') || '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px;text-align:center;">No announcements yet</div>';
-}
-function deleteAnnouncement(i) { announcements.splice(i,1); renderAnnouncementPanel(); }
-function addAnnouncement() {
-  const val = document.getElementById('ann-input').value.trim();
-  if (!val) return;
-  announcements.push(val);
-  document.getElementById('ann-input').value = '';
-  renderAnnouncementPanel();
-}
-function resetAnnouncements() {
-  if (!confirm('Reset to default announcements?')) return;
-  announcements = [...DEFAULT_ANNOUNCEMENTS];
-  renderAnnouncementPanel();
-}
-
-loadAnnouncements();
-refreshTickerFromAnnouncements();
-
-// ═══════════════════════════════════════════════
-//  PARTICLES
-// ═══════════════════════════════════════════════
-function createParticles() {
-  const c = document.getElementById('particles');
-  const configs = [
-    {color:'#c9a84c', size:2, count:18},
-    {color:'#ffffff', size:1.5, count:12},
-    {color:'#e8c97a', size:1, count:8},
-  ];
-  configs.forEach(({color,size,count}) => {
-    for (let i=0;i<count;i++) {
-      const p = document.createElement('div');
-      p.className='particle';
-      p.style.cssText = `
-        left:${Math.random()*100}%;
-        bottom:${Math.random()*40}%;
-        width:${size}px; height:${size}px;
-        background:${color};
-        --d:${10+Math.random()*20}s;
-        --dl:${Math.random()*18}s;
-      `;
-      c.appendChild(p);
-    }
-  });
-}
-
-// ═══════════════════════════════════════════════
-//  RESORT MAP — MapLibre GL + CARTO Voyager (raster, pitch)
-//  Center: 36.756893, 31.418769 (Voyage Sorgun)
-// ═══════════════════════════════════════════════
-
-// ── STATIC LOCATIONS ──────────────────────────
-const CENTER = [36.756893, 31.418769];
-
-const RESTAURANTS = [
-  { name:'Degusto',     sub:'Main Restaurant & Buffet',  icon:'🍽', lat:36.7578, lng:31.4198 },
-  { name:'Teppanyaki',  sub:'Japanese · À la carte',     icon:'🍱', lat:36.7562, lng:31.4205 },
-  { name:'Cuisine 24',  sub:'All-day dining',            icon:'🕐', lat:36.7572, lng:31.4182 },
-  { name:'Greek Rest.', sub:'Greek cuisine',             icon:'🫒', lat:36.7582, lng:31.4208 },
-  { name:'Steakhouse',  sub:'Grill & Steak',             icon:'🥩', lat:36.7565, lng:31.4215 },
-  { name:'Italian',     sub:'Italian cuisine',           icon:'🍝', lat:36.7558, lng:31.4190 },
-  { name:'Beach Bar',   sub:'Poolside & Beach',          icon:'🍹', lat:36.7548, lng:31.4193 },
-];
-
-const FACILITIES = [
-  { name:'Main Pool',    sub:'7 outdoor pools',          icon:'🏊', lat:36.7570, lng:31.4200 },
-  { name:'Aquapark',     sub:'Beach aquapark',           icon:'🌊', lat:36.7550, lng:31.4202 },
-  { name:'Sense Spa',    sub:'Spa & Wellness',           icon:'💆', lat:36.7575, lng:31.4212 },
-  { name:'Beach',        sub:'Private Blue Flag beach',  icon:'🏖', lat:36.7542, lng:31.4196 },
-  { name:'Amphitheatre', sub:'Show & Events',            icon:'🎭', lat:36.7585, lng:31.4185 },
-  { name:'Sports Zone',  sub:'Tennis · Volleyball',      icon:'🎾', lat:36.7568, lng:31.4222 },
-  { name:'Mini Club',    sub:'Kids\' Club',              icon:'🎨', lat:36.7580, lng:31.4210 },
-  { name:'Reception',    sub:'24h Front Desk',           icon:'🏨', lat:36.7572, lng:31.4172 },
-];
-
-// Activity locations (venue → approximate lat/lng)
-const VENUE_COORDS = {
-  'beach stage · sunrise deck':     [36.7545, 31.4190],
-  'main pool':                      [36.7570, 31.4200],
-  'sports zone b':                  [36.7565, 31.4225],
-  'beach court 1 & 2':              [36.7552, 31.4200],
-  'mini club · deck c':             [36.7580, 31.4210],
-  'amphitheatre':                   [36.7585, 31.4185],
-  'main restaurant & beach buffet': [36.7578, 31.4198],
-  'aquapark zone':                  [36.7550, 31.4202],
-  'sports zone a':                  [36.7568, 31.4220],
-  'games room':                     [36.7574, 31.4178],
-  'beach bar':                      [36.7548, 31.4193],
-  'court 1':                        [36.7566, 31.4223],
-  'sunset bar · lobby bar':         [36.7573, 31.4170],
-  'panorama deck':                  [36.7576, 31.4167],
-  'main restaurant':                [36.7578, 31.4198],
-  'show stage':                     [36.7586, 31.4182],
-  'disco & aquapark':               [36.7551, 31.4203],
-};
-
-function getVenueCoords(venue) {
-  if (!venue) return null;
-  const key = venue.toLowerCase();
-  for (const [k, v] of Object.entries(VENUE_COORDS)) {
-    if (key.includes(k) || k.includes(key.split('·')[0].trim())) return v;
-  }
-  return null;
-}
-
-function getActivityCoords(a) {
-  if (a.venue_key && venueByKey[a.venue_key]) return venueByKey[a.venue_key];
-  return getVenueCoords(a.venue);
-}
-
-function restoCoords(r) {
-  if (r.venue_key && venueByKey[r.venue_key]) return venueByKey[r.venue_key];
-  if (r.lat != null && r.lng != null) return [Number(r.lat), Number(r.lng)];
-  return null;
-}
-
-function restoTodaySlot(r) {
-  const dow = (new Date().getDay() + 6) % 7;
-  const w = r.weekly;
-  if (w && typeof w === 'object') {
-    const slot = w[String(dow)];
-    if (slot === null || slot === undefined) return null;
-    const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
-    if (o && c) return { opens: o, closes: c };
-  }
-  return { opens: r.opens||'09:00', closes: r.closes||'23:00' };
-}
-
-// ── MAPLIBRE MAP ──────────────────────────────
-let resortMap = null;
-let activityMarkers = [];
-let restoMarkers = [];
-
-const CARTO_VOYAGER_STYLE = {
-  version: 8,
-  sources: {
-    carto: {
-      type: 'raster',
-      tiles: [
-        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
-      ],
-      tileSize: 256,
-      attribution: '© OpenStreetMap © CARTO'
-    }
-  },
-  layers: [{ id: 'carto-raster', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 }]
-};
-
-const MAP_PITCH = 50;
-const MAP_BEARING = -24;
-
-// Keyframe CSS
-const kfStyle = document.createElement('style');
-kfStyle.textContent = `
-  @keyframes live-ring  { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(2.4);opacity:0} }
-  @keyframes live-dot   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.5)} }
-  @keyframes dancer-sway{ 0%{transform:rotate(-4deg) translateX(-3px)} 100%{transform:rotate(4deg) translateX(3px)} }
-  @keyframes spotlight  { 0%{left:30%;opacity:.8} 100%{left:65%;opacity:1} }
-  @keyframes bar-pulse  { 0%{opacity:.6} 100%{opacity:1;box-shadow:0 0 6px rgba(217,48,48,.8)} }
-`;
-document.head.appendChild(kfStyle);
-
-// Harita kartları: ikon + okunaklı metin (foto yok)
-const MAP_CARD_W = 228;
-const MAP_CARD_H = 68;
-const MAP_ICON_COL = 46;
-
-// ── CARD HTML FACTORIES ───────────────────────
-function actCardHTML(a) {
-  const e = activityResolvedEndParts(a);
-  const timeStr = pad(a.hour) + ':' + pad(a.min) + '–' + pad(e.eh) + ':' + pad(e.em);
-  const lucideName = resolveActivityLucide(a);
-  return `
-    <div style="position:relative;width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(217,48,48,.55);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.75),0 0 10px rgba(217,48,48,.18);font-family:'Montserrat',sans-serif;">
-      <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(160deg,#120828,#1c0d3a);display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(217,48,48,.25);">
-        <div class="map-card-lucide" style="animation:dancer-sway 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,200,80,.35));"><i data-lucide="${lucideName}"></i></div>
-      </div>
-      <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
-        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1;">
-          <div style="display:flex;align-items:center;gap:2px;background:#d93030;color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 5px;border-radius:3px;box-shadow:0 0 8px rgba(217,48,48,.45);">
-            <span style="width:5px;height:5px;border-radius:50%;background:#fff;animation:live-dot 1.2s ease-in-out infinite;flex-shrink:0;"></span>LIVE
-          </div>
-          <span style="font-size:12px;font-weight:600;color:#fff;letter-spacing:.03em;line-height:1;">${timeStr}</span>
-        </div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">${a.name}</div>
-        <div style="font-size:11px;font-weight:500;color:#fff;letter-spacing:.02em;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">${a.venue||''}</div>
-      </div>
-      <div style="position:absolute;bottom:0;left:${MAP_ICON_COL}px;right:0;height:2px;background:linear-gradient(90deg,#d93030,transparent);animation:bar-pulse 2s ease-in-out infinite alternate;"></div>
-    </div>`;
-}
-
-function restoCardHTML(r) {
-  const slot = restoTodaySlot(r);
-  const hrs = slot ? `${slot.opens}–${slot.closes}` : `${r.opens}–${r.closes}`;
-  const nameLine = r.cuisine ? `${r.name} — ${r.cuisine}` : r.name;
-  return `
-    <div style="width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;position:relative;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(201,168,76,.4);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.65);font-family:'Montserrat',sans-serif;">
-      <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(135deg,rgba(232,168,124,.2),rgba(14,22,45,.95));display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(201,168,76,.2);">
-        <div class="map-card-lucide map-card-lucide-gold"><i data-lucide="${resolveRestoLucide(r)}"></i></div>
-      </div>
-      <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
-        <div style="font-size:13px;font-weight:600;color:#fff;letter-spacing:.02em;line-height:1;">${hrs}</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;">${nameLine}</div>
-      </div>
-    </div>`;
-}
-
-function addMapCardMarker(html, w, h, latLng) {
-  const el = document.createElement('div');
-  el.className = 'map-card-marker';
-  el.style.width = w + 'px';
-  el.style.height = h + 'px';
-  el.innerHTML = html;
-  return new maplibregl.Marker({
-    element: el,
-    anchor: 'bottom',
-    pitchAlignment: 'viewport',
-    rotationAlignment: 'viewport'
-  }).setLngLat([latLng[1], latLng[0]]).addTo(resortMap);
-}
-
-/** Ekranda altta kalan kartın pimi doğru; üstte çakışanlar yukarı ofsetlenir */
-function resolveMapMarkerOverlaps() {
-  if (!resortMap || !resortMap.isStyleLoaded()) return;
-  const W = MAP_CARD_W;
-  const H = MAP_CARD_H;
-  const margin = 10;
-  const all = [...activityMarkers, ...restoMarkers];
-  if (!all.length) return;
-  all.forEach(m => { try { m.setOffset([0, 0]); } catch (_) {} });
-  const items = all.map(m => ({ marker: m, lngLat: m.getLngLat() }));
-  items.sort((a, b) => {
-    const pa = resortMap.project(a.lngLat);
-    const pb = resortMap.project(b.lngLat);
-    if (Math.abs(pb.y - pa.y) > 2) return pb.y - pa.y;
-    return pa.x - pb.x;
-  });
-  const placed = [];
-  for (const { marker, lngLat } of items) {
-    const pt = resortMap.project(lngLat);
-    let offY = 0;
-    for (let step = 0; step < 100; step++) {
-      const bottom = pt.y + offY;
-      const top = bottom - H;
-      const left = pt.x - W / 2;
-      const right = pt.x + W / 2;
-      let clash = false;
-      for (const r of placed) {
-        if (!(right < r.left - margin || left > r.right + margin ||
-              bottom < r.top - margin || top > r.bottom + margin)) {
-          clash = true;
-          break;
-        }
+      if (highlightEl) {
+        const vpH = drumEl.clientHeight;
+        const top = Math.round(vpH / 2 - SDRUM_SLOT_H / 2);
+        highlightEl.style.top = top + 'px';
+        highlightEl.style.height = SDRUM_SLOT_H + 'px';
       }
-      if (!clash) {
-        placed.push({ top, bottom, left, right });
-        marker.setOffset([0, offY]);
-        break;
-      }
-      offY -= 8;
+
+      if (!animate) trackEl.style.transition = 'none';
+      trackEl.style.transform = 'translateY(' + sDrumCalcTy(state.index, drumEl) + 'px)';
+      if (!animate) { void trackEl.offsetHeight; trackEl.style.transition = ''; }
+
+      sDrumApplyClasses(trackEl, state.index);
     }
-  }
-}
 
-// ── MAP INIT ──────────────────────────────────
-function initMap() {
-  try {
-    resortMap = new maplibregl.Map({
-      container: 'resort-map',
-      style: CARTO_VOYAGER_STYLE,
-      center: [CENTER[1], CENTER[0]],
-      zoom: 17,
-      minZoom: 17,
-      maxZoom: 17,
-      pitch: MAP_PITCH,
-      bearing: MAP_BEARING,
-      attributionControl: false,
-      maxPitch: 60
-    });
-    resortMap.dragPan.disable();
-    resortMap.scrollZoom.disable();
-    resortMap.boxZoom.disable();
-    resortMap.dragRotate.disable();
-    resortMap.keyboard.disable();
-    resortMap.doubleClickZoom.disable();
-    resortMap.touchZoomRotate.disable();
-    resortMap.on('load', () => {
-      renderMapActivities();
-      renderRestaurantMarkers();
-      requestAnimationFrame(() => refreshLucide());
-    });
-  } catch (e) {
-    console.error('MapLibre init:', e);
-  }
-}
+    function buildScheduleDrum(containerId, items, type) {
+      const wrap = document.getElementById(containerId);
+      if (!wrap) return;
 
-function isRestoOpen(r) {
-  const slot = restoTodaySlot(r);
-  if (!slot) return false;
-  const nowMin = new Date().getHours()*60 + new Date().getMinutes();
-  const [oh,om] = String(slot.opens).split(':').map(Number);
-  const [ch,cm] = String(slot.closes).split(':').map(Number);
-  const open = oh*60+om, close = ch*60+cm;
-  return close < open ? (nowMin >= open || nowMin < close) : (nowMin >= open && nowMin < close);
-}
-
-function renderMapActivities() {
-  if (!resortMap || !resortMap.isStyleLoaded()) return;
-  activityMarkers.forEach(m => m.remove());
-  activityMarkers = [];
-
-  const nowMin = new Date().getHours()*60 + new Date().getMinutes();
-
-  activities.forEach(a => {
-    const coords = getActivityCoords(a);
-    if (!coords) return;
-    const diff = (a.hour*60+a.min) - nowMin;
-    if (!(diff <= 0 && diff > -90)) return;
-
-    activityMarkers.push(addMapCardMarker(actCardHTML(a), MAP_CARD_W, MAP_CARD_H, coords));
-  });
-}
-
-function renderRestaurantMarkers() {
-  if (!resortMap || !resortMap.isStyleLoaded()) return;
-  restoMarkers.forEach(m => m.remove());
-  restoMarkers = [];
-
-  for (const r of RESTO_MAP_DATA) {
-    if (!isRestoOpen(r)) continue;
-    const coords = restoCoords(r);
-    if (!coords) continue;
-    restoMarkers.push(addMapCardMarker(restoCardHTML(r), MAP_CARD_W, MAP_CARD_H, coords));
-  }
-  requestAnimationFrame(() => {
-    refreshLucide();
-    requestAnimationFrame(resolveMapMarkerOverlaps);
-  });
-}
-
-// ═══════════════════════════════════════════════
-//  SCALE TO VIEWPORT
-// ═══════════════════════════════════════════════
-function scaleScreen() {
-  const sw = document.getElementById('scaleWrapper');
-  const scaleX = window.innerWidth / 1920;
-  const scaleY = window.innerHeight / 1080;
-  const scale = Math.min(scaleX, scaleY);
-  const offsetX = (window.innerWidth - 1920*scale) / 2;
-  const offsetY = (window.innerHeight - 1080*scale) / 2;
-  sw.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-  if (resortMap) {
-    setTimeout(() => {
-      resortMap.resize();
-      setTimeout(resolveMapMarkerOverlaps, 80);
-    }, 50);
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  TOAST
-// ═══════════════════════════════════════════════
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
-createParticles();
-updateClock();
-scaleScreen();
-requestAnimationFrame(() => refreshLucide());
-
-// Harita kapalı mod: PB beklemeden hemen program paneli (yoksa harita saniyeler görünür)
-if (TV_MAP_SCREEN_OFF) startTvViewRotation();
-// PocketBase'den veri çek
-fetchFromPB();
-// Realtime bağlantısı
-connectRealtime();
-
-setTimeout(initMap, 100);
-setInterval(() => { renderScreen(); renderMapActivities(); renderRestaurantMarkers(); requestAnimationFrame(() => refreshLucide()); }, 60000);
-setInterval(updateClock, 1000);
-window.addEventListener('resize', scaleScreen);
-
-fetchWeather();
-fetchMarine();
-setInterval(fetchWeather, 10*60*1000);
-setInterval(fetchMarine, 10*60*1000);
-// 14 günlük döngü günü gece yarısı değişir; Realtime tetiklemez → periyodik yenile
-setInterval(fetchFromPB, 2 * 60 * 1000);
-setInterval(refreshTickerFromAnnouncements, 45 * 1000);
-
-// GitHub Pages: deploy sonrası TV’de yeni sürüm — version.json içindeki `v` değişince tam yenileme
-(function welcomeVersionReload() {
-  const STORAGE_KEY = 'welcome_screen_ver';
-  const CHECK_EVERY_MS = 90 * 1000;
-  const url = () => {
-    try {
-      const u = new URL('version.json', location.href);
-      u.searchParams.set('_', String(Date.now()));
-      return u.toString();
-    } catch {
-      return 'version.json?_=' + Date.now();
-    }
-  };
-  async function checkVersion() {
-    try {
-      const r = await fetch(url(), { cache: 'no-store' });
-      if (!r.ok) return;
-      const j = await r.json();
-      const v = String(j.v ?? j.version ?? '').trim();
-      if (!v) return;
-      const prev = sessionStorage.getItem(STORAGE_KEY);
-      if (prev != null && prev !== v) {
-        sessionStorage.setItem(STORAGE_KEY, v);
-        location.reload();
+      if (!items.length) {
+        wrap.innerHTML = '<div class="sdrum-empty">—</div>';
+        sDrumStates[containerId] = null;
         return;
       }
-      sessionStorage.setItem(STORAGE_KEY, v);
-    } catch (_) {}
-  }
-  checkVersion();
-  setInterval(checkVersion, CHECK_EVERY_MS);
-})();
-</script>
-</body>
-</html>
+
+      const nowMin = getIstanbulMinutes();
+      const activeIdx = sDrumFindIndex(items, nowMin);
+      sDrumStates[containerId] = { index: activeIdx, items, type };
+
+      const slotsHtml = items.map((item, i) => {
+        const lucideName = type === 'resto'
+          ? resolveRestoLucide(item)
+          : resolveActivityLucide(item);
+        const timeStr = sDrumEsc(item._timeStr);
+        const nameStr = sDrumEsc(item._nameStr);
+        return `<div class="sdrum-slot" style="height:${SDRUM_SLOT_H}px" data-i="${i}">
+          <div class="sdrum-slot-icon" style="width:28px;height:28px">
+            <i data-lucide="${lucideName}" style="width:14px;height:14px"></i>
+          </div>
+          <div class="sdrum-slot-text">
+            <div class="sdrum-slot-time">${timeStr}</div>
+            <div class="sdrum-slot-name">${nameStr}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      wrap.innerHTML = `<div class="sdrum" id="${containerId}-sdrum">
+        <div class="sdrum-fade-top"></div>
+        <div class="sdrum-fade-bottom"></div>
+        <div class="sdrum-highlight"></div>
+        <div class="sdrum-track">${slotsHtml}</div>
+      </div>`;
+
+      refreshLucide(wrap);
+
+      requestAnimationFrame(() => {
+        sDrumSetIndex(containerId, activeIdx, false);
+        sDrumBindInteraction(containerId);
+      });
+    }
+
+    function sDrumBindInteraction(containerId) {
+      const wrap = document.getElementById(containerId);
+      const drumEl = wrap?.querySelector('.sdrum');
+      const trackEl = wrap?.querySelector('.sdrum-track');
+      if (!drumEl || !trackEl) return;
+      const state = sDrumStates[containerId];
+      if (!state) return;
+
+      let startY = 0, startIdx = 0;
+
+      drumEl.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        startY = e.clientY;
+        startIdx = state.index;
+        const onMove = e2 => {
+          const dy = e2.clientY - startY;
+          const delta = Math.round(-dy / SDRUM_SLOT_H);
+          sDrumSetIndex(containerId, startIdx + delta, true);
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      drumEl.addEventListener('wheel', e => {
+        e.preventDefault();
+        sDrumSetIndex(containerId, state.index + (e.deltaY > 0 ? 1 : -1), true);
+      }, { passive: false });
+
+      drumEl.addEventListener('touchstart', e => {
+        startY = e.touches[0].clientY;
+        startIdx = state.index;
+      }, { passive: true });
+
+      drumEl.addEventListener('touchmove', e => {
+        const dy = e.touches[0].clientY - startY;
+        const delta = Math.round(-dy / SDRUM_SLOT_H);
+        sDrumSetIndex(containerId, startIdx + delta, true);
+      }, { passive: true });
+    }
+
+    function sDrumAdvanceAll() {
+      const nowMin = getIstanbulMinutes();
+      ['drum-daytime','drum-kids','drum-evening'].forEach(id => {
+        const state = sDrumStates[id];
+        if (!state || !state.items.length) return;
+        const idx = sDrumFindIndex(state.items, nowMin);
+        sDrumSetIndex(id, idx, true);
+      });
+    }
+
+    function sDrumScheduleHourly() {
+      if (sDrumHourTimer) clearTimeout(sDrumHourTimer);
+      const now = new Date();
+      const ms = (60 - now.getMinutes()) * 60000
+               - now.getSeconds() * 1000
+               - now.getMilliseconds();
+      sDrumHourTimer = setTimeout(() => {
+        sDrumAdvanceAll();
+        sDrumHourTimer = setInterval(sDrumAdvanceAll, 3600000);
+      }, ms);
+    }
+
+    function ensureScheduleResizeObserver() {
+      if (window._schRoAttached) return;
+      const pane = document.getElementById('schedule-view-pane');
+      if (!pane || typeof ResizeObserver === 'undefined') return;
+      window._schRoAttached = true;
+      new ResizeObserver(() => {
+        if (pane.classList.contains('active')) {
+          ['drum-daytime','drum-kids','drum-restos','drum-evening'].forEach(id => {
+            const state = sDrumStates[id];
+            if (state) sDrumSetIndex(id, state.index, false);
+          });
+        }
+      }).observe(pane);
+    }
+
+    function renderScheduleGrid() {
+      const mapAct = a => {
+        const e = activityResolvedEndParts(a);
+        return {
+          ...a,
+          _sortMin: a.hour * 60 + a.min,
+          _timeStr: pad(a.hour)+':'+pad(a.min)+'–'+pad(e.eh)+':'+pad(e.em),
+          _nameStr: a.name
+        };
+      };
+      buildScheduleDrum('drum-daytime',
+        activities.filter(a => a.schedule_slot === 'daytime').map(mapAct).sort((a,b)=>a._sortMin-b._sortMin),
+        'activity'
+      );
+      buildScheduleDrum('drum-kids',
+        activities.filter(a => a.schedule_slot === 'kids').map(mapAct).sort((a,b)=>a._sortMin-b._sortMin),
+        'activity'
+      );
+      buildScheduleDrum('drum-evening',
+        activities.filter(a => a.schedule_slot === 'evening').map(mapAct).sort((a,b)=>a._sortMin-b._sortMin),
+        'activity'
+      );
+      const nowMin = getIstanbulMinutes();
+      const restoItems = RESTO_MAP_DATA
+        .filter(r => isRestoOpen(r))
+        .map(r => {
+          const slot = restoTodaySlot(r);
+          const hrs = slot ? slot.opens + '-' + slot.closes : r.opens + '-' + r.closes;
+          const [oh, om] = String((slot || r).opens || '00:00').split(':').map(Number);
+          return {
+            ...r,
+            _sortMin: oh * 60 + om,
+            _timeStr: hrs,
+            _nameStr: r.cuisine ? r.name + ' — ' + r.cuisine : r.name
+          };
+        })
+        .sort((a, b) => a._sortMin - b._sortMin);
+      buildScheduleDrum('drum-restos', restoItems, 'resto');
+    }
+
+    function stopTvViewRotation() {
+      if (tvRotTimer) {
+        clearTimeout(tvRotTimer);
+        tvRotTimer = null;
+      }
+    }
+
+    function startTvViewRotation() {
+      stopTvViewRotation();
+      const m = document.getElementById('map-view-pane');
+      const s = document.getElementById('schedule-view-pane');
+      const empty = document.getElementById('map-sch-empty-pane');
+      const title = document.getElementById('col-right-title');
+      if (!m || !s) return;
+      let mapEn = tvViewConfig.mapEnabled !== false;
+      let schEn = tvViewConfig.scheduleEnabled !== false;
+      let mapT = Math.min(600, Math.max(0, Number(tvViewConfig.mapSec) || 0));
+      let schT = Math.min(600, Math.max(0, Number(tvViewConfig.scheduleSec) || 0));
+      if (!mapEn) mapT = 0;
+      if (!schEn) schT = 0;
+      if (TV_MAP_SCREEN_OFF) {
+        mapEn = false;
+        mapT = 0;
+        schEn = true;
+        schT = Math.max(1, Number(tvViewConfig.scheduleSec) || 30);
+        schT = Math.min(600, schT);
+      }
+      const showMap = mapT > 0;
+      const showSch = schT > 0;
+      function hideEmpty() {
+        if (empty) empty.classList.remove('active');
+      }
+      function showEmptyOnly() {
+        m.classList.add('hidden-map');
+        s.classList.remove('active');
+        if (empty) empty.classList.add('active');
+        if (title) {
+          title.textContent = 'Voyage Sorgun';
+          title.classList.remove('schedule-programme-title');
+        }
+      }
+      function showMapOnly() {
+        hideEmpty();
+        m.classList.remove('hidden-map');
+        s.classList.remove('active');
+        if (title) {
+          title.textContent = 'Resort Map';
+          title.classList.remove('schedule-programme-title');
+        }
+        setTimeout(() => {
+          try {
+            resortMap?.resize();
+            setTimeout(resolveMapMarkerOverlaps, 100);
+          } catch (_) {}
+        }, 150);
+      }
+      function showSchOnly() {
+        hideEmpty();
+        m.classList.add('hidden-map');
+        s.classList.add('active');
+        renderScheduleGrid();
+        if (title) {
+          title.textContent = "Today's Programme";
+          title.classList.add('schedule-programme-title');
+        }
+        sDrumScheduleHourly();
+        ensureScheduleResizeObserver();
+      }
+      /* Kapalı: ikisi de kapalı veya süreleri 0 */
+      if (!mapEn && !schEn) {
+        showEmptyOnly();
+        return;
+      }
+      if (mapEn && !schEn) {
+        showMapOnly();
+        return;
+      }
+      if (!mapEn && schEn) {
+        if (showSch) showSchOnly();
+        else showEmptyOnly();
+        return;
+      }
+      /* İkisi de açık (mapEn && schEn) */
+      if (!showMap && !showSch) {
+        showEmptyOnly();
+        return;
+      }
+      if (showMap && !showSch) {
+        showMapOnly();
+        return;
+      }
+      if (!showMap && showSch) {
+        showSchOnly();
+        return;
+      }
+      let showingMap = true;
+      function applyView() {
+        if (showingMap) showMapOnly();
+        else showSchOnly();
+      }
+      applyView();
+      function loop() {
+        showingMap = !showingMap;
+        applyView();
+        tvRotTimer = setTimeout(loop, (showingMap ? mapT : schT) * 1000);
+      }
+      tvRotTimer = setTimeout(loop, mapT * 1000);
+    }
+
+    function istanbulTodayYMD() {
+      return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
+    }
+
+    function getCurrentCycleDay() {
+      const anchor = cycleAnchor || '2025-01-01';
+      const [y1, m1, d1] = anchor.split('-').map(Number);
+      const [y2, m2, d2] = istanbulTodayYMD().split('-').map(Number);
+      const t0 = Date.UTC(y1, m1 - 1, d1);
+      const t1 = Date.UTC(y2, m2 - 1, d2);
+      const diff = Math.round((t1 - t0) / 86400000);
+      return ((diff % 14) + 14) % 14;
+    }
+
+    function activityMatchesCycle(r, dayIdx) {
+      const cd = r.cycle_day;
+      if (cd === null || cd === undefined || cd === '' || Number(cd) === -1) return true;
+      return Number(cd) === dayIdx;
+    }
+
+    async function fetchFromPB() {
+      try {
+        const cfgR = await fetch(`${PB}/api/collections/app_config/records?perPage=1`, pbFetchOpts);
+        if (cfgR.ok) {
+          const cfgD = await cfgR.json();
+          const cfg0 = cfgD.items?.[0];
+          if (cfg0) {
+            if (cfg0.cycle_anchor) cycleAnchor = cfg0.cycle_anchor;
+            function parseTvDur(v, def) {
+              if (v === null || v === undefined || v === '') return def;
+              const n = Number(v);
+              if (!Number.isFinite(n) || n < 0) return def;
+              return Math.min(600, Math.floor(n));
+            }
+            tvViewConfig.mapSec = parseTvDur(cfg0.map_schedule_map_sec, 30);
+            tvViewConfig.scheduleSec = parseTvDur(cfg0.map_schedule_schedule_sec, 30);
+            function tvFlagEnabled(showField, secField) {
+              if (cfg0[showField] === false) return false;
+              if (cfg0[showField] === true) return true;
+              const sec = Number(cfg0[secField]);
+              return Number.isFinite(sec) && sec > 0;
+            }
+            tvViewConfig.mapEnabled = tvFlagEnabled('tv_map_enabled', 'map_schedule_map_sec');
+            tvViewConfig.scheduleEnabled = tvFlagEnabled('tv_schedule_enabled', 'map_schedule_schedule_sec');
+          }
+        }
+
+        venueByKey = {};
+        const vR = await fetch(`${PB}/api/collections/venues/records?perPage=200`, pbFetchOpts);
+        if (vR.ok) {
+          const vD = await vR.json();
+          (vD.items || []).forEach(v => { if (v.key) venueByKey[v.key] = [Number(v.lat), Number(v.lng)]; });
+        }
+
+        const dayIdx = getCurrentCycleDay();
+        const ar = await fetch(`${PB}/api/collections/activities/records?perPage=200`, pbFetchOpts);
+        const ad = await ar.json();
+        function parseActivityStart(r) {
+          if (r.start && typeof r.start === 'string') {
+            const m = String(r.start).trim().match(/^(\d{1,2}):(\d{2})$/);
+            if (m) return { hour: Math.min(23, Math.max(0, parseInt(m[1],10)||0)), min: Math.min(59, Math.max(0, parseInt(m[2],10)||0)) };
+          }
+          return { hour: Number(r.hour)||0, min: Number(r.minute)||0 };
+        }
+        function parseActivityEnd(r, startP) {
+          if (r.end && typeof r.end === 'string') {
+            const m = String(r.end).trim().match(/^(\d{1,2}):(\d{2})$/);
+            if (m) return { hour: Math.min(23, Math.max(0, parseInt(m[1],10)||0)), min: Math.min(59, Math.max(0, parseInt(m[2],10)||0)) };
+          }
+          if (r.end_hour != null && Number.isFinite(Number(r.end_hour)) && r.end_minute != null) return { hour: Number(r.end_hour), min: Number(r.end_minute) };
+          const t = startP.hour*60+startP.min+60;
+          const x = ((t%1440)+1440)%1440;
+          return { hour: Math.floor(x/60), min: x%60 };
+        }
+        activities = (ad.items||[])
+          .filter(r => activityMatchesCycle(r, dayIdx))
+          .map(r => {
+            const sp = parseActivityStart(r);
+            const ep = parseActivityEnd(r, sp);
+            return {
+              id: r.id,
+              hour: sp.hour, min: sp.min,
+              endHour: ep.hour, endMin: ep.min,
+              name: r.name,
+              venue: r.venue||'', icon: r.icon||guessLucideFromName(r.name),
+              venue_key: r.venue_key||'',
+              schedule_slot: normalizeScheduleSlot(r.schedule_slot)
+            };
+          })
+          .sort((a,b) => a.hour*60+a.min - (b.hour*60+b.min));
+
+        const nr = await fetch(`${PB}/api/collections/announcements/records?perPage=200`, pbFetchOpts);
+        const nd = await nr.json();
+        announcementRecords = (nd.items || []).map(rec => ({
+          ...rec,
+          windows: parseAnnouncementWindows(rec.windows) ?? rec.windows
+        }));
+        refreshTickerFromAnnouncements();
+
+        const rr = await fetch(`${PB}/api/collections/restaurants/records?perPage=200`, pbFetchOpts);
+        const rd = await rr.json();
+        RESTO_MAP_DATA = (rd.items||[]).map(r => ({
+          id: r.id,
+          name: r.name, icon: r.icon||'🍽', cuisine: r.cuisine||'',
+          opens: r.opens||'00:00', closes: r.closes||'23:59',
+          weekly: r.weekly || null,
+          lat: r.lat, lng: r.lng, query: r.query||r.name,
+          venue_key: r.venue_key||''
+        }));
+
+        renderScreen();
+        const rotSig = JSON.stringify({
+          m: tvViewConfig.mapSec,
+          s: tvViewConfig.scheduleSec,
+          me: tvViewConfig.mapEnabled,
+          se: tvViewConfig.scheduleEnabled,
+          mo: TV_MAP_SCREEN_OFF ? 1 : 0
+        });
+        if (rotSig !== lastTvRotCfgSig) {
+          lastTvRotCfgSig = rotSig;
+          stopTvViewRotation();
+          startTvViewRotation();
+        } else if (document.getElementById('schedule-view-pane')?.classList.contains('active')) {
+          renderScheduleGrid();
+        }
+        if (resortMap && resortMap.isStyleLoaded()) {
+          renderMapActivities();
+          renderRestaurantMarkers();
+          requestAnimationFrame(() => refreshLucide());
+        }
+      } catch(e) {
+        console.error('PocketBase fetch error:', e);
+        if (TV_MAP_SCREEN_OFF) startTvViewRotation();
+      }
+    }
+
+    // PocketBase Realtime — admin değişiklik yapınca anında güncelle
+    function connectRealtime() {
+      const es = new EventSource(`${PB}/api/realtime`);
+      let clientId = null;
+
+      es.addEventListener('PB_CONNECT', e => {
+        clientId = JSON.parse(e.data).clientId;
+        // 3 koleksiyona subscribe ol
+        ['activities','announcements','restaurants','venues','app_config'].forEach(col => {
+          fetch(`${PB}/api/realtime`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({clientId, subscriptions:[`${col}/*`]})
+          });
+        });
+      });
+
+      es.addEventListener('message', () => {
+        fetchFromPB(); // herhangi bir değişiklikte yeniden çek
+      });
+
+      es.onerror = () => {
+        setTimeout(connectRealtime, 5000); // bağlantı kopunca yeniden bağlan
+      };
+    }
+
+    function getIstanbulDowMon0() {
+      const wd = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Istanbul', weekday: 'long' }).format(new Date());
+      const map = {
+        Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6
+      };
+      return map[wd] ?? 0;
+    }
+
+    function getIstanbulMinutes() {
+      const d = new Date();
+      try {
+        const parts = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Europe/Istanbul', hour: 'numeric', minute: 'numeric', hour12: false
+        }).formatToParts(d);
+        const hp = parts.find(p => p.type === 'hour');
+        const mp = parts.find(p => p.type === 'minute');
+        if (hp && mp) {
+          let h = parseInt(hp.value, 10), m = parseInt(mp.value, 10);
+          if (!Number.isNaN(h) && !Number.isNaN(m)) return h * 60 + m;
+        }
+      } catch (_) {}
+      const s = d.toLocaleString('en-GB', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', hour12: false });
+      const match = s.match(/(\d{1,2})[.:](\d{2})/);
+      if (match) return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+      return d.getHours() * 60 + d.getMinutes();
+    }
+
+    function timeRangeContains(nowMin, openStr, closeStr) {
+      const po = String(openStr).trim().split(':').map(Number);
+      const pc = String(closeStr).trim().split(':').map(Number);
+      const o = (po[0] || 0) * 60 + (po[1] || 0);
+      const c = (pc[0] || 0) * 60 + (pc[1] || 0);
+      if (c < o) return nowMin >= o || nowMin <= c;
+      return nowMin >= o && nowMin <= c;
+    }
+
+    function parseAnnouncementWindows(raw) {
+      if (raw == null || raw === '') return null;
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === 'string') {
+        try {
+          const p = JSON.parse(raw);
+          return Array.isArray(p) ? p : null;
+        } catch (_) { return null; }
+      }
+      return null;
+    }
+
+    /** windows: [{d:[0..6], o, c}] veya boş → her zaman */
+    function announcementActiveNow(windows) {
+      const arr = parseAnnouncementWindows(windows);
+      if (!arr || arr.length === 0) return true;
+      const dow = getIstanbulDowMon0();
+      const nowMin = getIstanbulMinutes();
+      for (const w of arr) {
+        const rawDays = w.d ?? w.days ?? [];
+        const dayList = (Array.isArray(rawDays) ? rawDays : []).map(n => Number(n));
+        if (!dayList.length || !dayList.includes(dow)) continue;
+        const o = w.o ?? w.open, c = w.c ?? w.close;
+        if (o == null || c == null || String(o).trim() === '' || String(c).trim() === '') continue;
+        if (timeRangeContains(nowMin, o, c)) return true;
+      }
+      return false;
+    }
+
+    function isAnnouncementEnabled(r) {
+      return r.active !== false;
+    }
+
+    function refreshTickerFromAnnouncements() {
+      const slides = announcementRecords
+        .filter(r => isAnnouncementEnabled(r) && announcementActiveNow(r.windows))
+        .sort((a, b) => String(b.created || '').localeCompare(String(a.created || '')))
+        .map(r => ({ text: r.text, duration_sec: r.duration_sec }));
+      buildTicker(slides);
+    }
+
+    function stopTickerCarousel() {
+      if (tickerCarouselTimer) {
+        clearTimeout(tickerCarouselTimer);
+        tickerCarouselTimer = null;
+      }
+    }
+
+    function toTickerSlides(raw) {
+      if (!raw || !raw.length)
+        return [{ text: 'Welcome to Voyage Sorgun', durationSec: 10 }];
+      const out = [];
+      if (typeof raw[0] === 'string') {
+        for (const t of raw) {
+          const tx = String(t).trim();
+          if (tx) out.push({ text: tx, durationSec: 8 });
+        }
+      } else {
+        for (const r of raw) {
+          const text = (r && r.text != null) ? String(r.text).trim() : '';
+          if (!text) continue;
+          let d = Number(r.duration_sec ?? r.durationSec);
+          if (!Number.isFinite(d) || d < 1) d = 10;
+          d = Math.min(600, Math.max(3, Math.round(d)));
+          out.push({ text, durationSec: d });
+        }
+      }
+      return out.length ? out : [{ text: 'Welcome to Voyage Sorgun', durationSec: 10 }];
+    }
+
+    /** PocketBase: { text, duration_sec } dizisi; yerel panel: string[] */
+    function buildTicker(rawSlides) {
+      const slides = toTickerSlides(rawSlides);
+      const sig = JSON.stringify(slides.map(s => ({ t: s.text, d: s.durationSec })));
+      if (sig === lastTickerSlidesSig) return;
+      lastTickerSlidesSig = sig;
+      stopTickerCarousel();
+      const el = document.getElementById('ticker-current');
+      if (!el) return;
+      el.classList.remove('loading-pulse');
+      let idx = 0;
+      function showNext() {
+        const s = slides[idx];
+        el.textContent = s.text;
+        idx = (idx + 1) % slides.length;
+        tickerCarouselTimer = setTimeout(showNext, Math.max(2000, s.durationSec * 1000));
+      }
+      showNext();
+    }
+
+    // ═══════════════════════════════════════════════
+    //  UPCOMING 5
+    // ═══════════════════════════════════════════════
+    function getUpcoming() {
+      const now = new Date();
+      const nowMin = now.getHours()*60 + now.getMinutes();
+      const windowMin = 5*60;
+      let result = [];
+      for (let i = 0; i < activities.length; i++) {
+        const a = activities[i];
+        const aMin = a.hour*60+a.min;
+        const nextMin = i < activities.length-1
+          ? activities[i+1].hour*60+activities[i+1].min
+          : aMin + 90;
+        const isNow = aMin <= nowMin && nowMin < nextMin;
+        const upcoming = aMin > nowMin && aMin <= nowMin+windowMin;
+        if (isNow || upcoming) result.push({...a, isNow});
+        if (result.length >= 5) break;
+      }
+      if (result.length < 5) {
+        for (let i = 0; i < activities.length && result.length < 5; i++) {
+          result.push({...activities[i], isNow:false});
+        }
+      }
+      return result.slice(0,5);
+    }
+
+    function renderScreen() {
+      const upcoming = getUpcoming();
+      const strip = document.getElementById('activity-strip');
+      if (!strip) return;
+      if (!upcoming.length) {
+        strip.innerHTML = '';
+        return;
+      }
+      strip.innerHTML = upcoming.map(a => `
+        <div class="strip-item${a.isNow?' now':''}">
+          <div class="si-icon"><i data-lucide="${resolveActivityLucide(a)}"></i></div>
+          <div class="si-time">${(function(){const e=activityResolvedEndParts(a);return pad(a.hour)+':'+pad(a.min)+'–'+pad(e.eh)+':'+pad(e.em);})()}</div>
+          <div class="si-info">
+            <div class="si-name">${a.name}</div>
+            <div class="si-venue">${a.venue||''}</div>
+          </div>
+          ${a.isNow ? '' : ''}
+        </div>
+      `).join('');
+      refreshLucide(strip);
+    }
+
+    // ═══════════════════════════════════════════════
+    //  CLOCK
+    // ═══════════════════════════════════════════════
+    const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function updateClock() {
+      const now = new Date();
+      const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+      document.getElementById('clock').textContent = pad(h)+':'+pad(m);
+      document.getElementById('clock-date').textContent =
+        DAYS[now.getDay()]+', '+now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+
+      const g = document.getElementById('greeting');
+      const txt = h>=5&&h<12 ? 'Good<br><em>Morning</em>'
+        : h>=12&&h<17 ? 'Good<br><em>Afternoon</em>'
+        : h>=17&&h<21 ? 'Good<br><em>Evening</em>'
+        : 'Good<br><em>Night</em>';
+      if (g.innerHTML !== txt) g.innerHTML = txt;
+      if (s === 0) { renderScreen(); refreshTickerFromAnnouncements(); }
+    }
+    function pad(n) { return String(n).padStart(2,'0'); }
+
+    // ═══════════════════════════════════════════════
+    //  ACTIVITY DRUM ROLL PICKER
+    // ═══════════════════════════════════════════════
+    const DRUM_SLOT_H = 112;
+    let activityDrumIndex = 0;
+    let activityDrumHourTimer = null;
+
+    function activityDrumEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+    function findCurrentActivityIndex(sortedActivities, nowMin) {
+      if (!sortedActivities.length) return 0;
+      let best = 0, bestDist = Infinity;
+      for (let i = 0; i < sortedActivities.length; i++) {
+        const t = sortedActivities[i].hour * 60 + sortedActivities[i].min;
+        const dist = Math.abs(t - nowMin);
+        if (dist < bestDist) { bestDist = dist; best = i; }
+      }
+      return best;
+    }
+
+    function advanceDrumToCurrentActivity() {
+      const wrap = document.getElementById('activity-drum-wrap');
+      const track = document.getElementById('activity-drum-track');
+      if (!wrap || !track || !wrap.querySelector('.activity-drum')) return;
+      const sorted = [...activities].sort((a,b) => (a.hour*60+a.min) - (b.hour*60+b.min));
+      if (!sorted.length) return;
+      const nowMin = getIstanbulMinutes();
+      const idx = findCurrentActivityIndex(sorted, nowMin);
+      activityDrumIndex = Math.max(0, Math.min(idx, sorted.length - 1));
+      const ty = -activityDrumIndex * DRUM_SLOT_H + DRUM_SLOT_H * 2;
+      track.style.transform = 'translateY(' + ty + 'px)';
+      track.querySelectorAll('.activity-drum-slot').forEach((el, i) => {
+        el.classList.remove('active','adjacent','distant');
+        const d = Math.abs(i - activityDrumIndex);
+        if (d === 0) el.classList.add('active');
+        else if (d === 1) el.classList.add('adjacent');
+        else el.classList.add('distant');
+      });
+    }
+
+    function scheduleNextHour() {
+      if (activityDrumHourTimer) clearTimeout(activityDrumHourTimer);
+      const now = new Date();
+      const msToNextHour = (60 - now.getMinutes()) * 60000 - now.getSeconds() * 1000 - now.getMilliseconds();
+      activityDrumHourTimer = setTimeout(() => {
+        advanceDrumToCurrentActivity();
+        activityDrumHourTimer = setInterval(advanceDrumToCurrentActivity, 3600000);
+      }, msToNextHour);
+    }
+
+    function rebuildDrum() {
+      const wrap = document.getElementById('activity-drum-wrap');
+      if (!wrap) return;
+      const sorted = [...activities].sort((a,b) => (a.hour*60+a.min) - (b.hour*60+b.min));
+      if (!sorted.length) {
+        wrap.style.display = 'none';
+        return;
+      }
+      wrap.style.display = '';
+      const esc = activityDrumEsc;
+      const nowMin = getIstanbulMinutes();
+      const idx = findCurrentActivityIndex(sorted, nowMin);
+      activityDrumIndex = Math.max(0, Math.min(idx, sorted.length - 1));
+      const slotsHtml = sorted.map((a, i) => {
+        const lucideName = resolveActivityLucide(a);
+        const e = activityResolvedEndParts(a);
+        const timeStr = pad(a.hour)+':'+pad(a.min)+'–'+pad(e.eh)+':'+pad(e.em);
+        let cls = 'activity-drum-slot';
+        const d = Math.abs(i - activityDrumIndex);
+        if (d === 0) cls += ' active'; else if (d === 1) cls += ' adjacent'; else cls += ' distant';
+        return `<div class="${cls}" data-index="${i}">
+          <div class="activity-drum-slot-icon"><i data-lucide="${lucideName}"></i></div>
+          <div class="activity-drum-slot-content">
+            <div class="activity-drum-slot-time">${esc(timeStr)}</div>
+            <div class="activity-drum-slot-name">${esc(a.name)}</div>
+          </div>
+        </div>`;
+      }).join('');
+      const ty = -activityDrumIndex * DRUM_SLOT_H + DRUM_SLOT_H * 2;
+      wrap.innerHTML = `<div class="activity-drum" id="activity-drum">
+        <div class="activity-drum-fade activity-drum-fade-top"></div>
+        <div class="activity-drum-fade activity-drum-fade-bottom"></div>
+        <div class="activity-drum-highlight" aria-hidden="true"></div>
+        <div class="activity-drum-viewport" id="activity-drum-viewport">
+          <div class="activity-drum-track" id="activity-drum-track" style="transform:translateY(${ty}px)">${slotsHtml}</div>
+        </div>
+      </div>`;
+      refreshLucide(wrap);
+      const vp = wrap.querySelector('#activity-drum-viewport');
+      const track = wrap.querySelector('#activity-drum-track');
+      if (!vp || !track) return;
+
+      let dragStartY = 0, dragStartTy = 0;
+      vp.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        dragStartY = e.clientY;
+        dragStartTy = parseFloat((track.style.transform || 'translateY(0)').replace(/[^0-9.-]/g,'')) || 0;
+        const onMove = (e2) => {
+          const dy = e2.clientY - dragStartY;
+          const ty = Math.max(-(sorted.length - 1) * DRUM_SLOT_H + DRUM_SLOT_H * 2, Math.min(DRUM_SLOT_H * 2, dragStartTy + dy));
+          track.style.transition = 'none';
+          track.style.transform = 'translateY(' + ty + 'px)';
+          const rounded = Math.round(ty / DRUM_SLOT_H) * DRUM_SLOT_H;
+          activityDrumIndex = Math.round((DRUM_SLOT_H * 2 - rounded) / DRUM_SLOT_H);
+          activityDrumIndex = Math.max(0, Math.min(activityDrumIndex, sorted.length - 1));
+          track.querySelectorAll('.activity-drum-slot').forEach((el, i) => {
+            el.classList.remove('active','adjacent','distant');
+            const d = Math.abs(i - activityDrumIndex);
+            if (d === 0) el.classList.add('active'); else if (d === 1) el.classList.add('adjacent'); else el.classList.add('distant');
+          });
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          track.style.transition = '';
+          const ty = -activityDrumIndex * DRUM_SLOT_H + DRUM_SLOT_H * 2;
+          track.style.transform = 'translateY(' + ty + 'px)';
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+      vp.addEventListener('wheel', e => {
+        e.preventDefault();
+        const delta = Math.sign(e.deltaY) * DRUM_SLOT_H;
+        activityDrumIndex = Math.max(0, Math.min(sorted.length - 1, activityDrumIndex + (delta > 0 ? 1 : -1)));
+        const ty = -activityDrumIndex * DRUM_SLOT_H + DRUM_SLOT_H * 2;
+        track.style.transform = 'translateY(' + ty + 'px)';
+        track.querySelectorAll('.activity-drum-slot').forEach((el, i) => {
+          el.classList.remove('active','adjacent','distant');
+          const d = Math.abs(i - activityDrumIndex);
+          if (d === 0) el.classList.add('active'); else if (d === 1) el.classList.add('adjacent'); else el.classList.add('distant');
+        });
+      }, { passive: false });
+
+      scheduleNextHour();
+    }
+
+    // ═══════════════════════════════════════════════
+    //  WEATHER — Open-Meteo
+    // ═══════════════════════════════════════════════
+    const LAT = 36.772, LON = 31.394;
+    const WMO_LUCIDE = {
+      0:'sun', 1:'cloud-sun', 2:'cloud', 3:'cloud',
+      45:'cloud-fog', 48:'cloud-fog', 51:'cloud-drizzle', 53:'cloud-drizzle', 55:'cloud-rain',
+      61:'cloud-rain', 63:'cloud-rain', 65:'cloud-rain', 71:'cloud-snow', 73:'cloud-snow', 75:'snowflake',
+      80:'cloud-rain', 81:'cloud-rain', 82:'cloud-lightning', 95:'cloud-lightning', 96:'cloud-lightning', 99:'cloud-lightning'
+    };
+    const WMO_DESC = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Rain showers',81:'Heavy showers',82:'Violent showers',95:'Thunderstorm',96:'Thunderstorm + hail',99:'Thunderstorm + hail'};
+
+    function setWeatherLucide(code) {
+      const name = WMO_LUCIDE[code] || 'sun';
+      const el = document.getElementById('w-icon');
+      if (!el) return;
+      el.innerHTML = '';
+      const i = document.createElement('i');
+      i.setAttribute('data-lucide', name);
+      el.appendChild(i);
+      refreshLucide(el);
+    }
+
+    async function fetchWeather() {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index&wind_speed_unit=kmh&timezone=Europe%2FIstanbul`;
+        const d = await (await fetch(url)).json();
+        const c = d.current;
+        document.getElementById('temp').innerHTML = Math.round(c.temperature_2m)+'<sup>°C</sup>';
+        document.getElementById('w-desc').textContent = WMO_DESC[c.weather_code]||'Clear';
+        setWeatherLucide(c.weather_code);
+        document.getElementById('w-hum').textContent = c.relative_humidity_2m+'%';
+        document.getElementById('w-wind').textContent = Math.round(c.wind_speed_10m)+' km/h';
+        document.getElementById('w-feels').textContent = Math.round(c.apparent_temperature)+'°C';
+        document.getElementById('w-uv').textContent = c.uv_index??'—';
+      } catch {
+        document.getElementById('temp').innerHTML = '28<sup>°C</sup>';
+        document.getElementById('w-desc').textContent = 'Clear sky';
+        setWeatherLucide(0);
+        document.getElementById('w-hum').textContent = '65%';
+        document.getElementById('w-wind').textContent = '14 km/h';
+        document.getElementById('w-feels').textContent = '30°C';
+        document.getElementById('w-uv').textContent = '7';
+      }
+    }
+
+    async function fetchMarine() {
+      const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      try {
+        const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=wave_height,wave_period,wave_direction,sea_surface_temperature&timezone=Europe%2FIstanbul`;
+        const d = await (await fetch(url)).json();
+        const c = d.current;
+        setText('wave-data', (c.wave_height?.toFixed(1)??'—')+'m  ·  '+(c.wave_period?Math.round(c.wave_period)+'s':'—'));
+        const dirs=['N','NE','E','SE','S','SW','W','NW'];
+        setText('wave-dir', c.wave_direction!=null ? dirs[Math.round(c.wave_direction/45)%8] : '—');
+        setText('sea-temp', c.sea_surface_temperature!=null ? Math.round(c.sea_surface_temperature)+'°C' : '—');
+      } catch {
+        setText('wave-data', '0.4m  ·  8s');
+        setText('wave-dir', 'SW');
+        setText('sea-temp', '26°C');
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    //  DUYURULAR (Ticker)
+    // ═══════════════════════════════════════════════
+    const DEFAULT_ANNOUNCEMENTS = [
+      "🌊 Aquapark today 10:00–18:00 — slides, wave pool & kids zone open",
+      "🍽 Gala Dinner tonight at 19:00 — Main Restaurant, smart casual dress code",
+      "💆 Sense Spa: 20% off all treatments booked before 14:00 today",
+      "🎭 Evening Show at 22:00 — Amphitheatre · Doors open at 21:30",
+      "🏖 Beach towels available at Reception — please return by 18:00",
+      "🍹 Cocktail Hour 17:00–18:00 at Sunset Bar — complimentary welcome drink",
+      "🧘 Morning Yoga on the Beach Stage — tomorrow at 07:00, all levels welcome",
+      "🚌 Airport transfer service available 24h — contact Reception for booking",
+    ];
+
+    let announcements = [];
+
+    function loadAnnouncements() {
+      try {
+        const s = localStorage.getItem('voyage_announcements');
+        announcements = s ? JSON.parse(s) : [...DEFAULT_ANNOUNCEMENTS];
+      } catch { announcements = [...DEFAULT_ANNOUNCEMENTS]; }
+    }
+
+    function saveAnnouncements() {
+      localStorage.setItem('voyage_announcements', JSON.stringify(announcements));
+      buildTicker(announcements.length ? announcements : ['Welcome to Voyage Sorgun']);
+      closeAnnouncementPanel();
+      showToast('Announcements saved ✓');
+    }
+
+    // Duyuru paneli (yerel önizleme; ana ticker PocketBase)
+    function openAnnouncementPanel() {
+      document.getElementById('ann-overlay').classList.add('open');
+      renderAnnouncementPanel();
+    }
+    function closeAnnouncementPanel() {
+      document.getElementById('ann-overlay').classList.remove('open');
+    }
+    function renderAnnouncementPanel() {
+      document.getElementById('ann-list').innerHTML = announcements.map((a, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;margin-bottom:8px;">
+          <div style="flex:1;font-size:13px;font-weight:300;color:rgba(255,255,255,0.8);letter-spacing:0.04em;">${a}</div>
+          <button class="del-btn" onclick="deleteAnnouncement(${i})">✕</button>
+        </div>
+      `).join('') || '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px;text-align:center;">No announcements yet</div>';
+    }
+    function deleteAnnouncement(i) { announcements.splice(i,1); renderAnnouncementPanel(); }
+    function addAnnouncement() {
+      const val = document.getElementById('ann-input').value.trim();
+      if (!val) return;
+      announcements.push(val);
+      document.getElementById('ann-input').value = '';
+      renderAnnouncementPanel();
+    }
+    function resetAnnouncements() {
+      if (!confirm('Reset to default announcements?')) return;
+      announcements = [...DEFAULT_ANNOUNCEMENTS];
+      renderAnnouncementPanel();
+    }
+
+    loadAnnouncements();
+    refreshTickerFromAnnouncements();
+
+    // ═══════════════════════════════════════════════
+    //  PARTICLES
+    // ═══════════════════════════════════════════════
+    function createParticles() {
+      const c = document.getElementById('particles');
+      const configs = [
+        {color:'#c9a84c', size:2, count:18},
+        {color:'#ffffff', size:1.5, count:12},
+        {color:'#e8c97a', size:1, count:8},
+      ];
+      configs.forEach(({color,size,count}) => {
+        for (let i=0;i<count;i++) {
+          const p = document.createElement('div');
+          p.className='particle';
+          p.style.cssText = `
+            left:${Math.random()*100}%;
+            bottom:${Math.random()*40}%;
+            width:${size}px; height:${size}px;
+            background:${color};
+            --d:${10+Math.random()*20}s;
+            --dl:${Math.random()*18}s;
+          `;
+          c.appendChild(p);
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    //  RESORT MAP — MapLibre GL + CARTO Voyager (raster, pitch)
+    //  Center: 36.756893, 31.418769 (Voyage Sorgun)
+    // ═══════════════════════════════════════════════
+
+    // ── STATIC LOCATIONS ──────────────────────────
+    const CENTER = [36.756893, 31.418769];
+
+    const RESTAURANTS = [
+      { name:'Degusto',     sub:'Main Restaurant & Buffet',  icon:'🍽', lat:36.7578, lng:31.4198 },
+      { name:'Teppanyaki',  sub:'Japanese · À la carte',     icon:'🍱', lat:36.7562, lng:31.4205 },
+      { name:'Cuisine 24',  sub:'All-day dining',            icon:'🕐', lat:36.7572, lng:31.4182 },
+      { name:'Greek Rest.', sub:'Greek cuisine',             icon:'🫒', lat:36.7582, lng:31.4208 },
+      { name:'Steakhouse',  sub:'Grill & Steak',             icon:'🥩', lat:36.7565, lng:31.4215 },
+      { name:'Italian',     sub:'Italian cuisine',           icon:'🍝', lat:36.7558, lng:31.4190 },
+      { name:'Beach Bar',   sub:'Poolside & Beach',          icon:'🍹', lat:36.7548, lng:31.4193 },
+    ];
+
+    const FACILITIES = [
+      { name:'Main Pool',    sub:'7 outdoor pools',          icon:'🏊', lat:36.7570, lng:31.4200 },
+      { name:'Aquapark',     sub:'Beach aquapark',           icon:'🌊', lat:36.7550, lng:31.4202 },
+      { name:'Sense Spa',    sub:'Spa & Wellness',           icon:'💆', lat:36.7575, lng:31.4212 },
+      { name:'Beach',        sub:'Private Blue Flag beach',  icon:'🏖', lat:36.7542, lng:31.4196 },
+      { name:'Amphitheatre', sub:'Show & Events',            icon:'🎭', lat:36.7585, lng:31.4185 },
+      { name:'Sports Zone',  sub:'Tennis · Volleyball',      icon:'🎾', lat:36.7568, lng:31.4222 },
+      { name:'Mini Club',    sub:'Kids\' Club',              icon:'🎨', lat:36.7580, lng:31.4210 },
+      { name:'Reception',    sub:'24h Front Desk',           icon:'🏨', lat:36.7572, lng:31.4172 },
+    ];
+
+    // Activity locations (venue → approximate lat/lng)
+    const VENUE_COORDS = {
+      'beach stage · sunrise deck':     [36.7545, 31.4190],
+      'main pool':                      [36.7570, 31.4200],
+      'sports zone b':                  [36.7565, 31.4225],
+      'beach court 1 & 2':              [36.7552, 31.4200],
+      'mini club · deck c':             [36.7580, 31.4210],
+      'amphitheatre':                   [36.7585, 31.4185],
+      'main restaurant & beach buffet': [36.7578, 31.4198],
+      'aquapark zone':                  [36.7550, 31.4202],
+      'sports zone a':                  [36.7568, 31.4220],
+      'games room':                     [36.7574, 31.4178],
+      'beach bar':                      [36.7548, 31.4193],
+      'court 1':                        [36.7566, 31.4223],
+      'sunset bar · lobby bar':         [36.7573, 31.4170],
+      'panorama deck':                  [36.7576, 31.4167],
+      'main restaurant':                [36.7578, 31.4198],
+      'show stage':                     [36.7586, 31.4182],
+      'disco & aquapark':               [36.7551, 31.4203],
+    };
+
+    function getVenueCoords(venue) {
+      if (!venue) return null;
+      const key = venue.toLowerCase();
+      for (const [k, v] of Object.entries(VENUE_COORDS)) {
+        if (key.includes(k) || k.includes(key.split('·')[0].trim())) return v;
+      }
+      return null;
+    }
+
+    function getActivityCoords(a) {
+      if (a.venue_key && venueByKey[a.venue_key]) return venueByKey[a.venue_key];
+      return getVenueCoords(a.venue);
+    }
+
+    function restoCoords(r) {
+      if (r.venue_key && venueByKey[r.venue_key]) return venueByKey[r.venue_key];
+      if (r.lat != null && r.lng != null) return [Number(r.lat), Number(r.lng)];
+      return null;
+    }
+
+    function restoTodaySlot(r) {
+      const dow = (new Date().getDay() + 6) % 7;
+      const w = r.weekly;
+      if (w && typeof w === 'object') {
+        const slot = w[String(dow)];
+        if (slot === null || slot === undefined) return null;
+        const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
+        if (o && c) return { opens: o, closes: c };
+      }
+      return { opens: r.opens||'09:00', closes: r.closes||'23:00' };
+    }
+
+    // ── MAPLIBRE MAP ──────────────────────────────
+    let resortMap = null;
+    let activityMarkers = [];
+    let restoMarkers = [];
+
+    const CARTO_VOYAGER_STYLE = {
+      version: 8,
+      sources: {
+        carto: {
+          type: 'raster',
+          tiles: [
+            'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+            'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+            'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+            'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
+          ],
+          tileSize: 256,
+          attribution: '© OpenStreetMap © CARTO'
+        }
+      },
+      layers: [{ id: 'carto-raster', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 22 }]
+    };
+
+    const MAP_PITCH = 50;
+    const MAP_BEARING = -24;
+
+    // Keyframe CSS
+    const kfStyle = document.createElement('style');
+    kfStyle.textContent = `
+      @keyframes live-ring  { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(2.4);opacity:0} }
+      @keyframes live-dot   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.5)} }
+      @keyframes dancer-sway{ 0%{transform:rotate(-4deg) translateX(-3px)} 100%{transform:rotate(4deg) translateX(3px)} }
+      @keyframes spotlight  { 0%{left:30%;opacity:.8} 100%{left:65%;opacity:1} }
+      @keyframes bar-pulse  { 0%{opacity:.6} 100%{opacity:1;box-shadow:0 0 6px rgba(217,48,48,.8)} }
+    `;
+    document.head.appendChild(kfStyle);
+
+    // Harita kartları: ikon + okunaklı metin (foto yok)
+    const MAP_CARD_W = 228;
+    const MAP_CARD_H = 68;
+    const MAP_ICON_COL = 46;
+
+    // ── CARD HTML FACTORIES ───────────────────────
+    function actCardHTML(a) {
+      const e = activityResolvedEndParts(a);
+      const timeStr = pad(a.hour) + ':' + pad(a.min) + '–' + pad(e.eh) + ':' + pad(e.em);
+      const lucideName = resolveActivityLucide(a);
+      return `
+        <div style="position:relative;width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(217,48,48,.55);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.75),0 0 10px rgba(217,48,48,.18);font-family:'Montserrat',sans-serif;">
+          <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(160deg,#120828,#1c0d3a);display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(217,48,48,.25);">
+            <div class="map-card-lucide" style="animation:dancer-sway 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 0 4px rgba(255,200,80,.35));"><i data-lucide="${lucideName}"></i></div>
+          </div>
+          <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1;">
+              <div style="display:flex;align-items:center;gap:2px;background:#d93030;color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:1px 5px;border-radius:3px;box-shadow:0 0 8px rgba(217,48,48,.45);">
+                <span style="width:5px;height:5px;border-radius:50%;background:#fff;animation:live-dot 1.2s ease-in-out infinite;flex-shrink:0;"></span>LIVE
+              </div>
+              <span style="font-size:12px;font-weight:600;color:#fff;letter-spacing:.03em;line-height:1;">${timeStr}</span>
+            </div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">${a.name}</div>
+            <div style="font-size:11px;font-weight:500;color:#fff;letter-spacing:.02em;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">${a.venue||''}</div>
+          </div>
+          <div style="position:absolute;bottom:0;left:${MAP_ICON_COL}px;right:0;height:2px;background:linear-gradient(90deg,#d93030,transparent);animation:bar-pulse 2s ease-in-out infinite alternate;"></div>
+        </div>`;
+    }
+
+    function restoCardHTML(r) {
+      const slot = restoTodaySlot(r);
+      const hrs = slot ? `${slot.opens}–${slot.closes}` : `${r.opens}–${r.closes}`;
+      const nameLine = r.cuisine ? `${r.name} — ${r.cuisine}` : r.name;
+      return `
+        <div style="width:${MAP_CARD_W}px;height:${MAP_CARD_H}px;box-sizing:border-box;display:flex;flex-direction:row;position:relative;background:linear-gradient(145deg,rgba(8,13,28,.97),rgba(18,26,52,.97));border:1px solid rgba(201,168,76,.4);border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.65);font-family:'Montserrat',sans-serif;">
+          <div style="flex:0 0 ${MAP_ICON_COL}px;background:linear-gradient(135deg,rgba(232,168,124,.2),rgba(14,22,45,.95));display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(201,168,76,.2);">
+            <div class="map-card-lucide map-card-lucide-gold"><i data-lucide="${resolveRestoLucide(r)}"></i></div>
+          </div>
+          <div style="flex:1;min-width:0;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:0;">
+            <div style="font-size:13px;font-weight:600;color:#fff;letter-spacing:.02em;line-height:1;">${hrs}</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;">${nameLine}</div>
+          </div>
+        </div>`;
+    }
+
+    function addMapCardMarker(html, w, h, latLng) {
+      const el = document.createElement('div');
+      el.className = 'map-card-marker';
+      el.style.width = w + 'px';
+      el.style.height = h + 'px';
+      el.innerHTML = html;
+      return new maplibregl.Marker({
+        element: el,
+        anchor: 'bottom',
+        pitchAlignment: 'viewport',
+        rotationAlignment: 'viewport'
+      }).setLngLat([latLng[1], latLng[0]]).addTo(resortMap);
+    }
+
+    /** Ekranda altta kalan kartın pimi doğru; üstte çakışanlar yukarı ofsetlenir */
+    function resolveMapMarkerOverlaps() {
+      if (!resortMap || !resortMap.isStyleLoaded()) return;
+      const W = MAP_CARD_W;
+      const H = MAP_CARD_H;
+      const margin = 10;
+      const all = [...activityMarkers, ...restoMarkers];
+      if (!all.length) return;
+      all.forEach(m => { try { m.setOffset([0, 0]); } catch (_) {} });
+      const items = all.map(m => ({ marker: m, lngLat: m.getLngLat() }));
+      items.sort((a, b) => {
+        const pa = resortMap.project(a.lngLat);
+        const pb = resortMap.project(b.lngLat);
+        if (Math.abs(pb.y - pa.y) > 2) return pb.y - pa.y;
+        return pa.x - pb.x;
+      });
+      const placed = [];
+      for (const { marker, lngLat } of items) {
+        const pt = resortMap.project(lngLat);
+        let offY = 0;
+        for (let step = 0; step < 100; step++) {
+          const bottom = pt.y + offY;
+          const top = bottom - H;
+          const left = pt.x - W / 2;
+          const right = pt.x + W / 2;
+          let clash = false;
+          for (const r of placed) {
+            if (!(right < r.left - margin || left > r.right + margin ||
+                  bottom < r.top - margin || top > r.bottom + margin)) {
+              clash = true;
+              break;
+            }
+          }
+          if (!clash) {
+            placed.push({ top, bottom, left, right });
+            marker.setOffset([0, offY]);
+            break;
+          }
+          offY -= 8;
+        }
+      }
+    }
+
+    // ── MAP INIT ──────────────────────────────────
+    function initMap() {
+      try {
+        resortMap = new maplibregl.Map({
+          container: 'resort-map',
+          style: CARTO_VOYAGER_STYLE,
+          center: [CENTER[1], CENTER[0]],
+          zoom: 17,
+          minZoom: 17,
+          maxZoom: 17,
+          pitch: MAP_PITCH,
+          bearing: MAP_BEARING,
+          attributionControl: false,
+          maxPitch: 60
+        });
+        resortMap.dragPan.disable();
+        resortMap.scrollZoom.disable();
+        resortMap.boxZoom.disable();
+        resortMap.dragRotate.disable();
+        resortMap.keyboard.disable();
+        resortMap.doubleClickZoom.disable();
+        resortMap.touchZoomRotate.disable();
+        resortMap.on('load', () => {
+          renderMapActivities();
+          renderRestaurantMarkers();
+          requestAnimationFrame(() => refreshLucide());
+        });
+      } catch (e) {
+        console.error('MapLibre init:', e);
+      }
+    }
+
+    function isRestoOpen(r) {
+      const slot = restoTodaySlot(r);
+      if (!slot) return false;
+      const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+      const [oh,om] = String(slot.opens).split(':').map(Number);
+      const [ch,cm] = String(slot.closes).split(':').map(Number);
+      const open = oh*60+om, close = ch*60+cm;
+      return close < open ? (nowMin >= open || nowMin < close) : (nowMin >= open && nowMin < close);
+    }
+
+    function renderMapActivities() {
+      if (!resortMap || !resortMap.isStyleLoaded()) return;
+      activityMarkers.forEach(m => m.remove());
+      activityMarkers = [];
+
+      const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+
+      activities.forEach(a => {
+        const coords = getActivityCoords(a);
+        if (!coords) return;
+        const diff = (a.hour*60+a.min) - nowMin;
+        if (!(diff <= 0 && diff > -90)) return;
+
+        activityMarkers.push(addMapCardMarker(actCardHTML(a), MAP_CARD_W, MAP_CARD_H, coords));
+      });
+    }
+
+    function renderRestaurantMarkers() {
+      if (!resortMap || !resortMap.isStyleLoaded()) return;
+      restoMarkers.forEach(m => m.remove());
+      restoMarkers = [];
+
+      for (const r of RESTO_MAP_DATA) {
+        if (!isRestoOpen(r)) continue;
+        const coords = restoCoords(r);
+        if (!coords) continue;
+        restoMarkers.push(addMapCardMarker(restoCardHTML(r), MAP_CARD_W, MAP_CARD_H, coords));
+      }
+      requestAnimationFrame(() => {
+        refreshLucide();
+        requestAnimationFrame(resolveMapMarkerOverlaps);
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    //  SCALE TO VIEWPORT
+    // ═══════════════════════════════════════════════
+    function scaleScreen() {
+      const sw = document.getElementById('scaleWrapper');
+      const scaleX = window.innerWidth / 1920;
+      const scaleY = window.innerHeight / 1080;
+      const scale = Math.min(scaleX, scaleY);
+      const offsetX = (window.innerWidth - 1920*scale) / 2;
+      const offsetY = (window.innerHeight - 1080*scale) / 2;
+      sw.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      if (resortMap) {
+        setTimeout(() => {
+          resortMap.resize();
+          setTimeout(resolveMapMarkerOverlaps, 80);
+        }, 50);
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    //  TOAST
+    // ═══════════════════════════════════════════════
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // ═══════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════
+    createParticles();
+    updateClock();
+    scaleScreen();
+    requestAnimationFrame(() => refreshLucide());
+
+    // Harita kapalı mod: PB beklemeden hemen program paneli (yoksa harita saniyeler görünür)
+    if (TV_MAP_SCREEN_OFF) startTvViewRotation();
+    // PocketBase'den veri çek
+    fetchFromPB();
+    // Realtime bağlantısı
+    connectRealtime();
+
+    setTimeout(initMap, 100);
+    setInterval(() => { renderScreen(); renderMapActivities(); renderRestaurantMarkers(); requestAnimationFrame(() => refreshLucide()); }, 60000);
+    setInterval(updateClock, 1000);
+    window.addEventListener('resize', scaleScreen);
+
+    fetchWeather();
+    fetchMarine();
+    setInterval(fetchWeather, 10*60*1000);
+    setInterval(fetchMarine, 10*60*1000);
+    // 14 günlük döngü günü gece yarısı değişir; Realtime tetiklemez → periyodik yenile
+    setInterval(fetchFromPB, 2 * 60 * 1000);
+    setInterval(refreshTickerFromAnnouncements, 45 * 1000);
+
+    // GitHub Pages: deploy sonrası TV’de yeni sürüm — version.json içindeki `v` değişince tam yenileme
+    (function welcomeVersionReload() {
+      const STORAGE_KEY = 'welcome_screen_ver';
+      const CHECK_EVERY_MS = 90 * 1000;
+      const url = () => {
+        try {
+          const u = new URL('version.json', location.href);
+          u.searchParams.set('_', String(Date.now()));
+          return u.toString();
+        } catch {
+          return 'version.json?_=' + Date.now();
+        }
+      };
+      async function checkVersion() {
+        try {
+          const r = await fetch(url(), { cache: 'no-store' });
+          if (!r.ok) return;
+          const j = await r.json();
+          const v = String(j.v ?? j.version ?? '').trim();
+          if (!v) return;
+          const prev = sessionStorage.getItem(STORAGE_KEY);
+          if (prev != null && prev !== v) {
+            sessionStorage.setItem(STORAGE_KEY, v);
+            location.reload();
+            return;
+          }
+          sessionStorage.setItem(STORAGE_KEY, v);
+        } catch (_) {}
+      }
+      checkVersion();
+      setInterval(checkVersion, CHECK_EVERY_MS);
+    })();
+    </script>
+    </body>
+    </html>
