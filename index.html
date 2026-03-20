@@ -1099,6 +1099,7 @@
     let tvViewConfig = { mapSec: 30, scheduleSec: 30, mapEnabled: true, scheduleEnabled: true };
     let tvRotTimer = null;
     let lastTvRotCfgSig = null;
+    let lastScheduleDataSig = '';
     const SCH_CARD_H = 40;
     const SCH_PX_PER_MIN = 2.35;
 
@@ -1256,7 +1257,7 @@
         <div class="sdrum-track">${slotsHtml}</div>
       </div>`;
 
-      refreshLucide(wrap);
+      setTimeout(() => refreshLucide(wrap), 0);
 
       requestAnimationFrame(() => {
         sDrumSetIndex(containerId, activeIdx, false);
@@ -1528,11 +1529,14 @@
           s: tvViewConfig.scheduleSec,
           se: tvViewConfig.scheduleEnabled
         });
+        const newScheduleSig = JSON.stringify(activities) + '::' + JSON.stringify(RESTO_MAP_DATA);
         if (rotSig !== lastTvRotCfgSig) {
           lastTvRotCfgSig = rotSig;
+          lastScheduleDataSig = newScheduleSig;
           stopTvViewRotation();
           startTvViewRotation();
-        } else if (document.getElementById('schedule-view-pane')?.classList.contains('active')) {
+        } else if (document.getElementById('schedule-view-pane')?.classList.contains('active') && newScheduleSig !== lastScheduleDataSig) {
+          lastScheduleDataSig = newScheduleSig;
           renderScheduleGrid();
         }
       } catch(e) {
@@ -1542,8 +1546,11 @@
     }
 
     // PocketBase Realtime — admin değişiklik yapınca anında güncelle
+    let _activeEventSource = null;
     function connectRealtime() {
+      if (_activeEventSource) { _activeEventSource.close(); _activeEventSource = null; }
       const es = new EventSource(`${PB}/api/realtime`);
+      _activeEventSource = es;
       let clientId = null;
 
       es.addEventListener('PB_CONNECT', e => {
@@ -1563,6 +1570,7 @@
       });
 
       es.onerror = () => {
+        if (_activeEventSource === es) { es.close(); _activeEventSource = null; }
         setTimeout(connectRealtime, 5000); // bağlantı kopunca yeniden bağlan
       };
     }
@@ -1573,6 +1581,24 @@
         Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6
       };
       return map[wd] ?? 0;
+    }
+
+    function scheduleDailyReload() {
+      function msUntil(hour, minute) {
+        const now = new Date();
+        const parts = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Europe/Istanbul', hour: 'numeric', minute: 'numeric', hour12: false
+        }).formatToParts(now);
+        const h = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+        const m = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+        let targetMin = hour * 60 + minute;
+        let nowMin = h * 60 + m;
+        let diff = targetMin - nowMin;
+        if (diff <= 0) diff += 24 * 60;
+        return diff * 60 * 1000;
+      }
+      const ms = msUntil(4, 0);
+      setTimeout(() => { location.reload(); }, ms);
     }
 
     function getIstanbulMinutes() {
@@ -1807,7 +1833,7 @@
           <div class="activity-drum-track" id="activity-drum-track" style="transform:translateY(${ty}px)">${slotsHtml}</div>
         </div>
       </div>`;
-      refreshLucide(wrap);
+      setTimeout(() => refreshLucide(wrap), 0);
       const vp = wrap.querySelector('#activity-drum-viewport');
       const track = wrap.querySelector('#activity-drum-track');
       if (!vp || !track) return;
@@ -1877,7 +1903,7 @@
       const i = document.createElement('i');
       i.setAttribute('data-lucide', name);
       el.appendChild(i);
-      refreshLucide(el);
+      setTimeout(() => refreshLucide(el), 0);
     }
 
     async function fetchWeather() {
@@ -2060,15 +2086,16 @@
     createParticles();
     updateClock();
     scaleScreen();
-    requestAnimationFrame(() => refreshLucide());
+    setTimeout(() => refreshLucide(), 0);
 
     startTvViewRotation();
     // PocketBase'den veri çek
     fetchFromPB();
     // Realtime bağlantısı
     connectRealtime();
+    scheduleDailyReload();
 
-    setInterval(() => { renderScreen(); requestAnimationFrame(() => refreshLucide()); }, 60000);
+    setInterval(() => { renderScreen(); setTimeout(() => refreshLucide(), 0); }, 60000);
     setInterval(updateClock, 1000);
     window.addEventListener('resize', scaleScreen);
 
