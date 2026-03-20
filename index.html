@@ -1584,21 +1584,23 @@
     }
 
     function scheduleDailyReload() {
-      function msUntil(hour, minute) {
-        const now = new Date();
-        const parts = new Intl.DateTimeFormat('en-GB', {
-          timeZone: 'Europe/Istanbul', hour: 'numeric', minute: 'numeric', hour12: false
-        }).formatToParts(now);
-        const h = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-        const m = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-        let targetMin = hour * 60 + minute;
-        let nowMin = h * 60 + m;
+      const TARGET_HOURS = [4, 10, 16, 22];
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Istanbul', hour: 'numeric', minute: 'numeric', hour12: false
+      }).formatToParts(now);
+      const h = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+      const m = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+      const nowMin = h * 60 + m;
+      let bestMs = Infinity;
+      for (const th of TARGET_HOURS) {
+        const targetMin = th * 60;
         let diff = targetMin - nowMin;
         if (diff <= 0) diff += 24 * 60;
-        return diff * 60 * 1000;
+        const ms = diff * 60 * 1000;
+        if (ms < bestMs) bestMs = ms;
       }
-      const ms = msUntil(4, 0);
-      setTimeout(() => { location.reload(); }, ms);
+      setTimeout(() => { location.reload(); }, bestMs);
     }
 
     function getIstanbulMinutes() {
