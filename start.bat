@@ -61,7 +61,9 @@ start "" "!BROWSER!" ^
   --disable-popup-blocking ^
   --disable-prompt-on-repost ^
   --disable-sync ^
+  --lang=en-US ^
   --disable-translate ^
+  --disable-features=Translate ^
   --disable-web-resources ^
   --metrics-recording-only ^
   --no-default-browser-check ^

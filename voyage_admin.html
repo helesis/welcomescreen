@@ -290,6 +290,27 @@ body {
 .weekly-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(255,255,255,.03); padding:10px 12px; border-radius:8px; border:1px solid var(--border2); }
 .weekly-row .dow { width:36px; font-size:10px; font-weight:600; letter-spacing:.1em; color:var(--gold); }
 .weekly-row label { font-size:11px; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:6px; cursor:pointer; }
+.resto-list-hours {
+  margin-top:5px;
+  font-size:11px; line-height:1.45;
+  color:rgba(255,255,255,.5);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.02em;
+}
+.resto-chip-row { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; align-items:center; }
+.resto-chip {
+  cursor:pointer;
+  font-size:9px; font-weight:600; letter-spacing:.06em;
+  padding:4px 9px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.45);
+  background:rgba(255,255,255,.05);
+}
+.resto-chip:focus-visible { outline:2px solid rgba(201,168,76,.6); outline-offset:2px; }
+.resto-chip--open { color:#5dbb8a; border-color:rgba(93,187,138,.4); background:rgba(93,187,138,.1); }
+.resto-chip--closed { opacity:.45; text-decoration:line-through; border-color:rgba(255,255,255,.08); }
+.resto-chip--today.resto-chip--open { box-shadow:0 0 0 1px rgba(201,168,76,.5); color:var(--gold2); border-color:rgba(201,168,76,.45); background:rgba(201,168,76,.1); }
+.resto-chip--today.resto-chip--closed { box-shadow:0 0 0 1px rgba(201,168,76,.35); opacity:.75; }
 .cycle-preview { margin-top:20px; padding:16px; background:var(--glass); border-radius:12px; border:1px solid var(--border); font-size:13px; color:var(--gold2); }
 .key-mono { font-family:ui-monospace,monospace; font-size:11px; color:rgba(255,255,255,.6); }
 
@@ -545,10 +566,10 @@ body {
   <!-- 14-DAY CYCLE TAB -->
   <div id="tab-cycle" class="content" style="display:none">
     <div class="section-title">14 günlük döngü başlangıcı</div>
-    <div class="section-sub">Seçtiğiniz tarih <strong>Döngü Günü 1</strong> (indeks 0). Ertesi gün Gün 2 … 14. günün ardından tekrar Gün 1. Hesaplama <strong>Europe/Istanbul</strong> takvim günü ile yapılır; tek sefer ayarlanır, sonsuz tekrar.</div>
+    <div class="section-sub">Başlangıç yalnızca <strong>Pazartesi</strong> seçilebilir (İstanbul takvimi). Bu tarih döngü <strong>indeks 0</strong> olur; 14 gün iki tam haftadır. Hesaplama <strong>Europe/Istanbul</strong> takvim günü ile yapılır; PocketBase kaydı ve TV mantığı aynı kalır.</div>
     <div class="add-form" style="align-items:flex-end">
       <div class="form-group">
-        <span class="form-label">Başlangıç tarihi (Gün 1)</span>
+        <span class="form-label">Başlangıç (Pazartesi)</span>
         <input class="form-input w-md" type="date" id="cycle-anchor">
       </div>
       <button class="btn-add" onclick="saveCycleAnchor()">Kaydet</button>
@@ -835,6 +856,7 @@ function showApp() {
 const TAB_IDS = ['activities','announcements','restaurants','venues','cycle','tvview'];
 let venuesCache = [];
 let cycleRecordId = null;
+let cycleAnchorPrev = '';
 
 // ── TABS ──────────────────────────────────────
 function showTab(tab) {
@@ -897,6 +919,36 @@ function istanbulTodayYMD() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Istanbul' });
 }
 
+function ymdAddDays(ymd, delta) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  const x = new Date(Date.UTC(y, m - 1, d));
+  x.setUTCDate(x.getUTCDate() + delta);
+  return x.toISOString().slice(0, 10);
+}
+
+/** Seçilen YYYY-MM-DD İstanbul’da Pazartesi mi? */
+function isMondayYMD_Istanbul(ymd) {
+  if (!ymd || !/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return false;
+  const [y, m, d] = ymd.split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  return new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Istanbul', weekday: 'short' }).format(t) === 'Mon';
+}
+
+function istanbulMondayOnOrBefore(ymd) {
+  let cur = ymd;
+  for (let i = 0; i < 7; i++) {
+    if (isMondayYMD_Istanbul(cur)) return cur;
+    cur = ymdAddDays(cur, -1);
+  }
+  return ymd;
+}
+
+const CYCLE_DOW_TR = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+
+function cycleDayComboboxLabel(i) {
+  return `${CYCLE_DOW_TR[i % 7]} ${Math.floor(i / 7) + 1}`;
+}
+
 function cycleDayIndex(anchorYMD) {
   const [y1, m1, d1] = anchorYMD.split('-').map(Number);
   const [y2, m2, d2] = istanbulTodayYMD().split('-').map(Number);
@@ -914,7 +966,7 @@ function fillCycleDaySelect() {
   for (let i = 0; i < 14; i++) {
     const o = document.createElement('option');
     o.value = String(i);
-    o.textContent = `Gün ${i + 1} (döngü ${i})`;
+    o.textContent = cycleDayComboboxLabel(i);
     sel.appendChild(o);
   }
 }
@@ -930,12 +982,13 @@ async function loadCycleTab() {
       document.getElementById('cycle-anchor').value = items[0].cycle_anchor || '';
     } else {
       cycleRecordId = null;
-      document.getElementById('cycle-anchor').value = istanbulTodayYMD();
+      document.getElementById('cycle-anchor').value = istanbulMondayOnOrBefore(istanbulTodayYMD());
     }
   } catch {
     cycleRecordId = null;
-    document.getElementById('cycle-anchor').value = istanbulTodayYMD();
+    document.getElementById('cycle-anchor').value = istanbulMondayOnOrBefore(istanbulTodayYMD());
   }
+  cycleAnchorPrev = document.getElementById('cycle-anchor').value;
   updateCyclePreview();
 }
 
@@ -943,13 +996,17 @@ function updateCyclePreview() {
   const el = document.getElementById('cycle-preview');
   const anchor = document.getElementById('cycle-anchor')?.value || istanbulTodayYMD();
   const idx = cycleDayIndex(anchor);
-  el.innerHTML = `<strong>Bugün (İstanbul):</strong> <span style="color:#fff">Döngü Günü ${idx + 1}</span> &nbsp;·&nbsp; indeks <code class="key-mono">${idx}</code><br>
-    <span style="font-size:11px;opacity:.75">Anchor: ${anchor} → o tarih Gün 1 (indeks 0).</span>`;
+  el.innerHTML = `<strong>Bugün (İstanbul):</strong> <span style="color:#fff">${cycleDayComboboxLabel(idx)}</span> &nbsp;·&nbsp; indeks <code class="key-mono">${idx}</code><br>
+    <span style="font-size:11px;opacity:.75">Anchor: ${anchor} → döngü indeks 0 (Pazartesi başlangıç varsayımıyla etiketler üstteki gibi).</span>`;
 }
 
 async function saveCycleAnchor() {
   const v = document.getElementById('cycle-anchor').value;
   if (!v) { showToast('Tarih seçin'); return; }
+  if (!isMondayYMD_Istanbul(v)) {
+    showToast('Başlangıç yalnızca Pazartesi olabilir (İstanbul takvimi).');
+    return;
+  }
   try {
     if (cycleRecordId) {
       await pbPatch('app_config', cycleRecordId, { cycle_anchor: v });
@@ -958,6 +1015,7 @@ async function saveCycleAnchor() {
       cycleRecordId = rec.id;
     }
     showToast('Döngü kaydedildi ✓');
+    cycleAnchorPrev = v;
     updateCyclePreview();
   } catch (e) {
     showToast('app_config koleksiyonu yok veya yetki hatası — README şemayı kontrol edin');
@@ -1196,15 +1254,87 @@ function slotOpenNow(o, c) {
 
 function restoOpenNow(r) {
   const dow = (new Date().getDay() + 6) % 7;
-  const weekly = r.weekly;
+  let weekly = r.weekly;
+  if (typeof weekly === 'string') {
+    try { weekly = JSON.parse(weekly); } catch (_) { weekly = null; }
+  }
   if (weekly && typeof weekly === 'object') {
-    const slot = weekly[String(dow)];
+    const slot = Array.isArray(weekly) ? weekly[dow] : weekly[String(dow)];
     if (slot === null || slot === undefined) return false;
     const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
     if (o && c) return slotOpenNow(o, c);
   }
   const opens = r.opens || '09:00', closes = r.closes || '23:00';
   return slotOpenNow(opens, closes);
+}
+
+function istanbulDowMon0() {
+  const wd = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Istanbul', weekday: 'long' }).format(new Date());
+  const map = { Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3, Friday: 4, Saturday: 5, Sunday: 6 };
+  return map[wd] ?? 0;
+}
+
+/** Liste / chip: her gün { open, o?, c? } — weekly yoksa tüm günler kayıttaki opens/closes */
+function restoNormalizedWeeklySlots(r) {
+  let w = r.weekly;
+  if (typeof w === 'string') {
+    try { w = JSON.parse(w); } catch (_) { w = null; }
+  }
+  const fallbackO = r.opens || '12:00', fallbackC = r.closes || '23:00';
+  if (!w || typeof w !== 'object' || (Array.isArray(w) ? w.length === 0 : Object.keys(w).length === 0)) {
+    return Array(7).fill(null).map(() => ({ open: true, o: fallbackO, c: fallbackC }));
+  }
+  const out = [];
+  for (let i = 0; i < 7; i++) {
+    const slot = Array.isArray(w) ? w[i] : w[String(i)];
+    if (slot === null || slot === undefined) {
+      out.push({ open: false });
+    } else {
+      const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
+      if (o && c) out.push({ open: true, o: String(o), c: String(c) });
+      else out.push({ open: false });
+    }
+  }
+  return out;
+}
+
+function restoListHasWeeklyObject(r) {
+  let w = r.weekly;
+  if (typeof w === 'string') {
+    try { w = JSON.parse(w); } catch (_) { w = null; }
+  }
+  return !!(w && typeof w === 'object' && (Array.isArray(w) ? w.length > 0 : Object.keys(w).length > 0));
+}
+
+/** Restoran adının altı: günlük açılış–kapanış özeti */
+function restoListHoursLineHtml(r) {
+  const slots = restoNormalizedWeeklySlots(r);
+  const openSlots = slots.filter(s => s.open);
+  if (openSlots.length === 7) {
+    const o0 = openSlots[0].o, c0 = openSlots[0].c;
+    const allSame = slots.every(s => s.open && s.o === o0 && s.c === c0);
+    if (allSame) {
+      return `<div class="resto-list-hours">Her gün ${escapeHtml(o0)}–${escapeHtml(c0)}</div>`;
+    }
+  }
+  const parts = slots.map((s, i) => {
+    if (s.open) return `${DOW_TR[i]} ${escapeHtml(s.o)}–${escapeHtml(s.c)}`;
+    return `${DOW_TR[i]} kapalı`;
+  });
+  return `<div class="resto-list-hours">${parts.join(' · ')}</div>`;
+}
+
+/** Liste satırı: Pzt–Paz chip (yalnızca gün; saatler üst satırda) */
+function restoListWeeklyChipsHtml(r) {
+  const slots = restoNormalizedWeeklySlots(r);
+  const today = istanbulDowMon0();
+  const idAttr = escapeAttr(r.id);
+  return slots.map((s, i) => {
+    const open = s.open;
+    const cls = 'resto-chip' + (open ? ' resto-chip--open' : ' resto-chip--closed') + (i === today ? ' resto-chip--today' : '');
+    const tip = open ? `Tıkla: kapat · ${s.o}–${s.c}` : 'Tıkla: aç';
+    return `<span role="button" tabindex="0" class="${cls}" data-resto-id="${idAttr}" data-dow="${i}" title="${escapeAttr(tip)}">${DOW_TR[i]}</span>`;
+  }).join('');
 }
 
 // ── LOAD ALL ──────────────────────────────────
@@ -1236,7 +1366,7 @@ function formatTimeStr(h, m) {
   return pad(h || 0) + ':' + pad(m ?? 0);
 }
 function activityTimeRangeLabel(a) {
-  const st = a.start ? parseTimeStr(a.start) : { hour: Number(a.hour) || 0, min: Number(a.minute) || 0 };
+  const st = a.start ? parseTimeStr(a.start) : { hour: 0, min: 0 };
   let et = a.end ? parseTimeStr(a.end) : null;
   if (!et || (et.hour === 0 && et.min === 0 && !a.end)) {
     const t = st.hour * 60 + st.min + 60;
@@ -1252,7 +1382,7 @@ function fillActEditCycleSelect() {
   for (let i = 0; i < 14; i++) {
     const o = document.createElement('option');
     o.value = String(i);
-    o.textContent = `Gün ${i + 1} (döngü ${i})`;
+    o.textContent = cycleDayComboboxLabel(i);
     sel.appendChild(o);
   }
 }
@@ -1272,9 +1402,9 @@ async function openActivityEditModal(id) {
     const r = await fetch(`${PB}/api/collections/activities/records/${id}`, { headers: { Authorization: token } });
     if (!r.ok) throw new Error(await r.text());
     const rec = await r.json();
-    const st = rec.start || (rec.hour != null ? formatTimeStr(rec.hour, rec.minute) : '09:00');
-    const defEnd = rec.end || (rec.end_hour != null ? formatTimeStr(rec.end_hour, rec.end_minute) : '');
-    const endVal = defEnd || (rec.start ? (() => { const p = parseTimeStr(rec.start); const t = p.hour*60+p.min+60; const x = ((t%1440)+1440)%1440; return formatTimeStr(Math.floor(x/60), x%60); })() : '10:00');
+    const st = rec.start || '09:00';
+    const defEnd = rec.end || '';
+    const endVal = defEnd || (() => { const p = parseTimeStr(st); const t = p.hour * 60 + p.min + 60; const x = ((t % 1440) + 1440) % 1440; return formatTimeStr(Math.floor(x / 60), x % 60); })();
     document.getElementById('act-edit-start').value = st;
     document.getElementById('act-edit-end').value = endVal;
     document.getElementById('act-edit-name').value = rec.name || '';
@@ -1313,8 +1443,14 @@ async function saveActivityEdit() {
   const cyc = document.getElementById('act-edit-cycle-day').value;
   if (!name) { showToast('İsim zorunlu'); return; }
   if (!startVal) { showToast('Başlangıç saati zorunlu (örn. 09:00)'); return; }
-  const ps = parseTimeStr(startVal), pe = parseTimeStr(endVal);
-  if (!endVal) { showToast('Bitiş saati zorunlu (örn. 11:00)'); return; }
+  const ps = parseTimeStr(startVal);
+  let endStr = String(endVal || '').trim();
+  if (!endStr) {
+    const t = ps.hour * 60 + ps.min + 60;
+    const x = ((t % 1440) + 1440) % 1440;
+    endStr = formatTimeStr(Math.floor(x / 60), x % 60);
+  }
+  const pe = parseTimeStr(endStr);
   const st = ps.hour * 60 + ps.min, et = pe.hour * 60 + pe.min;
   if (st === et) { showToast('Bitiş başlangıçtan farklı olmalı'); return; }
 
@@ -1355,7 +1491,7 @@ async function loadActivities() {
   try {
     items = await pbList('activities', 'cycle_day,start');
   } catch {
-    try { items = await pbList('activities', 'cycle_day,hour,minute'); } catch { items = []; }
+    items = [];
   }
   window._allActivities = items;
   renderActList();
@@ -1370,8 +1506,8 @@ function renderActList() {
     const cdA = a.cycle_day == null || a.cycle_day === '' ? -1 : Number(a.cycle_day);
     const cdB = b.cycle_day == null || b.cycle_day === '' ? -1 : Number(b.cycle_day);
     if (cdA !== cdB) return cdA - cdB;
-    const sa = a.start ? parseTimeStr(a.start) : { hour: Number(a.hour)||0, min: Number(a.minute)||0 };
-    const sb = b.start ? parseTimeStr(b.start) : { hour: Number(b.hour)||0, min: Number(b.minute)||0 };
+    const sa = a.start ? parseTimeStr(a.start) : { hour: 0, min: 0 };
+    const sb = b.start ? parseTimeStr(b.start) : { hour: 0, min: 0 };
     return sa.hour * 60 + sa.min - (sb.hour * 60 + sb.min);
   });
   const list = document.getElementById('act-list');
@@ -1382,7 +1518,10 @@ function renderActList() {
   }
   list.innerHTML = items.map(a => {
     const cd = a.cycle_day;
-    const dayLabel = (cd === null || cd === undefined || cd === '' || Number(cd) === -1) ? 'Her gün' : `Gün ${Number(cd) + 1}`;
+    const nCd = Number(cd);
+    const dayLabel = (cd === null || cd === undefined || cd === '' || nCd === -1)
+      ? 'Her gün'
+      : (Number.isFinite(nCd) && nCd >= 0 && nCd < 14 ? cycleDayComboboxLabel(nCd) : `Döngü ${nCd}`);
     const slot = String(a.schedule_slot || 'daytime').toLowerCase();
     const slotTr = slot === 'kids' ? 'Çocuk' : slot === 'evening' ? 'Akşam' : 'Gündüz';
     const range = activityTimeRangeLabel(a);
@@ -1703,13 +1842,17 @@ async function loadRestaurants() {
   const list = document.getElementById('rest-list');
   if (!items.length) { list.innerHTML = '<div class="empty-state">Henüz restoran yok</div>'; return; }
   list.innerHTML = items.map(r => {
-    const sub = r.weekly ? 'Haftalık program' : `${r.opens||'—'} – ${r.closes||'—'}`;
+    const hasWeekly = restoListHasWeeklyObject(r);
+    const loc = `${r.lat != null ? Number(r.lat).toFixed(4) : '—'}, ${r.lng != null ? Number(r.lng).toFixed(4) : '—'}`;
+    const sub = hasWeekly ? `Haftalık program · ${loc}` : loc;
     return `
     <div class="record-row" style="align-items:center">
       <div class="record-icon">${r.icon||'🍽'}</div>
       <div class="record-info">
         <div class="record-name">${escapeHtml(r.name)} <span style="color:rgba(255,255,255,0.35);font-size:12px;font-weight:300;">· ${escapeHtml(r.cuisine||'')}</span></div>
-        <div class="record-venue">${sub} &nbsp;·&nbsp; ${r.lat!=null?Number(r.lat).toFixed(4):'—'}, ${r.lng!=null?Number(r.lng).toFixed(4):'—'}</div>
+        ${restoListHoursLineHtml(r)}
+        <div class="record-venue">${sub}</div>
+        <div class="resto-chip-row">${restoListWeeklyChipsHtml(r)}</div>
       </div>
       <span class="${restoOpenNow(r)?'badge-open':'badge-closed'}">${restoOpenNow(r)?'Açık':'Kapalı'}</span>
       <div style="display:flex;gap:8px;flex-shrink:0">
@@ -1831,6 +1974,87 @@ function collectWeeklyJsonEdit() {
   return w;
 }
 
+const restoChipToggleBusy = new Set();
+
+async function toggleRestoWeeklyDayFromList(restoId, dow) {
+  if (!token || !restoId || dow < 0 || dow > 6) return;
+  if (restoChipToggleBusy.has(restoId)) return;
+  restoChipToggleBusy.add(restoId);
+  try {
+    const r = await fetch(`${PB}/api/collections/restaurants/records/${restoId}`, { headers: { Authorization: token } });
+    if (!r.ok) throw new Error(await r.text());
+    const rec = await r.json();
+    const weekly = weeklyFromRestoRecord(rec);
+    const key = String(dow);
+    const slot = weekly[key];
+    const hasTimes = slot && (slot.o ?? slot.open) && (slot.c ?? slot.close);
+    if (hasTimes) {
+      weekly[key] = null;
+    } else {
+      let o = rec.opens || '12:00', c = rec.closes || '23:00';
+      for (let j = 0; j < 7; j++) {
+        const s = weekly[String(j)];
+        if (s && (s.o ?? s.open) && (s.c ?? s.close)) {
+          o = String(s.o ?? s.open);
+          c = String(s.c ?? s.close);
+          break;
+        }
+      }
+      weekly[key] = { o, c };
+    }
+    let openCount = 0;
+    for (let i = 0; i < 7; i++) {
+      const s = weekly[String(i)];
+      if (s && (s.o ?? s.open) && (s.c ?? s.close)) openCount++;
+    }
+    if (openCount === 0) {
+      showToast('En az bir gün açık kalmalı');
+      return;
+    }
+    const weeklyPb = {};
+    for (let i = 0; i < 7; i++) {
+      const s = weekly[String(i)];
+      if (s === null || s === undefined) weeklyPb[String(i)] = null;
+      else {
+        const o = s.o ?? s.open, c = s.c ?? s.close;
+        weeklyPb[String(i)] = (o && c) ? { o: String(o), c: String(c) } : null;
+      }
+    }
+    const mon = weeklyPb['0'];
+    const opens = (mon && mon.o) ? mon.o : '12:00';
+    const closes = (mon && mon.c) ? mon.c : '23:00';
+    await pbPatch('restaurants', restoId, { weekly: weeklyPb, opens, closes });
+    loadRestaurants();
+  } catch (e) {
+    console.error(e);
+    showToast('Güncellenemedi');
+  } finally {
+    restoChipToggleBusy.delete(restoId);
+  }
+}
+
+(function initRestoChipListDelegation() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  app.addEventListener('click', function (ev) {
+    const chip = ev.target.closest('.resto-chip');
+    if (!chip || chip.dataset.restoId == null || chip.dataset.restoId === '') return;
+    ev.preventDefault();
+    const dow = parseInt(chip.dataset.dow, 10);
+    if (isNaN(dow)) return;
+    toggleRestoWeeklyDayFromList(chip.dataset.restoId, dow);
+  });
+  app.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    const chip = ev.target.closest('.resto-chip');
+    if (!chip || chip.dataset.restoId == null || chip.dataset.restoId === '') return;
+    ev.preventDefault();
+    const dow = parseInt(chip.dataset.dow, 10);
+    if (isNaN(dow)) return;
+    toggleRestoWeeklyDayFromList(chip.dataset.restoId, dow);
+  });
+})();
+
 async function openRestaurantEditModal(id) {
   editingRestoId = id;
   await refreshVenuesCache();
@@ -1892,7 +2116,24 @@ async function saveRestaurantEdit() {
   }
 }
 
-document.getElementById('cycle-anchor')?.addEventListener('change', updateCyclePreview);
+(function initCycleAnchorInput() {
+  const ca = document.getElementById('cycle-anchor');
+  if (!ca) return;
+  ca.addEventListener('focus', function () { cycleAnchorPrev = this.value; });
+  ca.addEventListener('change', function () {
+    if (!this.value) {
+      updateCyclePreview();
+      return;
+    }
+    if (!isMondayYMD_Istanbul(this.value)) {
+      showToast('Başlangıç tarihi yalnızca Pazartesi seçilebilir (İstanbul takvimi).');
+      this.value = cycleAnchorPrev;
+    } else {
+      cycleAnchorPrev = this.value;
+    }
+    updateCyclePreview();
+  });
+})();
 
 // ── HELPERS ───────────────────────────────────
 function pad(n) { return String(n||0).padStart(2,'0'); }

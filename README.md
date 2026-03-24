@@ -23,9 +23,9 @@
 ```bash
 export PB_URL="https://senin-pb-adresin.com"   # isteğe bağlı
 ./scripts/pb_activities_schedule_slot.sh   # önce bunu (aktivite TV programı)
-./scripts/pb_activities_end_fields.sh      # bitiş saati alanları
-./scripts/migrate_activities_end_plus60.sh # mevcut kayıtlara bitiş = başlangıç + 60 dk
+./scripts/pb_activities_start_end.sh       # aktivite start/end (metin HH:MM) — TV + admin bunu kullanır
 ./scripts/pb_app_config_tv_fields.sh       # app_config süreleri (json alanları isteğe bağlı)
+# Eski kayıtlar (hour/minute) için: migrate_activities_to_start_end.sh, pb_activities_end_fields.sh, migrate_activities_end_plus60.sh
 ```
 
 ### GitHub Pages — TV otomatik güncelleme
@@ -80,8 +80,7 @@ Program kutuları **Aktiviteler** → `schedule_slot` (gündüz / çocuk / akşa
 
 | Alan | Tip | Not |
 |------|-----|-----|
-| `hour`, `minute` | number | Başlangıç saati — alan adı **`minute`** olmalı (`min` değil). `hour` zorunlu ve sayı olmalı; aksi halde PATCH’te “hour required” hatası alırsınız. |
-| `end_hour`, `end_minute` | number | Bitiş saati (ertesi güne sarkabilir: bitiş &lt; başlangıç) |
+| `start`, `end` | text | Saatler `HH:MM` (örn. `09:00`, `23:30`). Bitiş başlangıçtan küçük olabilir (ertesi güne sarkan program). `end` boş bırakılırsa admin/TV tarafında başlangıç + 60 dk varsayılır. |
 | `name`, `venue`, `icon` | text | Ad, mekan, ikon |
 | `cycle_day` | number | 0–13; boş = her gün |
 | `schedule_slot` | text | TV program: `daytime` (gündüz), `kids` (çocuk), `evening` (akşam) |
@@ -170,10 +169,6 @@ Bu listedeki hava/harita servisleri için ayrı bir API anahtarı tanımlamanız
 
 - Renkler: koyu lacivert + altın aksan
 - Fontlar: Cormorant Garamond + Montserrat
-
-### PocketBase `minute` alanı
-
-`min` adı bazı ortamlarda 0 değerini sorunlu gösterebildiği için alan adı `minute` kullanılır.
 
 ### Realtime
 

@@ -1483,7 +1483,6 @@
             const m = String(r.end).trim().match(/^(\d{1,2}):(\d{2})$/);
             if (m) return { hour: Math.min(23, Math.max(0, parseInt(m[1],10)||0)), min: Math.min(59, Math.max(0, parseInt(m[2],10)||0)) };
           }
-          if (r.end_hour != null && Number.isFinite(Number(r.end_hour)) && r.end_minute != null) return { hour: Number(r.end_hour), min: Number(r.end_minute) };
           const t = startP.hour*60+startP.min+60;
           const x = ((t%1440)+1440)%1440;
           return { hour: Math.floor(x/60), min: x%60 };
