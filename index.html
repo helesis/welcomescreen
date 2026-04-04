@@ -1183,12 +1183,13 @@
     }
 
     function sDrumApplyClasses(trackEl, activeIdx, state) {
-      // s-active / adj / far atama. Restoran davulunda highlight ile aynı: aynı _sortMin grubundaki TÜM satırlar s-active.
+      // s-active / adj / far. Aynı _sortMin (aynı başlangıç saati) ardışık satırlar: hepsi s-active; highlight ile uyumlu. Restoran + aktivite davulları.
       // GERİ AL: İmza → (trackEl, activeIdx), gövde → her satır için sadece d = Math.abs(i - activeIdx); d===0 s-active, d===1 s-adj, else s-far.
       // GERİ AL: sDrumSetIndex sonunda çağrıyı sDrumApplyClasses(trackEl, state.index) yap.
+      const groupTypes = state && (state.type === 'resto' || state.type === 'activity');
       trackEl.querySelectorAll('.sdrum-slot').forEach((el, i) => {
         el.classList.remove('s-active', 's-adj', 's-far');
-        if (state && state.type === 'resto' && state.items && state.items.length && activeIdx >= 0) {
+        if (groupTypes && state.items && state.items.length && activeIdx >= 0) {
           const t0 = state.items[activeIdx]._sortMin;
           let iStart = activeIdx;
           while (iStart > 0 && state.items[iStart - 1]._sortMin === t0) iStart--;
@@ -1223,15 +1224,13 @@
 
       if (highlightEl) {
         const vpH = drumEl.clientHeight;
-        // ── Highlight yüksekliği (deneme; beğenilmezse geri al aşağıda) ──
-        // Restoran davulunda aynı açılış saatindeki ardışık satırlar tek çerçevede vurgulanır; aktivite davulları değişmez.
-        // GERİ AL: Bu "let hlTop..." ile iki style satırı arasındaki bloğu silip şunu kullan:
+        // ── Çok satırlı highlight (aynı _sortMin grubu); restoran + gündüz/çocuk/akşam aktivite davulları. GERİ AL: "let hlTop" bloğunu kaldır, şunu koy:
         //   const top = Math.round(vpH / 2 - SDRUM_SLOT_H / 2);
         //   highlightEl.style.top = top + 'px';
         //   highlightEl.style.height = SDRUM_SLOT_H + 'px';
         let hlTop = Math.round(vpH / 2 - SDRUM_SLOT_H / 2);
         let hlH = SDRUM_SLOT_H;
-        if (state.type === 'resto' && state.items.length) {
+        if ((state.type === 'resto' || state.type === 'activity') && state.items.length) {
           const i = state.index;
           const t0 = state.items[i]._sortMin;
           let iStart = i;
