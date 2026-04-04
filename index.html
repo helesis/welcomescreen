@@ -2109,14 +2109,59 @@
     // ═══════════════════════════════════════════════
     //  SCALE TO VIEWPORT
     // ═══════════════════════════════════════════════
-    function scaleScreen() {
+    // İyileştirme (TV/Windows resize gürültüsü): rAF ile resize olayını birleştirme, devicePixelRatio
+    // ile translate/scale yuvarlama, aynı boyutta veya eşdeğer transform’da DOM’u güncellememe.
+    // GERİ AL: _scaleRaf, _scaleApplied, scaleScreenApply ve throttled scaleScreen’ı kaldır; yalnızca:
+    //   function scaleScreen() {
+    //     const sw = document.getElementById('scaleWrapper');
+    //     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    //     const offsetX = (window.innerWidth - 1920 * scale) / 2;
+    //     const offsetY = (window.innerHeight - 1080 * scale) / 2;
+    //     sw.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    //   }
+    // INIT: scaleScreenApply(); resize: scaleScreen (rAF ile tek karede bir uygulama).
+    let _scaleRaf = null;
+    let _scaleApplied = { vw: null, vh: null, ox: NaN, oy: NaN, sc: NaN };
+
+    function scaleScreenApply() {
       const sw = document.getElementById('scaleWrapper');
-      const scaleX = window.innerWidth / 1920;
-      const scaleY = window.innerHeight / 1080;
-      const scale = Math.min(scaleX, scaleY);
-      const offsetX = (window.innerWidth - 1920*scale) / 2;
-      const offsetY = (window.innerHeight - 1080*scale) / 2;
-      sw.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      if (!sw) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      if (_scaleApplied.vw === vw && _scaleApplied.vh === vh) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const scaleX = vw / 1920;
+      const scaleY = vh / 1080;
+      let sc = Math.min(scaleX, scaleY);
+      let ox = (vw - 1920 * sc) / 2;
+      let oy = (vh - 1080 * sc) / 2;
+      ox = Math.round(ox * dpr) / dpr;
+      oy = Math.round(oy * dpr) / dpr;
+      sc = Math.round(sc * 10000) / 10000;
+
+      const POS_EPS = 0.5;
+      const SC_EPS = 0.00015;
+      const sameTransform =
+        Number.isFinite(_scaleApplied.sc) &&
+        Math.abs(ox - _scaleApplied.ox) < POS_EPS &&
+        Math.abs(oy - _scaleApplied.oy) < POS_EPS &&
+        Math.abs(sc - _scaleApplied.sc) < SC_EPS;
+      if (sameTransform) {
+        _scaleApplied.vw = vw;
+        _scaleApplied.vh = vh;
+        return;
+      }
+      _scaleApplied = { vw, vh, ox, oy, sc };
+      sw.style.transform = `translate(${ox}px, ${oy}px) scale(${sc})`;
+    }
+
+    function scaleScreen() {
+      if (_scaleRaf != null) cancelAnimationFrame(_scaleRaf);
+      _scaleRaf = requestAnimationFrame(() => {
+        _scaleRaf = null;
+        scaleScreenApply();
+      });
     }
 
     // ═══════════════════════════════════════════════
@@ -2133,7 +2178,7 @@
     // ═══════════════════════════════════════════════
     createParticles();
     updateClock();
-    scaleScreen();
+    scaleScreenApply();
     setTimeout(() => refreshLucide(), 0);
 
     startTvViewRotation();
@@ -2145,6 +2190,7 @@
 
     setInterval(() => { renderScreen(); setTimeout(() => refreshLucide(), 0); }, 60000);
     setInterval(updateClock, 1000);
+    // Throttled: scaleScreen (rAF). GERİ AL: resize’ta doğrudan scaleScreen veya scaleScreenApply.
     window.addEventListener('resize', scaleScreen);
 
     fetchWeather();
