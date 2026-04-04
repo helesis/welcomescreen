@@ -332,7 +332,7 @@
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 300px));
+      grid-template-columns: repeat(4, minmax(0, 320px));
       grid-template-rows: 1fr;
       gap: 8px;
       padding: 10px;
@@ -1182,9 +1182,27 @@
       return Math.round(vpH / 2 - SDRUM_SLOT_H / 2) - index * SDRUM_SLOT_H;
     }
 
-    function sDrumApplyClasses(trackEl, activeIdx) {
+    function sDrumApplyClasses(trackEl, activeIdx, state) {
+      // s-active / adj / far atama. Restoran davulunda highlight ile aynı: aynı _sortMin grubundaki TÜM satırlar s-active.
+      // GERİ AL: İmza → (trackEl, activeIdx), gövde → her satır için sadece d = Math.abs(i - activeIdx); d===0 s-active, d===1 s-adj, else s-far.
+      // GERİ AL: sDrumSetIndex sonunda çağrıyı sDrumApplyClasses(trackEl, state.index) yap.
       trackEl.querySelectorAll('.sdrum-slot').forEach((el, i) => {
-        el.classList.remove('s-active','s-adj','s-far');
+        el.classList.remove('s-active', 's-adj', 's-far');
+        if (state && state.type === 'resto' && state.items && state.items.length && activeIdx >= 0) {
+          const t0 = state.items[activeIdx]._sortMin;
+          let iStart = activeIdx;
+          while (iStart > 0 && state.items[iStart - 1]._sortMin === t0) iStart--;
+          let iEnd = activeIdx;
+          while (iEnd < state.items.length - 1 && state.items[iEnd + 1]._sortMin === t0) iEnd++;
+          if (i >= iStart && i <= iEnd) {
+            el.classList.add('s-active');
+            return;
+          }
+          const d = i < iStart ? iStart - i : i - iEnd;
+          if (d === 1) el.classList.add('s-adj');
+          else el.classList.add('s-far');
+          return;
+        }
         const d = Math.abs(i - activeIdx);
         if (d === 0) el.classList.add('s-active');
         else if (d === 1) el.classList.add('s-adj');
@@ -1205,16 +1223,34 @@
 
       if (highlightEl) {
         const vpH = drumEl.clientHeight;
-        const top = Math.round(vpH / 2 - SDRUM_SLOT_H / 2);
-        highlightEl.style.top = top + 'px';
-        highlightEl.style.height = SDRUM_SLOT_H + 'px';
+        // ── Highlight yüksekliği (deneme; beğenilmezse geri al aşağıda) ──
+        // Restoran davulunda aynı açılış saatindeki ardışık satırlar tek çerçevede vurgulanır; aktivite davulları değişmez.
+        // GERİ AL: Bu "let hlTop..." ile iki style satırı arasındaki bloğu silip şunu kullan:
+        //   const top = Math.round(vpH / 2 - SDRUM_SLOT_H / 2);
+        //   highlightEl.style.top = top + 'px';
+        //   highlightEl.style.height = SDRUM_SLOT_H + 'px';
+        let hlTop = Math.round(vpH / 2 - SDRUM_SLOT_H / 2);
+        let hlH = SDRUM_SLOT_H;
+        if (state.type === 'resto' && state.items.length) {
+          const i = state.index;
+          const t0 = state.items[i]._sortMin;
+          let iStart = i;
+          while (iStart > 0 && state.items[iStart - 1]._sortMin === t0) iStart--;
+          let iEnd = i;
+          while (iEnd < state.items.length - 1 && state.items[iEnd + 1]._sortMin === t0) iEnd++;
+          const n = iEnd - iStart + 1;
+          hlH = n * SDRUM_SLOT_H;
+          hlTop = Math.round(vpH / 2 - SDRUM_SLOT_H / 2 - (i - iStart) * SDRUM_SLOT_H);
+        }
+        highlightEl.style.top = hlTop + 'px';
+        highlightEl.style.height = hlH + 'px';
       }
 
       if (!animate) trackEl.style.transition = 'none';
       trackEl.style.transform = 'translateY(' + sDrumCalcTy(state.index, drumEl) + 'px)';
       if (!animate) { void trackEl.offsetHeight; trackEl.style.transition = ''; }
 
-      sDrumApplyClasses(trackEl, state.index);
+      sDrumApplyClasses(trackEl, state.index, state);
     }
 
     function buildScheduleDrum(containerId, items, type, options) {
@@ -1381,9 +1417,8 @@
         'activity',
         { isEvening: true }
       );
-      const nowMin = getIstanbulMinutes();
       const restoItems = RESTO_MAP_DATA
-        .filter(r => isRestoOpen(r))
+        .filter(r => isRestoScheduledToday(r))
         .map(r => {
           const slot = restoTodaySlot(r);
           const hrs = slot ? slot.opens + '-' + slot.closes : r.opens + '-' + r.closes;
@@ -1395,7 +1430,10 @@
             _nameStr: r.cuisine ? r.name + ' — ' + r.cuisine : r.name
           };
         })
-        .sort((a, b) => a._sortMin - b._sortMin);
+        .sort((a, b) => {
+          if (a._sortMin !== b._sortMin) return a._sortMin - b._sortMin;
+          return String(a.name || '').localeCompare(String(b.name || ''), 'tr', { sensitivity: 'base' });
+        });
       buildScheduleDrum('drum-restos', restoItems, 'resto');
     }
 
@@ -2038,24 +2076,34 @@
     }
 
     function restoTodaySlot(r) {
-      const dow = (new Date().getDay() + 6) % 7;
-      const w = r.weekly;
-      if (w && typeof w === 'object') {
-        const slot = w[String(dow)];
-        if (slot === null || slot === undefined) return null;
-        const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
-        if (o && c) return { opens: o, closes: c };
+      const dow = getIstanbulDowMon0();
+      let w = r.weekly;
+      if (typeof w === 'string') {
+        try { w = JSON.parse(w); } catch (_) { w = null; }
       }
-      return { opens: r.opens||'09:00', closes: r.closes||'23:00' };
+      const fallback = () => ({ opens: r.opens || '09:00', closes: r.closes || '23:00' });
+      if (!w || typeof w !== 'object') return fallback();
+      const isEmpty = Array.isArray(w) ? w.length === 0 : Object.keys(w).length === 0;
+      if (isEmpty) return fallback();
+      const slot = Array.isArray(w) ? w[dow] : w[String(dow)];
+      if (slot === null || slot === undefined) return null;
+      const o = slot.o ?? slot.open, c = slot.c ?? slot.close;
+      if (o && c) return { opens: o, closes: c };
+      return null;
+    }
+
+    /** Bugün haftalıkta açık / saat tanımlı (henüz açılmamış olsa da davulda) */
+    function isRestoScheduledToday(r) {
+      return restoTodaySlot(r) !== null;
     }
 
     function isRestoOpen(r) {
       const slot = restoTodaySlot(r);
       if (!slot) return false;
-      const nowMin = new Date().getHours()*60 + new Date().getMinutes();
-      const [oh,om] = String(slot.opens).split(':').map(Number);
-      const [ch,cm] = String(slot.closes).split(':').map(Number);
-      const open = oh*60+om, close = ch*60+cm;
+      const nowMin = getIstanbulMinutes();
+      const [oh, om] = String(slot.opens).split(':').map(Number);
+      const [ch, cm] = String(slot.closes).split(':').map(Number);
+      const open = oh * 60 + om, close = ch * 60 + cm;
       return close < open ? (nowMin >= open || nowMin < close) : (nowMin >= open && nowMin < close);
     }
 

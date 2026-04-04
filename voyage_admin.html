@@ -1913,13 +1913,16 @@ function weeklyFromRestoRecord(rec) {
   return out;
 }
 
-function renderRestoEditWeeklyRows(weekly) {
+/** Kapalı gün veya eksik saat için özet: rec.opens / rec.closes (yoksa 12:00–23:00) */
+function renderRestoEditWeeklyRows(weekly, fallbackO, fallbackC) {
+  const fo = (fallbackO != null && String(fallbackO).trim()) ? String(fallbackO).trim() : '12:00';
+  const fc = (fallbackC != null && String(fallbackC).trim()) ? String(fallbackC).trim() : '23:00';
   const w = weekly || {};
   return DOW_TR.map((name, i) => {
     const slot = w[String(i)];
     const closed = slot === null || slot === undefined;
-    const o = closed ? '12:00' : String(slot.o ?? slot.open ?? '12:00');
-    const c = closed ? '23:00' : String(slot.c ?? slot.close ?? '23:00');
+    const o = closed ? fo : String(slot.o ?? slot.open ?? fo);
+    const c = closed ? fc : String(slot.c ?? slot.close ?? fc);
     return `<div class="weekly-row">
       <span class="dow">${name}</span>
       <label><input type="checkbox" id="r-edit-w-closed-${i}" ${closed ? 'checked' : ''}> Kapalı</label>
@@ -2070,7 +2073,9 @@ async function openRestaurantEditModal(id) {
     document.getElementById('r-edit-lat').value = rec.lat ?? '';
     document.getElementById('r-edit-lng').value = rec.lng ?? '';
     document.getElementById('r-edit-venue-key').value = rec.venue_key || '';
-    document.getElementById('r-edit-weekly-rows').innerHTML = renderRestoEditWeeklyRows(weeklyFromRestoRecord(rec));
+    const fo = (rec.opens != null && String(rec.opens).trim()) ? String(rec.opens).trim() : '12:00';
+    const fc = (rec.closes != null && String(rec.closes).trim()) ? String(rec.closes).trim() : '23:00';
+    document.getElementById('r-edit-weekly-rows').innerHTML = renderRestoEditWeeklyRows(weeklyFromRestoRecord(rec), fo, fc);
     document.getElementById('resto-modal-overlay').style.display = 'flex';
     document.body.style.overflow = 'hidden';
   } catch (e) {
